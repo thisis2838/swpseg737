@@ -1,0 +1,75 @@
+﻿@model HoaLacLaptopShop.Data.Laptop
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>Create</h1>
+
+<h4>Laptop</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="ProductId" class="control-label"></label>
+                <select asp-for="ProductId" class ="form-control" asp-items="ViewBag.ProductId"></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="CpuSeries" class="control-label"></label>
+                <select asp-for="CpuSeries" class ="form-control" asp-items="ViewBag.CpuSeries"></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="GpuSeries" class="control-label"></label>
+                <select asp-for="GpuSeries" class ="form-control" asp-items="ViewBag.GpuSeries"></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="ScreenSize" class="control-label"></label>
+                <input asp-for="ScreenSize" class="form-control" />
+                <span asp-validation-for="ScreenSize" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ScreenResolution" class="control-label"></label>
+                <input asp-for="ScreenResolution" class="form-control" />
+                <span asp-validation-for="ScreenResolution" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ScreenAspectRatio" class="control-label"></label>
+                <input asp-for="ScreenAspectRatio" class="form-control" />
+                <span asp-validation-for="ScreenAspectRatio" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="StorageType" class="control-label"></label>
+                <input asp-for="StorageType" class="form-control" />
+                <span asp-validation-for="StorageType" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="StorageSize" class="control-label"></label>
+                <input asp-for="StorageSize" class="form-control" />
+                <span asp-validation-for="StorageSize" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="RefreshRate" class="control-label"></label>
+                <input asp-for="RefreshRate" class="form-control" />
+                <span asp-validation-for="RefreshRate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Ram" class="control-label"></label>
+                <input asp-for="Ram" class="form-control" />
+                <span asp-validation-for="Ram" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
