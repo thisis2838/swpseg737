@@ -13,7 +13,7 @@ public partial class NewsPost
 
     public string Content { get; set; } = null!;
 
-    public int? Author { get; set; }
+    public int? AuthorId { get; set; }
 
-    public virtual User? AuthorNavigation { get; set; }
+    public virtual User? Author { get; set; }
 }

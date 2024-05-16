@@ -11,19 +11,19 @@ public partial class Laptop
 
     public int? GpuSeries { get; set; }
 
-    public int ScreenSize { get; set; }
+    public float ScreenSize { get; set; }
 
     public string ScreenResolution { get; set; } = null!;
 
     public string ScreenAspectRatio { get; set; } = null!;
 
-    public string StorageType { get; set; } = null!;
+    public byte StorageType { get; set; }
 
-    public int StorageSize { get; set; }
+    public float StorageSize { get; set; }
 
-    public int RefreshRate { get; set; }
+    public float RefreshRate { get; set; }
 
-    public int Ram { get; set; }
+    public float Ram { get; set; }
 
     public virtual LaptopCpuseries? CpuSeriesNavigation { get; set; }
 

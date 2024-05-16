@@ -11,9 +11,9 @@ namespace HoaLacLaptopShop.Controllers
 {
     public class LaptopsController : Controller
     {
-        private readonly HoaLacLaptopContext _context;
+        private readonly HoaLacLaptopShopContext _context;
 
-        public LaptopsController(HoaLacLaptopContext context)
+        public LaptopsController(HoaLacLaptopShopContext context)
         {
             _context = context;
         }
@@ -21,8 +21,8 @@ namespace HoaLacLaptopShop.Controllers
         // GET: Laptops
         public async Task<IActionResult> Index()
         {
-            var hoaLacLaptopContext = _context.Laptops.Include(l => l.CpuSeriesNavigation).Include(l => l.GpuSeriesNavigation).Include(l => l.Product);
-            return View(await hoaLacLaptopContext.ToListAsync());
+            var hoaLacLaptopShopContext = _context.Laptops.Include(l => l.CpuSeriesNavigation).Include(l => l.GpuSeriesNavigation).Include(l => l.Product);
+            return View(await hoaLacLaptopShopContext.ToListAsync());
         }
 
         // GET: Laptops/Details/5

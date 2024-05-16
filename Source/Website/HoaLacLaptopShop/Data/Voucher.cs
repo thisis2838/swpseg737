@@ -7,7 +7,7 @@ public partial class Voucher
 {
     public int Id { get; set; }
 
-    public string? Code { get; set; }
+    public string Code { get; set; } = null!;
 
     public float MinimumOrderPrice { get; set; }
 
