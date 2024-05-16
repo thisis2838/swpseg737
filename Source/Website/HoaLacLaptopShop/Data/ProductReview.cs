@@ -7,15 +7,13 @@ public partial class ProductReview
 {
     public int ProductId { get; set; }
 
-    public int UserId { get; set; }
+    public int ReviewerId { get; set; }
 
-    public DateTime Time { get; set; }
-
-    public short Rating { get; set; }
+    public int Rating { get; set; }
 
     public string Content { get; set; } = null!;
 
     public virtual Product Product { get; set; } = null!;
 
-    public virtual User User { get; set; } = null!;
+    public virtual User Reviewer { get; set; } = null!;
 }

@@ -9,9 +9,7 @@ public partial class Order
 
     public int? BuyerId { get; set; }
 
-    public int? AssetId { get; set; }
-
-    public short Status { get; set; }
+    public byte Status { get; set; }
 
     public string Address { get; set; } = null!;
 
@@ -23,13 +21,13 @@ public partial class Order
 
     public float TotalPrice { get; set; }
 
-    public bool PaymentMethod { get; set; }
+    public byte PaymentMethod { get; set; }
 
     public int? VoucherId { get; set; }
 
-    public virtual Asset? Asset { get; set; }
-
     public virtual User? Buyer { get; set; }
+
+    public virtual ICollection<OrderDetail> OrderDetails { get; set; } = new List<OrderDetail>();
 
     public virtual Voucher? Voucher { get; set; }
 }

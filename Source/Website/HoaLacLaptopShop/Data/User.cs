@@ -15,9 +15,9 @@ public partial class User
 
     public bool Gender { get; set; }
 
-    public string? PhoneNumber { get; set; }
+    public string PhoneNumber { get; set; } = null!;
 
-    public short Role { get; set; }
+    public byte Role { get; set; }
 
     public virtual ICollection<NewsPost> NewsPosts { get; set; } = new List<NewsPost>();
 

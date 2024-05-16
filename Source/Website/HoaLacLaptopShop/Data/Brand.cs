@@ -9,9 +9,9 @@ public partial class Brand
 
     public string Name { get; set; } = null!;
 
-    public string Country { get; set; } = null!;
-
     public string? Description { get; set; }
+
+    public string Country { get; set; } = null!;
 
     public virtual ICollection<LaptopCpuseries> LaptopCpuseries { get; set; } = new List<LaptopCpuseries>();
 
