@@ -1,19 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace HoaLacLaptopShop.Data;
+namespace HoaLacLaptopShop.Models;
 
-public partial class LaptopGpuseries
+public partial class LaptopGPUSeries
 {
-    public int Id { get; set; }
-
+    public int ID { get; set; }
     public string Name { get; set; } = null!;
-
     public string? Description { get; set; }
-
-    public int? ManufacturerId { get; set; }
+    public int? ManufacturerID { get; set; }
+    public virtual Brand? Manufacturer { get; set; }
 
     public virtual ICollection<Laptop> Laptops { get; set; } = new List<Laptop>();
 
-    public virtual Brand? Manufacturer { get; set; }
 }

@@ -1,4 +1,4 @@
-using HoaLacLaptopShop.Data;
+using HoaLacLaptopShop.Models;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
