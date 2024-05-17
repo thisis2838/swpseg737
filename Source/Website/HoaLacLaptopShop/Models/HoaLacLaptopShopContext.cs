@@ -54,7 +54,7 @@ public partial class HoaLacLaptopShopContext : DbContext
             entity.Property(e => e.ScreenResolution).HasMaxLength(20).IsUnicode(false).HasColumnName("screenResolution");
             entity.Property(e => e.ScreenSize).HasColumnName("screenSize");
             entity.Property(e => e.StorageSize).HasColumnName("storageSize");
-            entity.Property(e => e.StorageType).HasColumnName("storageType");
+            entity.Property(e => e.StorageType).HasConversion<byte>().HasColumnName("storageType");
 
             entity.HasOne(d => d.CPUSeries).WithMany(p => p.Laptops)
                 .HasForeignKey(d => d.CPUSeriesID)
@@ -130,12 +130,12 @@ public partial class HoaLacLaptopShopContext : DbContext
                 .HasColumnType("datetime")
                 .HasColumnName("creationTime");
             entity.Property(e => e.Note).HasColumnName("note");
-            entity.Property(e => e.PaymentMethod).HasColumnName("paymentMethod");
+            entity.Property(e => e.PaymentMethod).HasConversion<byte>().HasColumnName("paymentMethod");
             entity.Property(e => e.PhoneNumber)
                 .HasMaxLength(20)
                 .IsUnicode(false)
                 .HasColumnName("phoneNumber");
-            entity.Property(e => e.Status).HasColumnName("status");
+            entity.Property(e => e.Status).HasConversion<byte>().HasColumnName("status");
             entity.Property(e => e.TotalPrice).HasColumnName("totalPrice");
             entity.Property(e => e.VoucherID).HasColumnName("voucherID");
 
@@ -237,7 +237,7 @@ public partial class HoaLacLaptopShopContext : DbContext
                 .HasMaxLength(20)
                 .IsUnicode(false)
                 .HasColumnName("phoneNumber");
-            entity.Property(e => e.Role).HasColumnName("role");
+            entity.Property(e => e.Role).HasConversion<byte>().HasColumnName("role");
         });
 
         modelBuilder.Entity<Voucher>(entity =>

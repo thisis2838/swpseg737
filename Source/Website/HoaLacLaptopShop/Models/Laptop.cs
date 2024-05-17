@@ -18,11 +18,18 @@ public partial class Laptop
     public float ScreenSize { get; set; }
     public string ScreenResolution { get; set; } = null!;
     public string ScreenAspectRatio { get; set; } = null!;
-    public byte StorageType { get; set; }
+
+    public LaptopStorageType StorageType { get; set; }
     [Range(0, float.MaxValue)]
     public float StorageSize { get; set; }
     [Range(0, float.MaxValue)]
     public float RefreshRate { get; set; }
     [Range(0, float.MaxValue)]
     public float RAM { get; set; }
+}
+
+public enum LaptopStorageType : byte
+{
+    HDD,
+    SSD
 }
