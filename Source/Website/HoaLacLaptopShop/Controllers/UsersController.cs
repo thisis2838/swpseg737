@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using HoaLacLaptopShop.Models;
 
-namespace HoaLacLaptopShop.Views
+namespace HoaLacLaptopShop.Controllers
 {
     public class UsersController : Controller
     {
