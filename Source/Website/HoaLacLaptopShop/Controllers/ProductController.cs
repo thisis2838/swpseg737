@@ -27,20 +27,25 @@ namespace HoaLacLaptopShop.Controllers
                 Description = p.Description ?? "",
                 Link = _db.ProductImages.Where(pi => pi.ProductId == p.ID).Select(pi => pi.Link).ToList(),
                 Price = p.Price,
+                Stock = p.Stock,
+                Brand = _db.Brands.Where(b => b.ID == p.BrandId).FirstOrDefault(),
             });
             return View(rs);
         }
 
-        public IActionResult FilterByPrice(float maxPrice)
+        public IActionResult FilterByPrice(int minPrice, int maxPrice)
         {
-            var products = _db.Products.Where(p => p.Price <= maxPrice)
+            Console.WriteLine(minPrice + "##############$$$$$$$$$$$$$$$" + maxPrice);
+            var products = _db.Products.Where(p => p.Price <= maxPrice && p.Price >= minPrice)
                               .Select(p => new ProductVM
                               {
                                   Id = p.ID,
                                   Name = p.Name,
                                   Description = p.Description ?? "",
                                   Link = _db.ProductImages.Where(pi => pi.ProductId == p.ID).Select(pi => pi.Link).ToList(),
-                                  Price = p.Price
+                                  Price = p.Price,
+                                  Stock = p.Stock,
+                                  Brand = _db.Brands.Where(b => b.ID == p.BrandId).FirstOrDefault(),
                               })
                               .ToList();
 
@@ -49,7 +54,27 @@ namespace HoaLacLaptopShop.Controllers
 
         public IActionResult Detail(int pId)
         {
-            var product = _db.Products.Where(p => p.ID == pId).FirstOrDefault();
+            var product = _db.Products.Where(p => p.ID == pId).Select(p => new ProductVM
+			{
+				Id = p.ID,
+				Name = p.Name,
+				Description = p.Description ?? "",
+				Link = _db.ProductImages.Where(pi => pi.ProductId == p.ID).Select(pi => pi.Link).ToList(),
+				Price = p.Price,
+                Stock = p.Stock,
+                Brand = _db.Brands.Where(b => b.ID == p.BrandId).FirstOrDefault(),
+                ProductReview = _db.ProductReviews.Where(pr => pr.ProductId == p.ID).ToList(),
+                RelatedProducts = _db.Products.Where(rp => rp.ID != p.ID && rp.BrandId == p.BrandId).Select(p => new ProductVM
+                {
+                    Id = p.ID,
+                    Name = p.Name,
+                    Description = p.Description ?? "",
+                    Link = _db.ProductImages.Where(pi => pi.ProductId == p.ID).Select(pi => pi.Link).ToList(),
+                    Price = p.Price,
+                    Stock = p.Stock,
+                    Brand = _db.Brands.Where(b => b.ID == p.BrandId).FirstOrDefault(),
+                }).ToList(),
+            }).FirstOrDefault();
             return View(product);
         }
     }
