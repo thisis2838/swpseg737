@@ -20,3 +20,10 @@ html {
 body {
     margin-bottom: 60px;
 }
+
+.home-products-brand-nav {
+    float: none;
+    margin: 0 auto;
+    display: table;
+    table-layout: fixed;
+}

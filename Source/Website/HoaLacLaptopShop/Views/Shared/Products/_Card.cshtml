@@ -1,0 +1,20 @@
+﻿@model Product
+
+<div class="product-image-wrapper">
+	<div class="single-products">
+		<a class="productinfo text-center" href="@Url.Action("Index", "Product", new {id = Model.ID})">
+			<img src="/images/image1.jpg" alt="" style="width: 200px; height: 200px; object-fit: contain" />
+			<h2>@Model.Price.ToString("n0")đ</h2>
+			<p>@Model.Name</p>
+			@{
+				if (ViewData["User"] != null)
+				{
+					<a href="#" class="btn btn-default add-to-cart"><i class="fa fa-shopping-cart"></i>Add to cart</a>
+				}
+				else
+				{
+				}
+			}
+		</a>
+	</div>
+</div>
