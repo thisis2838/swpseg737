@@ -1,0 +1,12 @@
+﻿@model HoaLacLaptopShop.Models.NewsPost
+
+@{
+}
+
+<div class="row news-entry-long">
+    <div class=""><a href="@Url.Action("Details", new {id = Model.ID})"><h1>@Model.Title</h1></a></div>
+    <p class="news-summary">@Model.Content</p>
+    <div class="">
+        <span>Posted at <b>@Model.Time.ToString("hh:mm:ss tt")</b> at <b>@Model.Time.ToString("yyyy-MM-dd")</b> by <b>@Model.Author!.Name</b></span>
+    </div>
+</div>

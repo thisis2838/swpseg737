@@ -27,3 +27,34 @@ body {
     display: table;
     table-layout: fixed;
 }
+
+
+
+.news-entry-long {
+    background-color: #F7F7F5;
+    padding: 20px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    border-radius: 10px
+}
+.news-entry-long h1 {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+}
+.news-entry-long .news-summary {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.news-entry-short {
+    background-color: #F7F7F5;
+    border-radius: 10px;
+    padding: -15px;
+}
+.news-entry-short h2 {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+}
