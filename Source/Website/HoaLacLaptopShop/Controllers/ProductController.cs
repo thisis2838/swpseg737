@@ -35,7 +35,6 @@ namespace HoaLacLaptopShop.Controllers
 
         public IActionResult FilterByPrice(int minPrice, int maxPrice)
         {
-            Console.WriteLine(minPrice + "##############$$$$$$$$$$$$$$$" + maxPrice);
             var products = _db.Products.Where(p => p.Price <= maxPrice && p.Price >= minPrice)
                               .Select(p => new ProductVM
                               {
@@ -47,6 +46,7 @@ namespace HoaLacLaptopShop.Controllers
                                   Stock = p.Stock,
                                   Brand = _db.Brands.Where(b => b.ID == p.BrandId).FirstOrDefault(),
                               })
+                              .OrderByDescending(p => p.Price)
                               .ToList();
 
             return View("Index",products);
@@ -77,5 +77,22 @@ namespace HoaLacLaptopShop.Controllers
             }).FirstOrDefault();
             return View(product);
         }
+
+        public IActionResult Search(string search)
+        {
+            var products = _db.Products.Where(p => p.Name.ToLower().Contains(search.ToLower())).Select(p => new ProductVM
+            {
+                Id = p.ID,
+                Name = p.Name,
+                Description = p.Description ?? "",
+                Link = _db.ProductImages.Where(pi => pi.ProductId == p.ID).Select(pi => pi.Link).ToList(),
+                Price = p.Price,
+                Stock = p.Stock,
+                Brand = _db.Brands.Where(b => b.ID == p.BrandId).FirstOrDefault(),
+            });
+
+            return View("Index",products);
+        }
+
     }
 }

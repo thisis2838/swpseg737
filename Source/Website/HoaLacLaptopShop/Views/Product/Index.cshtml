@@ -137,14 +137,22 @@
                         <!--price-range-->
                         <h2>Price Range</h2>
                         @* <div class="well">
-                            <form id="priceForm" asp-controller="Product" asp-action="FilterByPrice">
-                                <input type="text" class="span2" data-slider-min="0" data-slider-max="60000000" name="maxPrice" data-slider-step="1000000" id="sl2">
-                                <br />
-                                <b>0</b> <b class="pull-right">60,000,000</b>
-                            </form>
+                        <form id="priceForm" asp-controller="Product" asp-action="FilterByPrice">
+                        <input type="text" class="span2" data-slider-min="0" data-slider-max="60000000" name="maxPrice" data-slider-step="1000000" id="sl2">
+                        <br />
+                        <b>0</b> <b class="pull-right">60,000,000</b>
+                        </form>
                         </div> *@
-                        <input type="text" id="price" readonly style="border:0;font-weight:bold"/>
-                        <div id="slider"></div>
+                        <form id="priceForm" asp-controller="Product" asp-action="FilterByPrice" style="margin-bottom:5px;">
+                            <span style="margin-bottom: 5px;">
+                                <input type="text" id="price" readonly style="border:0;font-weight:bold" />
+                                <input type="hidden" name="minPrice" value="" />
+                                <input type="hidden" name="maxPrice" value="" />
+                                <button type="submit" class="btn btn-info">View</button>
+                            </span>
+
+                            <div id="slider"></div>
+                        </form>
                     </div><!--/price-range-->
 
                 </div>
@@ -221,12 +229,9 @@
                     $("#price").val(ui.values[0] + " - " + ui.values[1]);
                     var min = ui.values[0];
                     var max = ui.values[1];
+                    $("input[name='minPrice']").val(min);
+                    $("input[name='maxPrice']").val(max);
 
-                    $.ajax({
-                        type: 'GET',
-                        url: '@Url.RouteUrl("FilterByPrice", "Product")',
-                        data: { minPrice: min, maxPrice: max },
-                    });
                 }
             });
         });
