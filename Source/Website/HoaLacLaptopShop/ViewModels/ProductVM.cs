@@ -12,7 +12,7 @@ namespace HoaLacLaptopShop.ViewModels
         public double Price { get; set; }
         public int Stock { get; set; }
         public Brand Brand { get; set; }
-        public List<ProductReview> ProductReview { get; set; }
+        public List<ReviewVM> ProductReview { get; set; }
         public List<ProductVM> RelatedProducts {  get; set; }
         public List<string> Link { get; set; }
     }
