@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using HoaLacLaptopShop.Models;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace HoaLacLaptopShop.Controllers
 {
@@ -43,7 +45,7 @@ namespace HoaLacLaptopShop.Controllers
         }
 
         // GET: Users/Create
-        public IActionResult Create()
+        public IActionResult Register()
         {
             return View();
         }
@@ -53,13 +55,32 @@ namespace HoaLacLaptopShop.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ID,Name,Email,PassHash,Gender,PhoneNumber,Role")] User user)
+        public async Task<IActionResult> Register([Bind("ID,Name,Email,PassHash,PhoneNumber")] User user, string gender)
         {
             if (ModelState.IsValid)
             {
+                using (var md5 = MD5.Create())
+                {
+                    byte[] data = md5.ComputeHash(Encoding.UTF8.GetBytes(user.PassHash));
+                    StringBuilder sb = new StringBuilder();
+                    for (int i = 0; i < data.Length; i++)
+                    {
+                        sb.Append(data[i].ToString("x2"));
+                    }
+                    user.PassHash = sb.ToString();
+                    if (gender.Equals("Male"))
+                    {
+                        user.Gender = true;
+                    }
+                    else if (gender.Equals("Female"))
+                    {
+                        user.Gender = false;
+                    }
+                }
+                user.Role = 0;
                 _context.Add(user);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction("Index", "Home");
             }
             return View(user);
         }

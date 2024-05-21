@@ -11,6 +11,7 @@ public partial class User
 
     public string Name { get; set; } = null!;
     public string Email { get; set; } = null!;
+    [Display(Name = "Password")]
     public string? PassHash { get; set; }
     public bool Gender { get; set; }
     [DisplayName("Phone Number")]
