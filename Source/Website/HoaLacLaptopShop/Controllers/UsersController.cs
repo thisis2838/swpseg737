@@ -8,6 +8,12 @@ using Microsoft.EntityFrameworkCore;
 using HoaLacLaptopShop.Models;
 using System.Security.Cryptography;
 using System.Text;
+using HoaLacLaptopShop.ViewModels;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
 
 namespace HoaLacLaptopShop.Controllers
 {
@@ -44,13 +50,27 @@ namespace HoaLacLaptopShop.Controllers
             return View(user);
         }
 
-        // GET: Users/Create
+        // GET: Users/Register
         public IActionResult Register()
         {
             return View();
         }
 
-        // POST: Users/Create
+        public static string ToMd5Hash(string password)
+        {
+            using (var md5 = MD5.Create())
+            {
+                byte[] data = md5.ComputeHash(Encoding.UTF8.GetBytes(password));
+                StringBuilder sb = new StringBuilder();
+                for (int i = 0; i < data.Length; i++)
+                {
+                    sb.Append(data[i].ToString("x2"));
+                }
+                return sb.ToString();
+            }
+        }
+
+        // POST: Users/Register
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
@@ -59,23 +79,14 @@ namespace HoaLacLaptopShop.Controllers
         {
             if (ModelState.IsValid)
             {
-                using (var md5 = MD5.Create())
+                user.PassHash = ToMd5Hash(user.PassHash);
+                if (gender.Equals("Male"))
                 {
-                    byte[] data = md5.ComputeHash(Encoding.UTF8.GetBytes(user.PassHash));
-                    StringBuilder sb = new StringBuilder();
-                    for (int i = 0; i < data.Length; i++)
-                    {
-                        sb.Append(data[i].ToString("x2"));
-                    }
-                    user.PassHash = sb.ToString();
-                    if (gender.Equals("Male"))
-                    {
-                        user.Gender = true;
-                    }
-                    else if (gender.Equals("Female"))
-                    {
-                        user.Gender = false;
-                    }
+                    user.Gender = true;
+                }
+                else if (gender.Equals("Female"))
+                {
+                    user.Gender = false;
                 }
                 user.Role = 0;
                 _context.Add(user);
@@ -85,7 +96,61 @@ namespace HoaLacLaptopShop.Controllers
             return View(user);
         }
 
+        #region Login
+        public IActionResult Login(string? ReturnUrl)
+        {
+            ViewBag.ReturnUrl = ReturnUrl;
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Login(LoginVM model, string? ReturnUrl)
+        {
+            ViewBag.ReturnUrl = ReturnUrl;
+            if (ModelState.IsValid)
+            {
+                var user = _context.Users.SingleOrDefault(us => us.Email == model.Email);
+                if (user == null)
+                {
+                    ModelState.AddModelError("Error", "Wrong login information");
+                }
+                else
+                {
+                    if (ToMd5Hash(model.Password) != ToMd5Hash(user.PassHash))
+                    {
+                        ModelState.AddModelError("Error", "Wrong login information");
+                    }
+                    else
+                    {
+                        var claims = new List<Claim>
+                        {
+                            new Claim(ClaimTypes.Email, user.Email),
+                            new Claim(ClaimTypes.Role, "Customer")
+                        };
+                        var claimsIdentity = new ClaimsIdentity(claims,
+                            CookieAuthenticationDefaults.AuthenticationScheme);
+                        var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
+                        await HttpContext.SignInAsync(claimsPrincipal);
+                        if (Url.IsLocalUrl(ReturnUrl))
+                        {
+                            return Redirect(ReturnUrl);
+                        }
+                        else
+                        {
+                            return Redirect("/Home");
+                        }
+                    }
+                }
+
+            }
+            await _context.SaveChangesAsync();
+            return View();
+        }
+        #endregion
+
         // GET: Users/Edit/5
+        [Authorize]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
