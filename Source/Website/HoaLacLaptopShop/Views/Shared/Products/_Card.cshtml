@@ -2,8 +2,8 @@
 
 <div class="product-image-wrapper">
 	<div class="single-products">
-		<a class="productinfo text-center" href="@Url.Action("Index", "Product", new {id = Model.ID})">
-			<img src="/images/image1.jpg" alt="" style="width: 200px; height: 200px; object-fit: contain" />
+		<a class="productinfo text-center" href="@Url.Action("Detail", "Product", new {id = Model.ID})">
+			<img src="@Model.ProductImages.First().Link" alt="" style="width: 200px; height: 200px; object-fit: contain" />
 			<h2>@Model.Price.ToString("n0")đ</h2>
 			<p>@Model.Name</p>
 			@{
