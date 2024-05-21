@@ -1,8 +1,10 @@
 ﻿using HoaLacLaptopShop.Models;
 using HoaLacLaptopShop.ViewModels;
+using Humanizer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing.Constraints;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
 
 namespace HoaLacLaptopShop.Controllers
 {
@@ -23,18 +25,29 @@ namespace HoaLacLaptopShop.Controllers
                 .AsQueryable();
         }
 
-        public IActionResult Index(ProductIndexViewArgs args)
+        public IActionResult Index(ProductIndexQuery args)
         {
             var products = GetProducts();
+            float min = products.Min(x => x.Price), max = products.Max(x => x.Price);
+            products = products.Where(x => x.IsLaptop ? args.ShowLaptops : args.ShowAccessories);
             if (args.Search != null) products = products.Where(x => x.Name.ToString().Contains(args.Search.ToString()));
-            if (args.BrandID.HasValue) products = products.Where(p => p.BrandId == args.BrandID.Value);
             if (args.MinPrice.HasValue) products = products.Where(x => x.Price >= args.MinPrice);
             if (args.MaxPrice.HasValue) products = products.Where(x => x.Price <= args.MaxPrice);
 
-            return View(new ProductIndexViewModel()
+            var list = products.ToList();
+            var brands = list.GroupBy(x => x.Brand!).Select(x => new BrandEntry(x.Key, x.Count())).ToList();
+            if (args.SelectedBrandIDs != null)
+                args.SelectedBrandIDs = args.SelectedBrandIDs.Where(x => brands.Select(y => y.Brand.ID).Contains(x)).ToList();
+            if (args.SelectedBrandIDs is null || args.SelectedBrandIDs.Count == 0)
+                args.SelectedBrandIDs = brands.Select(x => x.Brand.ID).ToList();
+            list = list.Where(x => args.SelectedBrandIDs.Contains(x.Brand!.ID)).ToList();
+
+            return View(new ProductIndexViewModel(args)
             {
-                Products = products.ToList(),
-                Arguments = args
+                Products = list,
+                MinPossiblePrice = min,
+                MaxPossiblePrice = max,
+                Brands = brands
             });
         }
 

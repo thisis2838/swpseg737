@@ -1,31 +1,12 @@
 ﻿@model HoaLacLaptopShop.ViewModels.ProductIndexViewModel
+@{
+    ViewData["HideSearch"] = true;
+}
+
 <section>
     <div class="container">
         <div class="row">
-            <div class="col-sm-3">
-                <form id="priceForm" asp-controller="Product" asp-action="Index" method="get" style="margin-bottom:5px;">
-                    <div style="margin-bottom: 30px">
-                        <h2 class="title text-center">Search</h2>
-                        <div class="row search_box">
-                            <input type="text" name="Search" value="@(Model.Arguments.Search ?? "")" style="width:100%"></input>
-                        </div>
-                    </div>
-                    <div>
-                        <h2 class="title text-center">Filters</h2>
-                        <div class="price-range">
-                            <h3 class="text-center">Price Range</h3>
-                            <span style="margin-bottom: 5px;">
-                                <input type="text" id="price" readonly style="border:0;font-weight:bold" />
-                                <input type="hidden" name="MinPrice" value="" />
-                                <input type="hidden" name="MaxPrice" value="" />
-                            </span>
-                            <div id="slider"></div>
-                        </div>
-                    </div>
-                    
-                    <button type="submit" class="btn btn-info">View</button>
-                </form>
-            </div>
+            <partial name="_IndexQuery.cshtml" model="@Model"/>
 
             <div class="col-sm-9 padding-right">
                 <div class="features_items">
@@ -52,39 +33,31 @@
     </div>
 </section>
 
-@section Scripts 
+@section Scripts
 {
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <script>
-        $(function () 
-        {
-            $("#slider").slider
-            ({
-                range: true,
-                min: 0,
-                max: 60000000,
-                step: 1000000,
-                values: [@(Model.Arguments.MinPrice ?? 0), @(Model.Arguments.MaxPrice ?? 0)],
-                slide: function (event, ui) 
-                {
-                    $("#price").val(ui.values[0] + " - " + ui.values[1]);
-                    var min = ui.values[0];
-                    var max = ui.values[1];
-                    $("input[name='MinPrice']").val(min);
-                    $("input[name='MaxPrice']").val(max);
-                }
-            });
-        });
         $(function () {
-            // Đặt giá trị mặc định cho slider
-            $("#slider").slider("values", [0, 60000000]);
-
-            // Cập nhật giá trị hiển thị và các trường ẩn
-            $("#price").val("0 - 60000000");
-            $("input[name='minPrice']").val(0);
-            $("input[name='maxPrice']").val(60000000);
+            var curMin = @(Model.MinPrice ?? @Model.MinPossiblePrice);
+            var curMax = @(Model.MaxPrice ?? @Model.MaxPossiblePrice);
+            var $slide = $("#slider").slider
+                ({
+                    range: true,
+                    min: @Model.MinPossiblePrice,
+                    max: @Model.MaxPossiblePrice,
+                    step: 1000000,
+                    values: [curMin, curMax],
+                    slide: function (event, ui) {
+                        var min = ui.values[0];
+                        var max = ui.values[1];
+                        $("#price").val(numberWithThousandthSeparators(min + " - " + max));
+                        $("input[name='MinPrice']").val(min);
+                        $("input[name='MaxPrice']").val(max);
+                    }
+                });
+            $("#price").val(numberWithThousandthSeparators(curMin + " - " + curMax));
         });
     </script>
 }

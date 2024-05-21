@@ -28,3 +28,7 @@ $(document).ready(function(){
 		});
 	});
 });
+
+function numberWithThousandthSeparators(x) {
+	return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+}
