@@ -63,7 +63,12 @@ namespace HoaLacLaptopShop.Controllers
 				Price = p.Price,
                 Stock = p.Stock,
                 Brand = _db.Brands.Where(b => b.ID == p.BrandId).FirstOrDefault(),
-                ProductReview = _db.ProductReviews.Where(pr => pr.ProductId == p.ID).ToList(),
+                ProductReview = _db.ProductReviews.Where(pr => pr.ProductId == p.ID).Select(pr => new ReviewVM
+                {
+                    User = _db.Users.Where(u => u.ID == pr.ReviewerId).FirstOrDefault().Name,
+                    Content = pr.Content,
+                    Rating = pr.Rating
+                }).ToList(),
                 RelatedProducts = _db.Products.Where(rp => rp.ID != p.ID && rp.BrandId == p.BrandId).Select(p => new ProductVM
                 {
                     Id = p.ID,
