@@ -1652,11 +1652,12 @@ h2.title {
   
 }
 
-
 .cart_delete  {
+height: 100%
   display: block;
-  margin-right: -12px;
-  overflow: hidden;
+  margin-right: -8px;
+  align-self: center;
+  /*overflow: hidden;*/
 }
 
 

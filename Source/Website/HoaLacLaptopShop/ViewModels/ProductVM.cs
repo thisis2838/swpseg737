@@ -1,6 +1,4 @@
-﻿
-
-namespace HoaLacLaptopShop.ViewModels
+﻿namespace HoaLacLaptopShop.ViewModels
 {
     public class ProductVM
     {

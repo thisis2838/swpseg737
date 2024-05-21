@@ -21,6 +21,10 @@ audio, canvas, video {
     display: none
 }
 
+.align-items-center {
+    align-items:center;
+}
+
 html {
     font-family: sans-serif;
     -webkit-text-size-adjust: 100%;
