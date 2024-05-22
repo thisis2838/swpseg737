@@ -36,13 +36,13 @@ public class CartController : Controller
 
         if (userId == null)
         {
-            return Redirect("/404");
+            return RedirectToAction("Error403", "Error");
         }
 
         var user = db.Users.SingleOrDefault(u => u.ID.ToString() == userId);
         if (user == null)
         {
-            return Redirect("/404");
+            return RedirectToAction("Error403", "Error");
         }
 
         var cart = Cart;
@@ -55,7 +55,7 @@ public class CartController : Controller
             if (product == null)
             {
                 TempData["Message"] = $"Not found product with id {id}";
-                return Redirect("/404");
+                return RedirectToAction("Error404", "Error");
             }
 
             item = new CartItem
