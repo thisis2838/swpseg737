@@ -84,7 +84,6 @@ namespace HoaLacLaptopShop.Controllers
                     {
                         user.Gender = false;
                     }
-                    user.Role = 0;
                     _context.Add(user);
                     await _context.SaveChangesAsync();
                     return RedirectToAction("Index", "Home");

@@ -10,7 +10,7 @@ public partial class Product
     public virtual Brand? Brand { get; set; }
 
     public string Name { get; set; } = null!;
-    public float Price { get; set; }
+    public int Price { get; set; }
     public int Stock { get; set; }
     public string? Description { get; set; }
 

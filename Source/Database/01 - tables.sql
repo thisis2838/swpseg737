@@ -19,8 +19,17 @@ CREATE TABLE Users
     phoneNumber
         VARCHAR(20)
         NOT NULL,
-    role
+    customerTier
         TINYINT
+        NOT NULL,
+    isSales
+        BIT
+        NOT NULL,
+    isMarketing
+        BIT
+        NOT NULL,
+    isAdmin
+        BIT
         NOT NULL
 );
 GO
@@ -54,7 +63,7 @@ CREATE TABLE Products
         NVARCHAR(MAX)
         NOT NULL,
     price
-        REAL
+        INTEGER
         NOT NULL,
     stock
         INTEGER
@@ -74,8 +83,8 @@ CREATE TABLE ProductImages
     displayIndex
         INTEGER
         NOT NULL,
-    link
-        NVARCHAR(MAX)
+    token
+        VARCHAR(MAX)
         NOT NULL,
 
     PRIMARY KEY (productID, displayIndex)
@@ -139,13 +148,13 @@ CREATE TABLE Laptops
         TINYINT
         NOT NULL,
     storageSize
-        REAL
+        INTEGER
         NOT NULL,
     refreshRate
-        REAL
+        INTEGER
         NOT NULL,
     ram
-        REAL
+        INTEGER
         NOT NULL
 );
 GO

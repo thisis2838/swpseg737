@@ -51,7 +51,7 @@ public class CartController : Controller
         // If not found item
         if (item == null)
         {
-            var product = db.Products.SingleOrDefault(p => p.ID == id);
+            var product = db.Products.Include(x => x.ProductImages).SingleOrDefault(p => p.ID == id);
             if (product == null)
             {
                 TempData["Message"] = $"Not found product with id {id}";
@@ -64,7 +64,7 @@ public class CartController : Controller
                 productName = product.Name,
                 price = product.Price,
                 quantity = quantity,
-                link = db.ProductImages.Where(pi => pi.ProductId == id).FirstOrDefault()?.Link ?? String.Empty,
+                link = product.ProductImages.First().GetProductImageURL()
             };
             cart.Add(item);
         }
@@ -122,7 +122,7 @@ public class CartController : Controller
             {
                 id = od.ProductId,
                 productName = od.Product.Name,
-                link = db.ProductImages.FirstOrDefault(pi => pi.ProductId == od.ProductId)?.Link ?? string.Empty,
+                link = db.ProductImages.FirstOrDefault(pi => pi.ProductId == od.ProductId)?.GetProductImageURL(),
                 price = od.Product.Price,
                 quantity = od.Amount
             })

@@ -1,11 +1,12 @@
-﻿@model Product
+﻿@using HoaLacLaptopShop.Helpers
+@model Product
 
 <div class="product-image-wrapper">
 	<div class="single-products">
 		<a class="productinfo text-center" href="@Url.Action("Detail", "Product", new {id = Model.ID})">
 			<div>
 				<img 
-					src="@Model.ProductImages.First().Link" 
+					src="@Model.ProductImages.First().GetProductImageURL()" 
 					alt="" 
 					style="width: 200px; height: 200px; object-fit: contain" 
 				/>

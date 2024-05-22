@@ -191,7 +191,7 @@ public partial class HoaLacLaptopShopContext : DbContext
 
             entity.Property(e => e.ProductId).HasColumnName("productID");
             entity.Property(e => e.DisplayIndex).HasColumnName("displayIndex");
-            entity.Property(e => e.Link).HasColumnName("link");
+            entity.Property(e => e.Token).IsUnicode(false).HasColumnName("token");
 
             entity.HasOne(d => d.Product).WithMany(p => p.ProductImages)
                 .HasForeignKey(d => d.ProductId)
@@ -238,7 +238,10 @@ public partial class HoaLacLaptopShopContext : DbContext
                 .HasMaxLength(20)
                 .IsUnicode(false)
                 .HasColumnName("phoneNumber");
-            entity.Property(e => e.Role).HasConversion<byte>().HasColumnName("role");
+            entity.Property(e => e.CustomerTier).HasConversion<byte>().HasColumnName("customerTier");
+            entity.Property(e => e.IsSales).HasColumnName("isSales");
+            entity.Property(e => e.IsMarketing).HasColumnName("isMarketing");
+            entity.Property(e => e.IsAdmin).HasColumnName("isAdmin");
         });
 
         modelBuilder.Entity<Voucher>(entity =>
