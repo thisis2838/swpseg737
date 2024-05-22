@@ -123,7 +123,7 @@
                         <div id="purchase-buttons">
                             @using (Html.BeginForm("AddToCart", "Cart", FormMethod.Post))
                             {
-                                <input type="number" name="quantity" value="1"/>
+                                <input type="number" name="quantity" value="1" min="1" max="@Model.Stock"/>
                                 <input type="hidden" name="id" value="@Model.ID"/>
                                 <button type="submit" class="btn btn-fefault cart pull-right">
                                     <i class="fa fa-shopping-cart"></i>

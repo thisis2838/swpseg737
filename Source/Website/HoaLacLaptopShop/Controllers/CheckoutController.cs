@@ -17,7 +17,7 @@ public class CheckoutController : Controller
     [HttpGet]
     public IActionResult Index()
     {
-        var userId = "1";// HttpContext.Session.GetString("DefaultUserId");
+        var userId =  HttpContext.Session.GetString("DefaultUserId");
         if (userId == null)
         {
             return RedirectToAction("Error403", "Error");
@@ -45,7 +45,7 @@ public class CheckoutController : Controller
     [HttpPost]
     public IActionResult ConfirmOrder(string name, string email, string phone, string address, string city, string district, PaymentMethod paymentMethod)
     {
-        var userId = "1";// HttpContext.Session.GetString("DefaultUserId");
+        var userId =  HttpContext.Session.GetString("DefaultUserId");
         if (userId == null)
         {
             return RedirectToAction("Error403", "Error");
