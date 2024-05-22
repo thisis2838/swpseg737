@@ -1,4 +1,6 @@
 using HoaLacLaptopShop.Models;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,14 +11,12 @@ builder.Services.AddDbContext<HoaLacLaptopShopContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("HoaLacLaptopShop"));
 });
-<<<<<<< Updated upstream
-=======
-builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(options =>
-{
-    options.LoginPath = "/Users/Login";
-    options.AccessDeniedPath = "/AccessDenied";
-});
->>>>>>> Stashed changes
+
+//builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(options =>
+//{
+//    options.LoginPath = "/Users/Login";
+//    options.AccessDeniedPath = "/AccessDenied";
+//});
 
 var app = builder.Build();
 
@@ -33,6 +33,7 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+//app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(

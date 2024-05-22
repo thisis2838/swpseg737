@@ -6,27 +6,25 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using HoaLacLaptopShop.Models;
-using System.Security.Cryptography;
-using System.Text;
 
 namespace HoaLacLaptopShop.Controllers
 {
-    public class UsersController : Controller
+    public class TestUserController : Controller
     {
         private readonly HoaLacLaptopShopContext _context;
 
-        public UsersController(HoaLacLaptopShopContext context)
+        public TestUserController(HoaLacLaptopShopContext context)
         {
             _context = context;
         }
 
-        // GET: Users
+        // GET: TestUser
         public async Task<IActionResult> Index()
         {
             return View(await _context.Users.ToListAsync());
         }
 
-        // GET: Users/Details/5
+        // GET: TestUser/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -44,65 +42,29 @@ namespace HoaLacLaptopShop.Controllers
             return View(user);
         }
 
-        public static string ToMd5Hash(string password)
-        {
-            using (var md5 = MD5.Create())
-            {
-                byte[] data = md5.ComputeHash(Encoding.UTF8.GetBytes(password));
-                StringBuilder sb = new StringBuilder();
-                for (int i = 0; i < data.Length; i++)
-                {
-                    sb.Append(data[i].ToString("x2"));
-                }
-                return sb.ToString();
-            }
-        }
-
-        // GET: Users/Create
-        public IActionResult Register()
+        // GET: TestUser/Create
+        public IActionResult Create()
         {
             return View();
         }
 
-        // POST: Users/Register
+        // POST: TestUser/Create
+        // To protect from overposting attacks, enable the specific properties you want to bind to.
+        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Register([Bind("ID,Name,Email,PassHash,PhoneNumber")] User user, string gender)
+        public async Task<IActionResult> Create([Bind("ID,Name,Email,PassHash,Gender,PhoneNumber,Role")] User user)
         {
             if (ModelState.IsValid)
             {
-                user.PassHash = ToMd5Hash(user.PassHash);
-                if (gender.Equals("Male"))
-                {
-                    user.Gender = true;
-                }
-                else if (gender.Equals("Female"))
-                {
-                    user.Gender = false;
-                }
-                user.Role = 0;
                 _context.Add(user);
                 await _context.SaveChangesAsync();
-                return RedirectToAction("Index", "Home");
+                return RedirectToAction(nameof(Index));
             }
             return View(user);
         }
 
-        // GET: Users/Login
-        public IActionResult Login()
-        {
-            return View();
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Login(string a)
-        {
-            await _context.SaveChangesAsync();
-            return RedirectToAction("Index", "Home");
-        }
-
-        // GET: Users/Edit/5
+        // GET: TestUser/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -118,7 +80,7 @@ namespace HoaLacLaptopShop.Controllers
             return View(user);
         }
 
-        // POST: Users/Edit/5
+        // POST: TestUser/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
@@ -153,7 +115,7 @@ namespace HoaLacLaptopShop.Controllers
             return View(user);
         }
 
-        // GET: Users/Delete/5
+        // GET: TestUser/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -171,7 +133,7 @@ namespace HoaLacLaptopShop.Controllers
             return View(user);
         }
 
-        // POST: Users/Delete/5
+        // POST: TestUser/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
