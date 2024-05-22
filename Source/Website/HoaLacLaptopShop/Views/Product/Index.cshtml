@@ -1,0 +1,64 @@
+﻿@model HoaLacLaptopShop.ViewModels.ProductIndexViewModel
+@{
+    ViewData["HideSearch"] = true;
+    ViewData["Title"] = "Products";
+}
+
+<section>
+    <div class="container">
+        <div class="row">
+            <partial name="_IndexQuery.cshtml" model="@Model"/>
+
+            <div class="col-sm-9 padding-right">
+                <div class="features_items">
+                    <!--features_items-->
+                    <h2 class="title text-center">Products</h2>
+                    @if (Model == null || Model.Products.Count() == 0)
+                    {
+                        <p>No products found.</p>
+                    }
+                    else
+                    {
+                        <div class="row">
+                            @foreach (var product in Model.Products)
+                            {
+                                <div class="col-md-3">
+                                    <partial name="/Views/Shared/Products/_Card.cshtml" model="@product" />
+                                </div>
+                            }
+                        </div>
+                    }
+                </div><!--features_items-->
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts
+{
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script>
+        $(function () {
+            var curMin = @(Model.MinPrice ?? @Model.MinPossiblePrice);
+            var curMax = @(Model.MaxPrice ?? @Model.MaxPossiblePrice);
+            var $slide = $("#slider").slider
+                ({
+                    range: true,
+                    min: @Model.MinPossiblePrice,
+                    max: @Model.MaxPossiblePrice,
+                    step: 1000000,
+                    values: [curMin, curMax],
+                    slide: function (event, ui) {
+                        var min = ui.values[0];
+                        var max = ui.values[1];
+                        $("#price").val(numberWithThousandthSeparators(min + " - " + max));
+                        $("input[name='MinPrice']").val(min);
+                        $("input[name='MaxPrice']").val(max);
+                    }
+                });
+            $("#price").val(numberWithThousandthSeparators(curMin + " - " + curMax));
+        });
+    </script>
+}
