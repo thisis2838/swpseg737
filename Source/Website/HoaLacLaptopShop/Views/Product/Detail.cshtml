@@ -147,7 +147,20 @@
                 </div>
                 <div class="tab-content">
                     <div class="tab-pane fade" id="details">
-                        <p>@Model.Description</p>
+                        CPU: <span>@Model.Laptop.CPUSeries.Name</span><br/>
+                        GPU: <span>@Model.Laptop.GPUSeries.Name</span><br />
+                        Screen size: <span>@Model.Laptop.ScreenSize inch</span><br />
+                        Screen resolution: <span>@Model.Laptop.ScreenResolution</span><br />
+                        Screen ratio: <span>@Model.Laptop.ScreenAspectRatio</span><br />
+                        Storage : <span>
+                            @Model.Laptop.StorageSize @if (@Model.Laptop.StorageType.ToString().Equals(1))
+                            {
+                                <span>HDD</span>
+                            }
+                            else
+                            {
+                                <span>SSD</span>
+                            }</span>
                     </div>
 
                     <div class="tab-pane fade" id="companyprofile">
