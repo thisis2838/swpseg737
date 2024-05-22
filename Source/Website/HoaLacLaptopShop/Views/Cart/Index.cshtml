@@ -1,0 +1,152 @@
+﻿@model IEnumerable<HoaLacLaptopShop.ViewModels.CartItem>
+@{
+    ViewData["Title"] = "Cart";
+}
+<link href="~/css/StyleSheet.css" rel="stylesheet" />
+
+<section id="cart_items">
+    <div class="container">
+        <div class="breadcrumbs">
+            <ol class="breadcrumb">
+                <li><a href="#">Home</a></li>
+                <li class="active">Shopping Cart</li>
+            </ol>
+        </div>
+        <div class="table-responsive cart_info">
+            <table class="table table-hover table-condensed">
+                <thead class="thead-light">
+                    <tr>
+                        <th class="image">Item</th>
+                        <th class="description"></th>
+                        <th class="price">Price</th>
+                        <th class="quantity">Quantity</th>
+                        <th class="total">Total</th>
+                        <th scope="col">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr class="row" style="align-items:center">
+                            <td class="cart_product">
+                                <a href="#"><img src="@item.link" alt="@item.productName" class="img-fluid" style="width: 120px; height: 120px;"></a>
+                            </td>
+                            <td class="cart_description">
+                                <h4><a asp-controller="Product" asp-action="Detail" asp-route-pid="@item.id">@item.productName</a></h4>
+                            </td>
+                            <td class="cart_price">
+                                <p>@item.price</p>
+                            </td>
+                            <td class="cart_quantity">
+                                <div class="d-flex align-items-center">
+                                    <a class="btn btn-outline-primary btn-sm mr-2" asp-controller="Cart" asp-action="AddToCart" asp-route-id="@item.id"> + </a>
+                                    <input class="form-control text-center" type="text" name="quantity" value="@item.quantity" autocomplete="off" style="width: 50px;">
+                                    <a class="btn btn-outline-primary btn-sm ml-2" asp-controller="Cart" asp-action="RemoveCart" asp-route-id="@item.id"> - </a>
+                                </div>
+                            </td>
+                            <td class="cart_total">
+                                <p class="font-weight-bold">@item.total</p>
+                            </td>
+                            <td class="cart_delete">
+                                <a class="btn btn-outline-danger btn-sm" asp-action="RemoveCart" asp-controller="Cart" asp-route-id="@item.id"><i class="fa fa-times"></i></a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <section id="do_action">
+        <div class="row" style="align-items: flex-end">
+            <div class="col-sm-6" style="float: right">
+                <div class="total_area">
+                    <ul>
+                        <li>Cart Sub Total <span>@Model.Sum(c => c.total)</span></li>
+                        <li>Shipping Cost <span>Free</span></li>
+                        <li>Total <span>@Model.Sum(c => c.total)</span></li>
+                    </ul>
+                    <a class="btn btn-default update" href="">Update</a>
+                    <a class="btn btn-default check_out" asp-action="Index" asp-controller="Checkout">Check Out</a>
+                </div>
+            </div>
+        </div>
+
+    </section>
+</section> <!--/#cart_items-->
+
+@* <section id="do_action">
+    <div class="container">
+        <div class="heading">
+            <h3>What would you like to do next?</h3>
+            <p>Choose if you have a discount code or reward points you want to use or would like to estimate your delivery cost.</p>
+        </div>
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="chose_area">
+                    <ul class="user_option">
+                        <li>
+                            <input type="checkbox">
+                            <label>Use Coupon Code</label>
+                        </li>
+                        <li>
+                            <input type="checkbox">
+                            <label>Use Gift Voucher</label>
+                        </li>
+                        <li>
+                            <input type="checkbox">
+                            <label>Estimate Shipping & Taxes</label>
+                        </li>
+                    </ul>
+                    <ul class="user_info">
+                        <li class="single_field">
+                            <label>Country:</label>
+                            <select>
+                                <option>United States</option>
+                                <option>Bangladesh</option>
+                                <option>UK</option>
+                                <option>India</option>
+                                <option>Pakistan</option>
+                                <option>Ucrane</option>
+                                <option>Canada</option>
+                                <option>Dubai</option>
+                            </select>
+
+                        </li>
+                        <li class="single_field">
+                            <label>Region / State:</label>
+                            <select>
+                                <option>Select</option>
+                                <option>Dhaka</option>
+                                <option>London</option>
+                                <option>Dillih</option>
+                                <option>Lahore</option>
+                                <option>Alaska</option>
+                                <option>Canada</option>
+                                <option>Dubai</option>
+                            </select>
+
+                        </li>
+                        <li class="single_field zip-field">
+                            <label>Zip Code:</label>
+                            <input type="text">
+                        </li>
+                    </ul>
+                    <a class="btn btn-default update" href="">Get Quotes</a>
+                    <a class="btn btn-default check_out" href="">Continue</a>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="total_area">
+                    <ul>
+                        <li>Cart Sub Total <span></span></li>
+                        <li>Eco Tax <span>$2</span></li>
+                        <li>Shipping Cost <span>Free</span></li>
+                        <li>Total <span>$61</span></li>
+                    </ul>
+                    <a class="btn btn-default update" href="">Update</a>
+                    <a class="btn btn-default check_out" href="">Check Out</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section><!--/#do_action--> *@
