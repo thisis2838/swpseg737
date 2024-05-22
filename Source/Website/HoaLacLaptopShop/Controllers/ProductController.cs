@@ -54,8 +54,8 @@ namespace HoaLacLaptopShop.Controllers
         {
             var product = GetProducts()
                 .Include(x => x.ProductReviews).ThenInclude(x => x.Reviewer)
-                .Where(x => x.IsLaptop).Include(x => x.Laptop).ThenInclude(x => x.CPUSeries)
-                .Where(x => x.IsLaptop).Include(x => x.Laptop).ThenInclude(x => x.GPUSeries)
+                .Include(x => x.Laptop).ThenInclude(x => x.CPUSeries)
+                .Include(x => x.Laptop).ThenInclude(x => x.GPUSeries)
                 .Where(p => p.ID == id).FirstOrDefault();
             return View(product);
         }
