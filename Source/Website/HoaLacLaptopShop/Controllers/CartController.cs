@@ -29,9 +29,10 @@ public class CartController : Controller
         return View(Cart);
     }
 
+    [HttpPost]
     public IActionResult AddToCart(int id, int quantity = 1)
     {
-        var userId = HttpContext.Session.GetString("DefaultUserId");
+        var userId = "1";// HttpContext.Session.GetString("DefaultUserId");
 
         if (userId == null)
         {
@@ -89,7 +90,7 @@ public class CartController : Controller
             cart.Remove(item);
 
             // Update the order in the database
-            UpdateOrder(HttpContext.Session.GetString("DefaultUserId"), cart);
+            UpdateOrder("1" /*HttpContext.Session.GetString("DefaultUserId")*/, cart);
 
             HttpContext.Session.Set(CART_KEY, cart);
         }
@@ -98,7 +99,7 @@ public class CartController : Controller
 
     public void LoadCartFromDatabase()
     {
-        var userId = HttpContext.Session.GetString("DefaultUserId");
+        var userId = "1";//HttpContext.Session.GetString("DefaultUserId");
         if (string.IsNullOrEmpty(userId))
         {
             return;
@@ -124,7 +125,8 @@ public class CartController : Controller
                 link = db.ProductImages.FirstOrDefault(pi => pi.ProductId == od.ProductId)?.Link ?? string.Empty,
                 price = od.Product.Price,
                 quantity = od.Amount
-            }).ToList();
+            })
+            .ToList();
 
             HttpContext.Session.Set(CART_KEY, cartItems);
         }

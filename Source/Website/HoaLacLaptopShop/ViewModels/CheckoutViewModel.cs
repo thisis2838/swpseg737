@@ -1,6 +1,6 @@
 ﻿namespace HoaLacLaptopShop.ViewModels
 {
-    public class CheckoutVM
+    public class CheckoutViewModel
     {
         public string Name { get; set; }
         public string Email { get; set; }
