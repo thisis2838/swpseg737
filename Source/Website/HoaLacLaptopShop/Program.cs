@@ -9,6 +9,14 @@ builder.Services.AddDbContext<HoaLacLaptopShopContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("HoaLacLaptopShop"));
 });
+<<<<<<< Updated upstream
+=======
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(options =>
+{
+    options.LoginPath = "/Users/Login";
+    options.AccessDeniedPath = "/AccessDenied";
+});
+>>>>>>> Stashed changes
 
 var app = builder.Build();
 
