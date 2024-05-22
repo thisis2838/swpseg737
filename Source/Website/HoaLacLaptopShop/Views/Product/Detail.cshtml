@@ -104,8 +104,8 @@
                 <div class="col-sm-4 product-information" style="height:100%">
                     <div id="view-product" style="height:100%">
                         <img id="product-main-img"
-                                src="@(Model.ProductImages.FirstOrDefault()?.Link ?? "")"
-                                style="object-fit: cover; height:100%"
+                             src="@Model.ProductImages.First().Link"
+                             style="object-fit: cover; height:100%"
                                 alt="" />
                     </div>
                 </div>
@@ -123,7 +123,7 @@
                         <div id="purchase-buttons">
                             @using (Html.BeginForm("AddToCart", "Cart", FormMethod.Post))
                             {
-                                <input type="number" name="quantity" value="1"/>
+                                <input type="number" name="quantity" value="1" min="1" max="@Model.Stock"/>
                                 <input type="hidden" name="id" value="@Model.ID"/>
                                 <button type="submit" class="btn btn-fefault cart pull-right">
                                     <i class="fa fa-shopping-cart"></i>
@@ -147,7 +147,36 @@
                 </div>
                 <div class="tab-content">
                     <div class="tab-pane fade" id="details">
-                        <p>@Model.Description</p>
+                        @if(Model.IsLaptop)
+                        {
+                            <p>CPU: <span>@Model.Laptop.CPUSeries.Name</span></p>
+                            <p>GPU: <span>@Model.Laptop.GPUSeries.Name</span><br /></p>
+                            <p>
+                                Screen size: <span>@Model.Laptop.ScreenSize inch</span><br />
+                            </p>
+                            <p>
+                                Screen resolution: <span>@Model.Laptop.ScreenResolution</span><br />
+                            </p>
+                            <p>
+                                Screen ratio: <span>@Model.Laptop.ScreenAspectRatio</span><br />
+                            </p>
+                            <p>
+                                Storage : <span>
+                                  
+                                                        @Model.Laptop.StorageSize @if (@Model.Laptop.StorageType.ToString().Equals(1))
+                            {
+                                <span>HDD</span>
+                            }
+                            else
+                            {
+                                <span>SSD</span>
+                            }</span>
+                            </p>
+                        } else
+                        {
+                            @Model.Description
+                        }
+
                     </div>
 
                     <div class="tab-pane fade" id="companyprofile">
