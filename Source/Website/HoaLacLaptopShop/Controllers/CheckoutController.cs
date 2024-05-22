@@ -89,7 +89,7 @@ public class CheckoutController : Controller
         HttpContext.Session.Remove(CartController.CART_KEY);
 
         TempData["Message"] = "Order has been placed successfully!";
-        return RedirectToAction("Home");
+        return RedirectToAction("Index", "Home");
     }
 
     public IActionResult OrderConfirmation(int orderId)

@@ -133,7 +133,8 @@
                 data.results.forEach(province => {
                     const option = document.createElement("option"); // Create a new option
                     option.text = province.province_name; // Set the text of the option to the province name
-                    option.value = province.province_id; // Set the value of the option to the province id
+                    option.value = province.province_name; // Set the value of the option to the province id
+                    option.setAttribute("data-id", province.province_id); // Set the data-id attribute to the province id
                     provinceSelect.add(option); // Add the option to the select tag
                 });
             })
@@ -168,8 +169,8 @@
 
     // Add an onchange event to the province select tag
     provinceSelect.onchange = function () {
-        // Get the id of the selected province
-        const province_id = this.value;
+        // Get the id of the selected province from the data-id attribute
+        const province_id = this.options[this.selectedIndex].getAttribute("data-id");
         // Call the function to get the list of districts by province
         getDistricts(province_id);
     };
