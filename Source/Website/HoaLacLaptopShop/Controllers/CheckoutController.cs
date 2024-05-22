@@ -66,7 +66,7 @@ public class CheckoutController : Controller
 
         var order = _context.Orders.SingleOrDefault(o => o.BuyerID == user.ID && o.Status == OrderStatus.Created);
         order.Status = OrderStatus.Delivering; // Change status to delivering
-        order.Address = $"{address}, {city}, {district}"; // Adjusted address format
+        order.Address = $"{address}, {district}, {city}"; // Adjusted address format
         order.PhoneNumber = phone;
         order.CreationTime = DateTime.Now;
         order.TotalPrice = (float)cartItems.Sum(c => c.total);
