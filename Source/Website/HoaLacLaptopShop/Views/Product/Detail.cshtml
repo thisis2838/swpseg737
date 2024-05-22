@@ -121,10 +121,15 @@
                             <p><b>Brand:</b> @Model.Brand.Name</p>
                         </div>
                         <div id="purchase-buttons">
-                            <button type="button" class="btn btn-fefault cart pull-right">
-                                <i class="fa fa-shopping-cart"></i>
-                                Add to cart
-                            </button>
+                            @using (Html.BeginForm("AddToCart", "Cart", FormMethod.Post))
+                            {
+                                <input type="number" name="quantity" value="1"/>
+                                <input type="hidden" name="id" value="@Model.ID"/>
+                                <button type="submit" class="btn btn-fefault cart pull-right">
+                                    <i class="fa fa-shopping-cart"></i>
+                                    Add to cart
+                                </button>
+                            }
                         </div>
 
                     </div><!--/product-information-->

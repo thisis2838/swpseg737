@@ -39,9 +39,16 @@
                             </td>
                             <td class="cart_quantity">
                                 <div class="d-flex align-items-center">
-                                    <a class="btn btn-outline-primary btn-sm mr-2" asp-controller="Cart" asp-action="AddToCart" asp-route-id="@item.id"> + </a>
+                                    <form asp-controller="Cart" asp-action="AddToCart">
+                                        <input type="hidden" name="id" value="@item.id" />
+                                        <button type="submit">+</button>
+                                    </form>
                                     <input class="form-control text-center" type="text" name="quantity" value="@item.quantity" autocomplete="off" style="width: 50px;">
-                                    <a class="btn btn-outline-primary btn-sm ml-2" asp-controller="Cart" asp-action="RemoveCart" asp-route-id="@item.id"> - </a>
+                                    <form asp-controller="Cart" asp-action="AddToCart">
+                                        <input type="hidden" name="id" value="@item.id" />
+                                        <input type="hidden" name="quantity" value="-1" />
+                                        <button type="submit">-</button>
+                                    </form>
                                 </div>
                             </td>
                             <td class="cart_total">

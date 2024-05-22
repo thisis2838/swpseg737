@@ -7,23 +7,23 @@ using HoaLacLaptopShop.Helpers;
 
 public class CheckoutController : Controller
 {
-    private readonly HoaLacLaptopShopContext db;
+    private readonly HoaLacLaptopShopContext _context;
 
     public CheckoutController(HoaLacLaptopShopContext context)
     {
-        db = context;
+        _context = context;
     }
 
     [HttpGet]
     public IActionResult Index()
     {
-        var userId = HttpContext.Session.GetString("DefaultUserId");
+        var userId = "1";// HttpContext.Session.GetString("DefaultUserId");
         if (userId == null)
         {
             return Redirect("/404");
         }
 
-        var user = db.Users.SingleOrDefault(u => u.ID.ToString() == userId);
+        var user = _context.Users.SingleOrDefault(u => u.ID.ToString() == userId);
         if (user == null)
         {
             return Redirect("/404");
@@ -31,7 +31,7 @@ public class CheckoutController : Controller
 
         var cartItems = HttpContext.Session.Get<List<CartItem>>(CartController.CART_KEY) ?? new List<CartItem>();
 
-        var model = new CheckoutVM
+        var model = new CheckoutViewModel
         {
             Name = user.Name,
             Email = user.Email,
@@ -45,13 +45,13 @@ public class CheckoutController : Controller
     [HttpPost]
     public IActionResult ConfirmOrder(string name, string email, string phone, string address, string city, string district, PaymentMethod paymentMethod)
     {
-        var userId = HttpContext.Session.GetString("DefaultUserId");
+        var userId = "1";// HttpContext.Session.GetString("DefaultUserId");
         if (userId == null)
         {
             return Redirect("/404");
         }
 
-        var user = db.Users.SingleOrDefault(u => u.ID.ToString() == userId);
+        var user = _context.Users.SingleOrDefault(u => u.ID.ToString() == userId);
         if (user == null)
         {
             return Redirect("/404");
@@ -64,7 +64,7 @@ public class CheckoutController : Controller
             return RedirectToAction("Index", "Cart");
         }
 
-        var order = db.Orders.SingleOrDefault(o => o.BuyerID == user.ID && o.Status == OrderStatus.Created);
+        var order = _context.Orders.SingleOrDefault(o => o.BuyerID == user.ID && o.Status == OrderStatus.Created);
         order.Status = OrderStatus.Delivering; // Change status to delivering
         order.Address = $"{address}, {city}, {district}"; // Adjusted address format
         order.PhoneNumber = phone;
@@ -74,7 +74,7 @@ public class CheckoutController : Controller
 
         foreach (var cartItem in cartItems)
         {
-            var product = db.Products.SingleOrDefault(p => p.ID == cartItem.id);
+            var product = _context.Products.SingleOrDefault(p => p.ID == cartItem.id);
             if (product == null)
             {
                 TempData["Message"] = $"Product with id {cartItem.id} not found!";
@@ -83,7 +83,7 @@ public class CheckoutController : Controller
             product.Stock -= cartItem.quantity;
             // Decrease the product quantity
         }
-        db.SaveChanges();
+        _context.SaveChanges();
 
         // Clear the cart after confirming the order
         HttpContext.Session.Remove(CartController.CART_KEY);
@@ -94,7 +94,7 @@ public class CheckoutController : Controller
 
     public IActionResult OrderConfirmation(int orderId)
     {
-        var order = db.Orders
+        var order = _context.Orders
             .Include(o => o.OrderDetails)
             .ThenInclude(od => od.Product)
             .FirstOrDefault(o => o.ID == orderId);
