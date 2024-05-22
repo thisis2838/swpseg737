@@ -21,8 +21,7 @@ namespace HoaLacLaptopShop.Controllers
         {
             return _context.Products
                 .Include(x => x.ProductImages)
-                .Include(x => x.Brand)
-                .AsQueryable();
+                .Include(x => x.Brand);
         }
 
         public IActionResult Index(ProductIndexQuery args)
@@ -53,7 +52,9 @@ namespace HoaLacLaptopShop.Controllers
 
         public IActionResult Detail(int id)
         {
-            var product = GetProducts().Where(p => p.ID == id).FirstOrDefault();
+            var product = GetProducts()
+                .Include(x => x.ProductReviews).ThenInclude(x => x.Reviewer)
+                .Where(p => p.ID == id).FirstOrDefault();
             return View(product);
         }
     }

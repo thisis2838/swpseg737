@@ -650,7 +650,7 @@ ul.sub-menu {
 }
 
 .category-products {
-    border: 1px solid #F7F7F0;
+    border: 2px solid #F7F7F0;
     margin-bottom: 35px;
     padding-bottom: 20px;
     padding-top: 15px;
@@ -758,7 +758,7 @@ h2.title:before {
     }
 
 .brands-name {
-    border: 1px solid #F7F7F0;
+    border: 2px solid #F7F7F0;
     padding-bottom: 20px;
     padding-top: 15px;
 }
@@ -794,7 +794,7 @@ h2.title:before {
 
 .well {
     background-color: #FFFFFF;
-    border: 1px solid #F7F7F0;
+    border: 2px solid #F7F7F0;
     border-radius: 4px;
     box-shadow: none;
     margin-bottom: 20px;
@@ -1157,11 +1157,6 @@ h2.title {
 }
 
 
-#reviews {
-    padding-left: 25px;
-    padding-right: 25px;
-}
-
 .product-details {
     margin-bottom: 40px;
     overflow: hidden;
@@ -1175,7 +1170,7 @@ h2.title {
 }
 
     .view-product img {
-        border: 1px solid #F7F7F0;
+        border: 2px solid #F7F7F0;
         height: 380px;
         width: 100%;
     }
@@ -1218,14 +1213,6 @@ h2.title {
             background: #ccccc6;
         }
 
-.product-information {
-    border: 1px solid #F7F7F0;
-    overflow: hidden;
-    padding-bottom: 60px;
-    padding-left: 60px;
-    padding-top: 60px;
-    position: relative;
-}
 
 .newarrival {
     position: absolute;
@@ -1233,53 +1220,7 @@ h2.title {
     left: 0
 }
 
-.product-information h2 {
-    color: #363432;
-    font-family: 'Roboto', sans-serif;
-    font-size: 20px;
-    margin-top: 0;
-}
 
-.product-information p {
-    color: #696763;
-    font-family: 'Roboto', sans-serif;
-    margin-bottom: 5px;
-}
-
-.product-information span {
-    display: inline-block;
-    margin-bottom: 8px;
-    margin-top: 18px;
-}
-
-    .product-information span span {
-        color: #FE980F;
-        float: left;
-        font-family: 'Roboto', sans-serif;
-        font-size: 30px;
-        font-weight: 700;
-        margin-right: 20px;
-        margin-top: 0px;
-    }
-
-    .product-information span input {
-        border: 1px solid #DEDEDC;
-        color: #696763;
-        font-family: 'Roboto', sans-serif;
-        font-size: 20px;
-        font-weight: 700;
-        height: 33px;
-        outline: medium none;
-        text-align: center;
-        width: 50px;
-    }
-
-    .product-information span label {
-        color: #696763;
-        font-family: 'Roboto', sans-serif;
-        font-weight: 700;
-        margin-right: 5px;
-    }
 
 .share {
     margin-top: 15px;
@@ -1299,7 +1240,7 @@ h2.title {
 
 
 .shop-details-tab {
-    border: 1px solid #F7F7F0;
+    border: 2px solid #F7F7F0;
     margin-bottom: 75px;
     margin-left: 15px;
     margin-right: 15px;
@@ -2005,7 +1946,7 @@ h2.title {
 
 .blog-post-area
 .single-blog-post a img {
-    border: 1px solid #F7F7F0;
+    border: 2px solid #F7F7F0;
     width: 100%;
     margin-bottom: 30px
 }
@@ -2140,7 +2081,7 @@ h2.title {
         }
 
 .rating-area {
-    border: 1px solid #F7F7F0;
+    border: 2px solid #F7F7F0;
     direction: block;
     overflow: hidden;
 }
@@ -2205,7 +2146,7 @@ h2.title {
 }
 
 .commnets {
-    border: 1px solid #F7F7F0;
+    border: 2px solid #F7F7F0;
     padding: 18px 18px 18px 0;
     margin-bottom: 50px
 }
@@ -2285,7 +2226,7 @@ h2.title {
 }
 
 .response-area .media {
-    border: 1px solid #F7F7F0;
+    border: 2px solid #F7F7F0;
     padding: 18px 18px 18px 0;
     margin-bottom: 27px
 }
@@ -2369,7 +2310,7 @@ h2.title {
     }
 
     .replay-box form input {
-        border: 1px solid #F7F7F0;
+        border: 2px solid #F7F7F0;
         color: #ADB2B2;
         font-size: 12px;
         margin-bottom: 22px;
