@@ -20,13 +20,13 @@ public class CheckoutController : Controller
         var userId = HttpContext.Session.GetString("DefaultUserId");
         if (userId == null)
         {
-            return Redirect("/404");
+            return RedirectToAction("Error403", "Error");
         }
 
         var user = db.Users.SingleOrDefault(u => u.ID.ToString() == userId);
         if (user == null)
         {
-            return Redirect("/404");
+            return RedirectToAction("Error403", "Error");
         }
 
         var cartItems = HttpContext.Session.Get<List<CartItem>>(CartController.CART_KEY) ?? new List<CartItem>();
@@ -48,13 +48,13 @@ public class CheckoutController : Controller
         var userId = HttpContext.Session.GetString("DefaultUserId");
         if (userId == null)
         {
-            return Redirect("/404");
+            return RedirectToAction("Error403", "Error");
         }
 
         var user = db.Users.SingleOrDefault(u => u.ID.ToString() == userId);
         if (user == null)
         {
-            return Redirect("/404");
+             return RedirectToAction("Error403", "Error");
         }
 
         var cartItems = HttpContext.Session.Get<List<CartItem>>(CartController.CART_KEY) ?? new List<CartItem>();
