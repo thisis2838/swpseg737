@@ -234,7 +234,7 @@ CREATE TABLE OrderDetails
 );
 GO
 
-CREATE TABLE ProductReview
+CREATE TABLE ProductReviews
 (
     productID
         INTEGER
@@ -248,6 +248,9 @@ CREATE TABLE ProductReview
     content
         NVARCHAR(MAX)
         NOT NULL,
+    time
+	DATETIME
+	NOT NULL
 
     PRIMARY KEY (productID, reviewerID)
 );

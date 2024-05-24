@@ -209,6 +209,7 @@ public partial class HoaLacLaptopShopContext : DbContext
             entity.Property(e => e.ReviewerId).HasColumnName("reviewerID");
             entity.Property(e => e.Content).HasColumnName("content");
             entity.Property(e => e.Rating).HasColumnName("rating");
+            entity.Property(e => e.Time).HasColumnName("time");
 
             entity.HasOne(d => d.Product).WithMany(p => p.ProductReviews)
                 .HasForeignKey(d => d.ProductId)
