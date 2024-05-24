@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Configuration;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace HoaLacLaptopShop.Models;
 
-public partial class HoaLacLaptopShopContext : DbContext
+public partial class HoaLacLaptopShopContext : IdentityDbContext<User>
 {
     public virtual DbSet<User> Users { get; set; }
     public virtual DbSet<Brand> Brands { get; set; }
