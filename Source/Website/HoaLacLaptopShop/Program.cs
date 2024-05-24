@@ -20,6 +20,8 @@ builder.Services.AddSession(options =>
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
 });
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 

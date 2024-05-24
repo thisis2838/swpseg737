@@ -12,6 +12,8 @@ namespace HoaLacLaptopShop.Controllers
     using System.Security.Cryptography;
     using System.Text;
     using global::HoaLacLaptopShop.Models;
+    using global::HoaLacLaptopShop.ViewModels;
+    using Microsoft.AspNetCore.Identity;
 
     namespace HoaLacLaptopShop.Controllers
     {
@@ -99,10 +101,32 @@ namespace HoaLacLaptopShop.Controllers
 
             [HttpPost]
             [ValidateAntiForgeryToken]
-            public async Task<IActionResult> Login(string a)
+            public async Task<IActionResult> Login(LoginViewModel model)
             {
-                await _context.SaveChangesAsync();
-                return RedirectToAction("Index", "Home");
+                if (ModelState.IsValid)
+                {
+                    var user = _context.Users.SingleOrDefault(x => x.Email.Equals(model.Email));
+                    if (user != null)
+                    {
+                        if (user.PassHash.Equals(ToMd5Hash(model.Password)))
+                        {
+                            HttpContext.Session.SetString("DefaultUserId", user.ID.ToString());
+                            HttpContext.Session.SetString("Username", user.Name);
+                            return RedirectToAction("Index", "Home");
+                        }
+                        else
+                        {
+                            ViewBag.Error = "Invalid information";
+                            return View(model);
+                        }
+                    }
+                    else
+                    {
+                        ViewBag.Error = "You need to login first";
+                        return View(model);
+                    }
+                }
+                return View(model);
             }
 
             // GET: Users/Edit/5

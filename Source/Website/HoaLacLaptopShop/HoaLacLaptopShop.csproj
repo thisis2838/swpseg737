@@ -49,10 +49,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="ViewModels\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Include="wwwroot\js\site.js" />
   </ItemGroup>
 
