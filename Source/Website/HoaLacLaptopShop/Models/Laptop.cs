@@ -20,12 +20,12 @@ public partial class Laptop
     public string ScreenAspectRatio { get; set; } = null!;
 
     public LaptopStorageType StorageType { get; set; }
-    [Range(0, float.MaxValue)]
-    public float StorageSize { get; set; }
-    [Range(0, float.MaxValue)]
-    public float RefreshRate { get; set; }
-    [Range(0, float.MaxValue)]
-    public float RAM { get; set; }
+    [Range(0, int.MaxValue)]
+    public int StorageSize { get; set; }
+    [Range(0, int.MaxValue)]
+    public int RefreshRate { get; set; }
+    [Range(0, int.MaxValue)]
+    public int RAM { get; set; }
 }
 
 public enum LaptopStorageType : byte

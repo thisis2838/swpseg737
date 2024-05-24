@@ -1,0 +1,187 @@
+﻿@model HoaLacLaptopShop.ViewModels.CheckoutViewModel
+
+<link href="~/css/StyleSheet.css" rel="stylesheet">
+<link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+<div class="row">
+    <div class="col-lg-8">
+        <form asp-action="ConfirmOrder" method="post" asp-controller="Checkout">
+            <!-- Billing Info -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Billing Info</h5>
+                    <div class="form-row">
+                        <div class="form-group col-lg-6">
+                            <label for="name">Name</label>
+                            <input type="text" class="form-control" id="name" name="name" value="@Model.Name" placeholder="Enter name" required>
+                        </div>
+                        <div class="form-group col-lg-6">
+                            <label for="email">Email Address</label>
+                            <input type="email" class="form-control" id="email" name="email" value="@Model.Email" placeholder="Enter email" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-lg-6">
+                            <label for="phone">Phone</label>
+                            <input type="tel" class="form-control" id="phone" name="phone" value="@Model.Phone" placeholder="Enter Phone no." required>
+                        </div>
+                        <div class="form-group col-lg-6">
+                            <label for="country">Country</label>
+                            <input type="text" class="form-control" id="country" name="country" value="Viet Nam" disabled>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-lg-6">
+                            <label for="city">City</label>
+                            <select class="form-control" id="city" name="city" name="Choose city" required>
+                                <option value="">Select City</option>
+                                // Options rendered here
+                            </select>
+                        </div>
+                        <div class="form-group col-lg-6">
+                            <label for="district">District</label>
+                            <select class="form-control" id="district" name="district" required>
+                                <option value="">Select District</option>
+                                // Options rendered here
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="address">Address</label>
+                        <input type="text" class="form-control" id="address" name="address" placeholder="Enter address" required>
+                    </div>
+
+                </div>
+            </div>
+           
+            <!-- Payment Info -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Payment Info</h5>
+                    <div class="row">
+                        <div class="col-lg-3 selection-card active text-center" onclick="selectCard(this)">
+                            <div class="custom-control custom-radio">
+                                <input type="radio" id="creditCard" name="paymentMethod" class="custom-control-input" value="CreditCard"/>
+                                <label class="custom-control-label">
+                                    <i class="bx bx-credit-card d-block h2 mb-3"></i>
+                                    <span class="mb-3 d-block">Credit / Debit Card</span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 selection-card text-center" onclick="selectCard(this)">
+                            <div class="custom-control custom-radio">
+                                <input type="radio" id="cashOnDelivery" name="paymentMethod" class="custom-control-input" value="CashOnDelivery"/>
+                                <label class="custom-control-label">
+                                    <i class="bx bx-money d-block h2 mb-3"></i>
+                                    <span class="mb-3 d-block">Cash on Delivery</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <button class="btn btn-primary btn-lg" type="submit">Confirm Order</button>
+        </form>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="order-summary">
+            <h5>Order Summary</h5>
+            <ul class="list-group mb-3">
+                @foreach (var item in Model.CartItems)
+                {
+                    <li class="list-group-item d-flex justify-content-between" style="align-items: center">
+                        <div>
+                            <h6 class="my-0">@item.productName</h6>
+                            <small class="text-muted">$@item.price * @item.quantity</small>
+                        </div>
+                        <span class="text-muted">$@item.total</span>
+                    </li>
+                }
+                <li class="list-group-item d-flex justify-content-between">
+                    <span>Sub Total</span>
+                    <strong>@Model.CartItems.Sum(i => i.total)</strong>
+                </li>
+                <li class="list-group-item d-flex justify-content-between">
+                    <span>Discount</span>
+                    <strong>-$0</strong> <!-- Adjust as necessary -->
+                </li>
+                <li class="list-group-item d-flex justify-content-between">
+                    <strong>Total</strong>
+                    <strong>@Model.CartItems.Sum(i => i.total)</strong>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+</div>
+<!-- Order Summary -->
+<!-- Bootstrap JS and dependencies -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+@*     <script src="https://cdn.jsdelivr.net/npm/popperjs/core@2.5.4/dist/umd/popper.min.js"></script> *@
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script>
+    // Get the select tags by id
+    const provinceSelect = document.getElementById("city");
+    const districtSelect = document.getElementById("district");
+
+    function getProvinces() {
+        // Call the API from the website you provided
+        fetch('https://vapi.vnappmob.com/api/province')
+            .then(response => response.json()) // Convert the data to JSON
+            .then(data => {
+                // Loop through the list of provinces and add to the select tag
+                data.results.forEach(province => {
+                    const option = document.createElement("option"); // Create a new option
+                    option.text = province.province_name; // Set the text of the option to the province name
+                    option.value = province.province_name; // Set the value of the option to the province id
+                    option.setAttribute("data-id", province.province_id); // Set the data-id attribute to the province id
+                    provinceSelect.add(option); // Add the option to the select tag
+                });
+            })
+            .catch(error => {
+                console.error('There was an error calling the API:', error); // Display the error if there is one
+            });
+    }
+
+    // Function to call the API and get the list of districts by province
+    function getDistricts(province_id) {
+        // Call the API from the website you provided with the parameter being the province id
+        fetch('https://vapi.vnappmob.com/api/province/district/' + province_id)
+            .then(response => response.json()) // Convert the data to JSON
+            .then(data => {
+                // Clear the old options in the district select tag
+                districtSelect.innerHTML = '<option value="">Select District</option>';
+                // Loop through the list of districts and add to the select tag
+                data.results.forEach(district => {
+                    const option = document.createElement("option"); // Create a new option
+                    option.text = district.district_name; // Set the text of the option to the district name
+                    option.value = district.district_name; // Set the value of the option to the district id
+                    districtSelect.add(option); // Add the option to the select tag
+                });
+            })
+            .catch(error => {
+                console.error('There was an error calling the API:', error); // Display the error if there is one
+            });
+    }
+
+    // Call the function to get the list of provinces when the webpage is loaded
+    getProvinces();
+
+    // Add an onchange event to the province select tag
+    provinceSelect.onchange = function () {
+        // Get the id of the selected province from the data-id attribute
+        const province_id = this.options[this.selectedIndex].getAttribute("data-id");
+        // Call the function to get the list of districts by province
+        getDistricts(province_id);
+    };
+
+    function selectCard(element) {
+        // Remove 'active' class from all siblings
+        const siblings = element.parentNode.children;
+        for (let i = 0; i < siblings.length; i++) {
+            siblings[i].classList.remove('active');
+        }
+        // Add 'active' class to the clicked element
+        element.classList.add('active');
+    }
+</script>
