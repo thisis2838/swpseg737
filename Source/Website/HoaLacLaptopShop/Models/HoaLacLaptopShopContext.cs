@@ -203,7 +203,7 @@ public partial class HoaLacLaptopShopContext : DbContext
         {
             entity.HasKey(e => new { e.ProductId, e.ReviewerId }).HasName("PK__ProductR__D0B0ECA9C4398442");
 
-            entity.ToTable("ProductReview");
+            entity.ToTable("ProductReviews");
 
             entity.Property(e => e.ProductId).HasColumnName("productID");
             entity.Property(e => e.ReviewerId).HasColumnName("reviewerID");

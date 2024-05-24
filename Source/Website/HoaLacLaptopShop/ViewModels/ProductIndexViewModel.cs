@@ -20,7 +20,7 @@ namespace HoaLacLaptopShop.ViewModels
         [DisplayName("Show Laptops")]
         public bool ShowLaptops { get; set; } = true;
         [DisplayName("Show Accessories")]
-        public bool ShowAccessories { get; set; } = true;
+        public bool ShowAccessories { get; set; } = false;
         public string? Search { get; set; } = null;
         public int? MinPrice { get; init; } = null;
         public int? MaxPrice { get; init; } = null;

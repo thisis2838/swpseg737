@@ -110,7 +110,7 @@ namespace HoaLacLaptopShop.Controllers
                     {
                         if (user.PassHash.Equals(ToMd5Hash(model.Password)))
                         {
-                            HttpContext.Session.SetString("DefaultUserId", user.ID.ToString());
+                            HttpContext.Session.SetString("CurrentUserId", user.ID.ToString());
                             HttpContext.Session.SetString("Username", user.Name);
                             return RedirectToAction("Index", "Home");
                         }

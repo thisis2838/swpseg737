@@ -6,7 +6,7 @@ namespace HoaLacLaptopShop.Helpers
     {
         public static string GetProductImageURL(this ProductImage image)
         {
-            return $"/images/product/{image.Token}.jpeg";
+            return $"/images/products/{image.Token}.jpeg";
         }
     }
 }

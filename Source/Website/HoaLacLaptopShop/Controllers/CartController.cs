@@ -32,7 +32,7 @@ public class CartController : Controller
     [HttpPost]
     public IActionResult AddToCart(int id, int quantity = 1)
     {
-        var userId =  HttpContext.Session.GetString("DefaultUserId");
+        var userId =  HttpContext.Session.GetString("CurrentUserId");
 
         if (userId == null)
         {
@@ -90,7 +90,7 @@ public class CartController : Controller
             cart.Remove(item);
 
             // Update the order in the database
-            UpdateOrder("1" /*HttpContext.Session.GetString("DefaultUserId")*/, cart);
+            UpdateOrder(HttpContext.Session.GetString("CurrentUserId"), cart);
 
             HttpContext.Session.Set(CART_KEY, cart);
         }
@@ -99,7 +99,7 @@ public class CartController : Controller
 
     public void LoadCartFromDatabase()
     {
-        var userId = HttpContext.Session.GetString("DefaultUserId");
+        var userId = HttpContext.Session.GetString("CurrentUserId");
         if (string.IsNullOrEmpty(userId))
         {
             return;

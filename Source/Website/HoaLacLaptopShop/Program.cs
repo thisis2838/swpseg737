@@ -40,10 +40,11 @@ app.UseRouting();
 // Enable session middleware
 app.UseSession();
 // Set defaultuser with id 1 in DB to test
+/*
 app.Use(async (context, next) =>
 {
     // Check if the session doesn't have a default user set
-    if (string.IsNullOrEmpty(context.Session.GetString("DefaultUserId")))
+    if (string.IsNullOrEmpty(context.Session.GetString("CurrentUserId")))
     {
         using (var scope = app.Services.CreateScope())
         {
@@ -53,13 +54,14 @@ app.Use(async (context, next) =>
             if (defaultUser != null)
             {
                 // Assuming DefaultUserId is a string
-                context.Session.SetString("DefaultUserId", defaultUser.ID.ToString());
+                context.Session.SetString("CurrentUserId", defaultUser.ID.ToString());
             }
         }
     }
 
     await next.Invoke();
 });
+*/
 
 app.UseAuthorization();
 

@@ -162,22 +162,23 @@
                                 Screen ratio: <span>@Model.Laptop.ScreenAspectRatio</span><br />
                             </p>
                             <p>
-                                Storage : <span>
-                                  
-                                                        @Model.Laptop.StorageSize @if (@Model.Laptop.StorageType.ToString().Equals(1))
-                            {
-                                <span>HDD</span>
-                            }
-                            else
-                            {
-                                <span>SSD</span>
-                            }</span>
+                                Storage : 
+                                <span>
+                                @Model.Laptop.StorageSize 
+                                @if (@Model.Laptop.StorageType.ToString().Equals(1))
+                                {
+                                    <span>HDD</span>
+                                }
+                                else
+                                {
+                                    <span>SSD</span>
+                                }
+                                </span>
                             </p>
-                        } else
-                        {
+                        } 
+                        <p style="white-space: pre-wrap;">
                             @Model.Description
-                        }
-
+                        </p>
                     </div>
 
                     <div class="tab-pane fade" id="companyprofile">
