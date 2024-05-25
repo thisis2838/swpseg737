@@ -13,7 +13,10 @@ namespace HoaLacLaptopShop.Controllers
     using System.Text;
     using global::HoaLacLaptopShop.Models;
     using global::HoaLacLaptopShop.ViewModels;
-    using Microsoft.AspNetCore.Identity;
+    using Microsoft.AspNetCore.Authorization;
+    using System.Security.Claims;
+    using Microsoft.AspNetCore.Authentication;
+    using Microsoft.AspNetCore.Authentication.Cookies;
 
     namespace HoaLacLaptopShop.Controllers
     {
@@ -64,7 +67,8 @@ namespace HoaLacLaptopShop.Controllers
                 }
             }
 
-            // GET: Users/Create
+            #region Register
+            // GET: Users/Register
             public IActionResult Register()
             {
                 return View();
@@ -93,42 +97,80 @@ namespace HoaLacLaptopShop.Controllers
                 }
                 return View(user);
             }
+            #endregion
 
+            #region Login
             // GET: Users/Login
-            public IActionResult Login()
+            public IActionResult Login(string? ReturnUrl)
             {
+                ViewBag.ReturnUrl = ReturnUrl;
                 return View();
             }
 
             [HttpPost]
             [ValidateAntiForgeryToken]
-            public async Task<IActionResult> Login(LoginViewModel model)
+            public async Task<IActionResult> Login(LoginViewModel model, string? ReturnUrl)
             {
+                ViewBag.ReturnUrl = ReturnUrl;
                 if (ModelState.IsValid)
                 {
                     var user = _context.Users.SingleOrDefault(x => x.Email.Equals(model.Email));
-                    if (user != null)
+                    if (user == null)
                     {
-                        if (user.PassHash.Equals(ToMd5Hash(model.Password)))
-                        {
-                            HttpContext.Session.SetString("DefaultUserId", user.ID.ToString());
-                            HttpContext.Session.SetString("Username", user.Name);
-                            return RedirectToAction("Index", "Home");
-                        }
-                        else
-                        {
-                            ViewBag.Error = "Invalid information";
-                            return View(model);
-                        }
+                        ModelState.AddModelError("Error", "Invalid input information");
                     }
                     else
                     {
-                        ViewBag.Error = "You need to login first";
-                        return View(model);
+                        if (!ToMd5Hash(model.Password).Equals(user.PassHash))
+                        {
+                            ModelState.AddModelError("Error", "Invalid input information");
+                        }
+                        else
+                        {
+                            HttpContext.Session.SetString("UserId", user.ID.ToString());
+                            HttpContext.Session.SetString("Username", user.Name);
+                            var claims = new List<Claim>
+                            {
+                                new Claim("UserId", user.ID.ToString()),
+                                new Claim(ClaimTypes.Email, user.Email),
+                                new Claim(ClaimTypes.Name, user.Name),
+                            };
+                            var claimsIdentity = new ClaimsIdentity(claims,
+                                CookieAuthenticationDefaults.AuthenticationScheme);
+                            var claimsPrinciple = new ClaimsPrincipal(claimsIdentity);
+                            await HttpContext.SignInAsync(claimsPrinciple);
+                            if (Url.IsLocalUrl(ReturnUrl))
+                            {
+                                return Redirect(ReturnUrl);
+                            }
+                            else
+                            {
+                                return RedirectToAction("Index", "Home");
+                            }
+                        }
                     }
                 }
+                ModelState.AddModelError("Error", "Invalid input information");
                 return View(model);
             }
+            #endregion
+
+            [HttpGet]
+            public IActionResult Logout()
+            {
+                HttpContext.Session.Remove("UserId");
+                HttpContext.Session.Remove("Username");
+                HttpContext.SignOutAsync();
+                return RedirectToAction("Index", "Home");
+            }
+
+            [Authorize]
+            #region Profile
+            public IActionResult Profile()
+            {
+                return View();
+            }
+            #endregion
 
             // GET: Users/Edit/5
             public async Task<IActionResult> Edit(int? id)

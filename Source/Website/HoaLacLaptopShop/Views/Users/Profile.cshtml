@@ -1,0 +1,23 @@
+﻿@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+@{
+    ViewData["Title"] = "User Profile";
+}
+
+<h1>Your profile</h1>
+
+<div>
+    @DateTime.Now
+</div>
+<div>
+    @{
+        var username = HttpContextAccessor.HttpContext.Session.GetString("Username");
+        if (username != null)
+        {
+            <span>@username</span>
+        }
+        else
+        {
+        <span>No info</span>
+        }
+    }
+</div>

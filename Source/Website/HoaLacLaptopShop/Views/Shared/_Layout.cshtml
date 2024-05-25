@@ -66,9 +66,8 @@
                                         if (username != null)
                                         {
                                             <span>Hello @username</span>
-                                            <form method="post" asp-controller="User" aspcontroller="Logout">
-                                                <input type="submit" value="Logout" />
-                                            </form>
+                                            
+                                        <li><a href="@Url.Action("Logout", "Users")" style="margin-right: 0">Logout</a></li>
                                         }
                                         else
                                         {
