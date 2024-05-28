@@ -27,7 +27,7 @@ namespace HoaLacLaptopShop.Controllers
         public IActionResult Index(ProductIndexQuery args)
         {
             var products = GetProducts();
-            float min = products.Min(x => x.Price), max = products.Max(x => x.Price);
+            int min = products.Min(x => x.Price), max = products.Max(x => x.Price);
             products = products.Where(x => x.IsLaptop ? args.ShowLaptops : args.ShowAccessories);
             if (args.Search != null) products = products.Where(x => x.Name.ToString().Contains(args.Search.ToString()));
             if (args.MinPrice.HasValue) products = products.Where(x => x.Price >= args.MinPrice);

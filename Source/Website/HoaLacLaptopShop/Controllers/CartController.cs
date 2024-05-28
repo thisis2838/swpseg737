@@ -32,7 +32,7 @@ public class CartController : Controller
     [HttpPost]
     public IActionResult AddToCart(int id, int quantity = 1)
     {
-        var userId =  HttpContext.Session.GetString("DefaultUserId");
+        var userId =  HttpContext.Session.GetString("CurrentUserId");
 
         if (userId == null)
         {
@@ -51,7 +51,7 @@ public class CartController : Controller
         // If not found item
         if (item == null)
         {
-            var product = db.Products.SingleOrDefault(p => p.ID == id);
+            var product = db.Products.Include(x => x.ProductImages).SingleOrDefault(p => p.ID == id);
             if (product == null)
             {
                 TempData["Message"] = $"Not found product with id {id}";
@@ -64,7 +64,7 @@ public class CartController : Controller
                 productName = product.Name,
                 price = product.Price,
                 quantity = quantity,
-                link = db.ProductImages.Where(pi => pi.ProductId == id).FirstOrDefault()?.Link ?? String.Empty,
+                link = product.ProductImages.First().GetProductImageURL()
             };
             cart.Add(item);
         }
@@ -90,7 +90,7 @@ public class CartController : Controller
             cart.Remove(item);
 
             // Update the order in the database
-            UpdateOrder("1" /*HttpContext.Session.GetString("DefaultUserId")*/, cart);
+            UpdateOrder(HttpContext.Session.GetString("CurrentUserId"), cart);
 
             HttpContext.Session.Set(CART_KEY, cart);
         }
@@ -99,7 +99,7 @@ public class CartController : Controller
 
     public void LoadCartFromDatabase()
     {
-        var userId = HttpContext.Session.GetString("DefaultUserId");
+        var userId = HttpContext.Session.GetString("CurrentUserId");
         if (string.IsNullOrEmpty(userId))
         {
             return;
@@ -122,7 +122,7 @@ public class CartController : Controller
             {
                 id = od.ProductId,
                 productName = od.Product.Name,
-                link = db.ProductImages.FirstOrDefault(pi => pi.ProductId == od.ProductId)?.Link ?? string.Empty,
+                link = db.ProductImages.FirstOrDefault(pi => pi.ProductId == od.ProductId)?.GetProductImageURL(),
                 price = od.Product.Price,
                 quantity = od.Amount
             })

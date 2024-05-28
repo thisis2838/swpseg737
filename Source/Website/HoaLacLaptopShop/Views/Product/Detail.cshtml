@@ -1,4 +1,5 @@
-﻿@model HoaLacLaptopShop.Models.Product
+﻿@using HoaLacLaptopShop.Helpers
+@model HoaLacLaptopShop.Models.Product
 @{
     ViewData["Title"] = "Detail";
 }
@@ -104,7 +105,7 @@
                 <div class="col-sm-4 product-information" style="height:100%">
                     <div id="view-product" style="height:100%">
                         <img id="product-main-img"
-                             src="@Model.ProductImages.First().Link"
+                             src="@Model.ProductImages.First().GetProductImageURL()"
                              style="object-fit: cover; height:100%"
                                 alt="" />
                     </div>
@@ -161,22 +162,23 @@
                                 Screen ratio: <span>@Model.Laptop.ScreenAspectRatio</span><br />
                             </p>
                             <p>
-                                Storage : <span>
-                                  
-                                                        @Model.Laptop.StorageSize @if (@Model.Laptop.StorageType.ToString().Equals(1))
-                            {
-                                <span>HDD</span>
-                            }
-                            else
-                            {
-                                <span>SSD</span>
-                            }</span>
+                                Storage : 
+                                <span>
+                                @Model.Laptop.StorageSize 
+                                @if (@Model.Laptop.StorageType.ToString().Equals(1))
+                                {
+                                    <span>HDD</span>
+                                }
+                                else
+                                {
+                                    <span>SSD</span>
+                                }
+                                </span>
                             </p>
-                        } else
-                        {
+                        } 
+                        <p style="white-space: pre-wrap;">
                             @Model.Description
-                        }
-
+                        </p>
                     </div>
 
                     <div class="tab-pane fade" id="companyprofile">
