@@ -117,7 +117,7 @@ namespace HoaLacLaptopShop.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Details), new {id = newsPost.ID });
+                return RedirectToAction(nameof(Details), new { id = newsPost.ID });
             }
             ViewData["AuthorId"] = new SelectList(_context.Users, "ID", "ID", newsPost.AuthorId);
             return View(newsPost);

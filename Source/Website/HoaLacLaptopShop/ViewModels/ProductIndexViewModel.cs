@@ -20,10 +20,10 @@ namespace HoaLacLaptopShop.ViewModels
         [DisplayName("Show Laptops")]
         public bool ShowLaptops { get; set; } = true;
         [DisplayName("Show Accessories")]
-        public bool ShowAccessories { get; set; } = true;
+        public bool ShowAccessories { get; set; } = false;
         public string? Search { get; set; } = null;
-        public float? MinPrice { get; init; } = null;
-        public float? MaxPrice { get; init; } = null;
+        public int? MinPrice { get; init; } = null;
+        public int? MaxPrice { get; init; } = null;
         public List<int>? SelectedBrandIDs { get; set; } = null;
     }
 
@@ -32,8 +32,8 @@ namespace HoaLacLaptopShop.ViewModels
         public required List<Product> Products;
         public required List<BrandEntry> Brands;
 
-        public required float MinPossiblePrice;
-        public required float MaxPossiblePrice;
+        public required int MinPossiblePrice;
+        public required int MaxPossiblePrice;
 
         public ProductIndexViewModel(ProductIndexQuery query)
         {

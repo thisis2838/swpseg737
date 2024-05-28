@@ -1,5 +1,7 @@
 using HoaLacLaptopShop.Helpers;
 using HoaLacLaptopShop.Models;
+using Microsoft.AspNetCore.Authentication.Cookies;
+
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,6 +13,11 @@ builder.Services.AddDbContext<HoaLacLaptopShopContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("HoaLacLaptopShop"));
 });
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(options =>
+{
+    options.LoginPath = "/User/Login";
+    options.AccessDeniedPath = "/AccessDenied";
+});
 
 builder.Services.AddDistributedMemoryCache();
 
@@ -20,6 +27,8 @@ builder.Services.AddSession(options =>
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
 });
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
@@ -35,30 +44,35 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+
 // Enable session middleware
 app.UseSession();
 // Set defaultuser with id 1 in DB to test
-//app.Use(async (context, next) =>
-//{
-//    // Check if the session doesn't have a default user set
-//    if (string.IsNullOrEmpty(context.Session.GetString("DefaultUserId")))
-//    {
-//        using (var scope = app.Services.CreateScope())
-//        {
-//            var dbContext = scope.ServiceProvider.GetRequiredService<HoaLacLaptopShopContext>();
-//            var defaultUser = dbContext.Users.FirstOrDefault(u => u.ID == 1);
+/*
+app.Use(async (context, next) =>
+{
+    // Check if the session doesn't have a default user set
+    if (string.IsNullOrEmpty(context.Session.GetString("CurrentUserId")))
+    {
+        using (var scope = app.Services.CreateScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<HoaLacLaptopShopContext>();
+            var defaultUser = dbContext.Users.FirstOrDefault(u => u.ID == 1);
 
-//            if (defaultUser != null)
-//            {
-//                // Assuming DefaultUserId is a string
-//                context.Session.SetString("DefaultUserId", defaultUser.ID.ToString());
-//            }
-//        }
-//    }
+            if (defaultUser != null)
+            {
+                // Assuming DefaultUserId is a string
+                context.Session.SetString("CurrentUserId", defaultUser.ID.ToString());
+            }
+        }
+    }
 
-//    await next.Invoke();
-//});
+    await next.Invoke();
+});
+*/
 
+
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(name: "default", pattern: "{controller=Home}/{action=Index}/{id?}");

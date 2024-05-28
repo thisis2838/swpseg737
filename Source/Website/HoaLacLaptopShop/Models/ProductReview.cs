@@ -13,4 +13,5 @@ public partial class ProductReview
 
     public int Rating { get; set; }
     public string Content { get; set; } = null!;
+    public DateTime Time { get; set; }
 }

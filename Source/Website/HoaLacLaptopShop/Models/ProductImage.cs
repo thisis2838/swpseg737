@@ -9,5 +9,5 @@ public partial class ProductImage
     public virtual Product Product { get; set; } = null!;
 
     public int DisplayIndex { get; set; }
-    public string Link { get; set; } = null!;
+    public string Token { get; set; } = null!;
 }
