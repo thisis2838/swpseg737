@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing.Constraints;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
+using System.Security.Cryptography;
 
 namespace HoaLacLaptopShop.Controllers
 {
@@ -27,7 +28,7 @@ namespace HoaLacLaptopShop.Controllers
         public IActionResult Index(ProductIndexQuery args)
         {
             var products = GetProducts();
-            float min = products.Min(x => x.Price), max = products.Max(x => x.Price);
+            int min = products.Min(x => x.Price), max = products.Max(x => x.Price);
             products = products.Where(x => x.IsLaptop ? args.ShowLaptops : args.ShowAccessories);
             if (args.Search != null) products = products.Where(x => x.Name.ToString().Contains(args.Search.ToString()));
             if (args.MinPrice.HasValue) products = products.Where(x => x.Price >= args.MinPrice);
@@ -53,10 +54,12 @@ namespace HoaLacLaptopShop.Controllers
         public IActionResult Detail(int id)
         {
             var product = GetProducts()
-                .Include(x => x.ProductReviews).ThenInclude(x => x.Reviewer)
-                .Include(x => x.Laptop).ThenInclude(x => x.CPUSeries)
-                .Include(x => x.Laptop).ThenInclude(x => x.GPUSeries)
-                .Where(p => p.ID == id).FirstOrDefault();
+                    .Include(x => x.ProductReviews.OrderByDescending(r => r.Time)).ThenInclude(x => x.Reviewer)
+                    .Include(x => x.Laptop).ThenInclude(x => x.CPUSeries)
+                    .Include(x => x.Laptop).ThenInclude(x => x.GPUSeries)
+                    .Include(x => x.OrderDetails).ThenInclude(x => x.Order)
+                    .Where(p => p.ID == id)
+                    .FirstOrDefault();
             return View(product);
         }
     }

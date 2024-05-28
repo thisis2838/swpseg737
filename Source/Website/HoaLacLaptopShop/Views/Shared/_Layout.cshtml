@@ -1,4 +1,6 @@
-﻿<!DOCTYPE html>
+﻿﻿
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8">
@@ -26,7 +28,6 @@
 </head><!--/head-->
 
 <body>
-<<<<<<< HEAD
     <header id="header">
         <!--header-->
         <div class="header_top">
@@ -41,34 +42,6 @@
                             </ul>
                         </div>
                     </div>
-=======
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">HoaLacLaptopShop</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Users" asp-action="Index">Account List</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Users" asp-action="Register">Register</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark fa fa-lock" asp-area="" asp-controller="Users" asp-action="Login">Login</a>
-                        </li>
-                    </ul>
->>>>>>> 3d257d4f702f09b8a6841301f611102c5bdd162d
                 </div>
             </div>
         </div><!--/header_top-->
@@ -88,8 +61,25 @@
                                 @*<li><a href=""><i class="fa fa-user"></i> Account</a></li>*@
                                 @*<li><a href=""><i class="fa fa-star"></i> Wishlist</a></li>*@
                                 @*<<li><a href="@Url.ActionLink("Index", "Checkout")"><i class="fa fa-crosshairs"></i> Checkout</a></li>*@
+                                <li>
+                                    @{
+                                        var username = HttpContextAccessor.HttpContext.Session.GetString("Username");
+                                        if (username != null)
+                                        {
+                                            <span>Hello @username</span>
+                                            <form method="post" asp-controller="User" aspcontroller="Logout">
+                                                <input type="submit" value="Logout" />
+                                            </form>
+                                        }
+                                        else
+                                        {
+                                        <li><a href="@Url.ActionLink("Login", "Users")"><i class="fa fa-lock"></i> Login</a></li>
+                                        <li><a href="@Url.ActionLink("Register", "Users")"><i class="fa fa-lock"></i> Register</a></li>
+                                        }
+                                    }
+                                </li>
                                 <li><a href="@Url.ActionLink("Index", "Cart")"><i class="fa fa-shopping-cart"></i> Cart</a></li>
-                                @*<li><a href="login.html"><i class="fa fa-lock"></i> Login</a></li>*@
+                                
                             </ul>
                         </div>
                     </div>
@@ -120,14 +110,14 @@
                         </div>
                     </div>
                     @*{
-                        if (!ViewData.TryGetValue("HideSearch", out _))
-                        {
-                            <div class="col-sm-3">
-                                <div class="search_box pull-right">
-                                    <input type="text" placeholder="Search" style="width: 400px;" />
-                                </div>
-                            </div>
-                        }
+                    if (!ViewData.TryGetValue("HideSearch", out _))
+                    {
+                    <div class="col-sm-3">
+                    <div class="search_box pull-right">
+                    <input type="text" placeholder="Search" style="width: 400px;" />
+                    </div>
+                    </div>
+                    }
                     }*@
                 </div>
             </div>

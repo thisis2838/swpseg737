@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace HoaLacLaptopShop.Models;
 
-public partial class HoaLacLaptopShopContext : IdentityDbContext<User>
+public partial class HoaLacLaptopShopContext : DbContext
 {
     public virtual DbSet<User> Users { get; set; }
     public virtual DbSet<Brand> Brands { get; set; }
@@ -191,7 +192,7 @@ public partial class HoaLacLaptopShopContext : IdentityDbContext<User>
 
             entity.Property(e => e.ProductId).HasColumnName("productID");
             entity.Property(e => e.DisplayIndex).HasColumnName("displayIndex");
-            entity.Property(e => e.Link).HasColumnName("link");
+            entity.Property(e => e.Token).IsUnicode(false).HasColumnName("token");
 
             entity.HasOne(d => d.Product).WithMany(p => p.ProductImages)
                 .HasForeignKey(d => d.ProductId)
@@ -203,12 +204,13 @@ public partial class HoaLacLaptopShopContext : IdentityDbContext<User>
         {
             entity.HasKey(e => new { e.ProductId, e.ReviewerId }).HasName("PK__ProductR__D0B0ECA9C4398442");
 
-            entity.ToTable("ProductReview");
+            entity.ToTable("ProductReviews");
 
             entity.Property(e => e.ProductId).HasColumnName("productID");
             entity.Property(e => e.ReviewerId).HasColumnName("reviewerID");
             entity.Property(e => e.Content).HasColumnName("content");
             entity.Property(e => e.Rating).HasColumnName("rating");
+            entity.Property(e => e.Time).HasColumnName("time");
 
             entity.HasOne(d => d.Product).WithMany(p => p.ProductReviews)
                 .HasForeignKey(d => d.ProductId)
@@ -238,7 +240,10 @@ public partial class HoaLacLaptopShopContext : IdentityDbContext<User>
                 .HasMaxLength(20)
                 .IsUnicode(false)
                 .HasColumnName("phoneNumber");
-            entity.Property(e => e.Role).HasConversion<byte>().HasColumnName("role");
+            entity.Property(e => e.CustomerTier).HasConversion<byte>().HasColumnName("customerTier");
+            entity.Property(e => e.IsSales).HasColumnName("isSales");
+            entity.Property(e => e.IsMarketing).HasColumnName("isMarketing");
+            entity.Property(e => e.IsAdmin).HasColumnName("isAdmin");
         });
 
         modelBuilder.Entity<Voucher>(entity =>

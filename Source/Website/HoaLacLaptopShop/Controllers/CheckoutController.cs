@@ -17,16 +17,16 @@ public class CheckoutController : Controller
     [HttpGet]
     public IActionResult Index()
     {
-        var userId = "1";// HttpContext.Session.GetString("DefaultUserId");
+        var userId =  HttpContext.Session.GetString("CurrentUserId");
         if (userId == null)
         {
-            return Redirect("/404");
+            return RedirectToAction("Error403", "Error");
         }
 
         var user = _context.Users.SingleOrDefault(u => u.ID.ToString() == userId);
         if (user == null)
         {
-            return Redirect("/404");
+            return RedirectToAction("Error403", "Error");
         }
 
         var cartItems = HttpContext.Session.Get<List<CartItem>>(CartController.CART_KEY) ?? new List<CartItem>();
@@ -45,16 +45,16 @@ public class CheckoutController : Controller
     [HttpPost]
     public IActionResult ConfirmOrder(string name, string email, string phone, string address, string city, string district, PaymentMethod paymentMethod)
     {
-        var userId = "1";// HttpContext.Session.GetString("DefaultUserId");
+        var userId =  HttpContext.Session.GetString("CurrentUserId");
         if (userId == null)
         {
-            return Redirect("/404");
+            return RedirectToAction("Error403", "Error");
         }
 
         var user = _context.Users.SingleOrDefault(u => u.ID.ToString() == userId);
         if (user == null)
         {
-            return Redirect("/404");
+             return RedirectToAction("Error403", "Error");
         }
 
         var cartItems = HttpContext.Session.Get<List<CartItem>>(CartController.CART_KEY) ?? new List<CartItem>();
@@ -66,7 +66,7 @@ public class CheckoutController : Controller
 
         var order = _context.Orders.SingleOrDefault(o => o.BuyerID == user.ID && o.Status == OrderStatus.Created);
         order.Status = OrderStatus.Delivering; // Change status to delivering
-        order.Address = $"{address}, {city}, {district}"; // Adjusted address format
+        order.Address = $"{address}, {district}, {city}"; // Adjusted address format
         order.PhoneNumber = phone;
         order.CreationTime = DateTime.Now;
         order.TotalPrice = (float)cartItems.Sum(c => c.total);
@@ -89,7 +89,7 @@ public class CheckoutController : Controller
         HttpContext.Session.Remove(CartController.CART_KEY);
 
         TempData["Message"] = "Order has been placed successfully!";
-        return RedirectToAction("Home");
+        return RedirectToAction("Index", "Home");
     }
 
     public IActionResult OrderConfirmation(int orderId)
