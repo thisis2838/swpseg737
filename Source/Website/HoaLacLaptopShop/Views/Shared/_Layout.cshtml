@@ -62,11 +62,19 @@
                                 @*<<li><a href="@Url.ActionLink("Index", "Checkout")"><i class="fa fa-crosshairs"></i> Checkout</a></li>*@
                                 <li>
                                     @{
+                                        var userId = HttpContextAccessor.HttpContext.Session.GetString("UserId");
                                         var username = HttpContextAccessor.HttpContext.Session.GetString("Username");
-                                        if (username != null)
+                                        if (userId != null)
                                         {
-                                            <span>Hello @username</span>
-                                            
+                                            <div class="dropdown">
+                                                Hello <p class="link-primary dropdown-toggle" style="margin-right: 0">@username</p>
+                                                <ul class="dropdown-menu">
+                                                    <li><a class="dropdown-item" href="@Url.Action("Profile", "Users")">Profile</a></li>
+                                                    <li><a class="dropdown-item" href="@Url.Action("Index", "Users")"></a></li>
+                                                    <li><a class="dropdown-item" href="@Url.Action("Dashboard", "Users")"></a></li>
+                                                </ul>
+                                            </div>
+
                                         <li><a href="@Url.Action("Logout", "Users")" style="margin-right: 0">Logout</a></li>
                                         }
                                         else
@@ -77,7 +85,7 @@
                                     }
                                 </li>
                                 <li><a href="@Url.ActionLink("Index", "Cart")"><i class="fa fa-shopping-cart"></i> Cart</a></li>
-                                
+
                             </ul>
                         </div>
                     </div>

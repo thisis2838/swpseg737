@@ -17,6 +17,8 @@ namespace HoaLacLaptopShop.Controllers
     using System.Security.Claims;
     using Microsoft.AspNetCore.Authentication;
     using Microsoft.AspNetCore.Authentication.Cookies;
+    using HoaLacLaptopShop.Helpers;
+    using global::HoaLacLaptopShop.Helpers;
 
     namespace HoaLacLaptopShop.Controllers
     {
@@ -90,7 +92,6 @@ namespace HoaLacLaptopShop.Controllers
                     {
                         user.Gender = false;
                     }
-                    user.Role = 0;
                     _context.Add(user);
                     await _context.SaveChangesAsync();
                     return RedirectToAction("Index", "Home");
@@ -109,7 +110,7 @@ namespace HoaLacLaptopShop.Controllers
 
             [HttpPost]
             [ValidateAntiForgeryToken]
-            public async Task<IActionResult> Login(LoginViewModel model, string? ReturnUrl)
+            public IActionResult Login(LoginViewModel model, string? ReturnUrl)
             {
                 ViewBag.ReturnUrl = ReturnUrl;
                 if (ModelState.IsValid)
@@ -127,26 +128,10 @@ namespace HoaLacLaptopShop.Controllers
                         }
                         else
                         {
+                            HttpContext.Session.Set<User>("user", user);
                             HttpContext.Session.SetString("UserId", user.ID.ToString());
                             HttpContext.Session.SetString("Username", user.Name);
-                            var claims = new List<Claim>
-                            {
-                                new Claim("UserId", user.ID.ToString()),
-                                new Claim(ClaimTypes.Email, user.Email),
-                                new Claim(ClaimTypes.Name, user.Name),
-                            };
-                            var claimsIdentity = new ClaimsIdentity(claims,
-                                CookieAuthenticationDefaults.AuthenticationScheme);
-                            var claimsPrinciple = new ClaimsPrincipal(claimsIdentity);
-                            await HttpContext.SignInAsync(claimsPrinciple);
-                            if (Url.IsLocalUrl(ReturnUrl))
-                            {
-                                return Redirect(ReturnUrl);
-                            }
-                            else
-                            {
-                                return RedirectToAction("Index", "Home");
-                            }
+                            return RedirectToAction("Index", "Home");
                         }
                     }
                 }
@@ -158,13 +143,12 @@ namespace HoaLacLaptopShop.Controllers
             [HttpGet]
             public IActionResult Logout()
             {
+                HttpContext.Session.Remove("user");
                 HttpContext.Session.Remove("UserId");
                 HttpContext.Session.Remove("Username");
-                HttpContext.SignOutAsync();
                 return RedirectToAction("Index", "Home");
             }
 
-            [Authorize]
             #region Profile
             public IActionResult Profile()
             {

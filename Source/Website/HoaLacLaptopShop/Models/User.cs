@@ -13,11 +13,9 @@ public partial class User
     public string Email { get; set; } = null!;
     [Display(Name = "Password")]
     public string? PassHash { get; set; }
-
     public bool Gender { get; set; }
     [DisplayName("Phone Number")]
     public string PhoneNumber { get; set; } = null!;
-
     public CustomerTier CustomerTier { get; set; } = CustomerTier.Regular;
     public bool IsSales { get; set; } = false;
     public bool IsMarketing { get; set; } = false;
