@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing.Constraints;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
+using System.Security.Cryptography;
 
 namespace HoaLacLaptopShop.Controllers
 {
@@ -53,10 +54,12 @@ namespace HoaLacLaptopShop.Controllers
         public IActionResult Detail(int id)
         {
             var product = GetProducts()
-                .Include(x => x.ProductReviews).ThenInclude(x => x.Reviewer)
+                .Include(x => x.ProductReviews.OrderByDescending(r => r.Time)).ThenInclude(x => x.Reviewer)
                 .Include(x => x.Laptop).ThenInclude(x => x.CPUSeries)
                 .Include(x => x.Laptop).ThenInclude(x => x.GPUSeries)
-                .Where(p => p.ID == id).FirstOrDefault();
+                .Include(x => x.OrderDetails).ThenInclude(x => x.Order)
+                .Where(p => p.ID == id)
+                .FirstOrDefault();
             return View(product);
         }
     }
