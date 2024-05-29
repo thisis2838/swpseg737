@@ -1,4 +1,5 @@
-﻿using HoaLacLaptopShop.Helpers;
+﻿using HoaLacLaptopShop.Controllers;
+using HoaLacLaptopShop.Helpers;
 using HoaLacLaptopShop.Models;
 using HoaLacLaptopShop.ViewModels;
 using Microsoft.AspNetCore.Mvc;
@@ -36,13 +37,13 @@ public class CartController : Controller
 
         if (userId == null)
         {
-            return RedirectToAction("Error403", "Error");
+            return RedirectToAction("Index", "Error", new { type = KnownErrorType.Forbidden } );
         }
 
         var user = db.Users.SingleOrDefault(u => u.ID.ToString() == userId);
         if (user == null)
         {
-            return RedirectToAction("Error403", "Error");
+            return RedirectToAction("Index", "Error", new { type = KnownErrorType.Forbidden });
         }
 
         var cart = Cart;
@@ -55,7 +56,7 @@ public class CartController : Controller
             if (product == null)
             {
                 TempData["Message"] = $"Not found product with id {id}";
-                return RedirectToAction("Error404", "Error");
+                return RedirectToAction("Index", "Error", new { type = KnownErrorType.NotFound });
             }
 
             item = new CartItem

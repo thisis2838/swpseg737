@@ -74,7 +74,7 @@
                 >
                     @{
                         int i = 0;
-                        foreach (var brand in Model.ProductsByBrand.Keys)
+                        foreach (var brand in Model.ProductsByBrand.Keys.Take(10))
                         {
                             <li class=@(i == 0 ? "active in" : "")><a href="#@brand.ID" data-toggle="tab">@brand.Name</a></li>
                             i++;
@@ -86,7 +86,7 @@
             <div class="tab-content">
                 @{
                     i = 0;
-                    foreach (var brand in Model.ProductsByBrand.Keys)
+                    foreach (var brand in Model.ProductsByBrand.Keys.Take(10))
                     {
                         <div class="tab-pane fade @(i == 0 ? "active in" : "")" id="@brand.ID">
                             @{

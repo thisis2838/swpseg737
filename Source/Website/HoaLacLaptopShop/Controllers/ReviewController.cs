@@ -48,7 +48,6 @@ namespace HoaLacLaptopShop.Controllers
                     Product = _context.Products.Where(p => p.ID == pId).FirstOrDefault()
                 };
 
-
                 _context.ProductReviews.Add(pr);
                 _context.SaveChanges();
                 return RedirectToAction("Detail", "Product", product);
