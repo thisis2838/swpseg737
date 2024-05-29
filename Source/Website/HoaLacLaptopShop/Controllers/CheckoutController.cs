@@ -17,29 +17,25 @@ public class CheckoutController : Controller
     [HttpGet]
     public IActionResult Index()
     {
-        var userId =  HttpContext.Session.GetString("CurrentUserId");
+        var userId = HttpContext.Session.GetString("CurrentUserId");
         if (userId == null)
         {
             return RedirectToAction("Error403", "Error");
         }
 
-        var user = _context.Users.SingleOrDefault(u => u.ID.ToString() == userId);
-        if (user == null)
+        // Find the order associated with the current user
+        var order = _context.Orders
+            .Include(o => o.OrderDetails)  // Include related OrderItems
+                .ThenInclude(oi => oi.Product)
+            .Include(o => o.Buyer)       // Include related Buyer
+            .SingleOrDefault(o => o.BuyerID.ToString() == userId && o.Status == OrderStatus.Created);
+
+        if (order == null)
         {
-            return RedirectToAction("Error403", "Error");
+            return RedirectToAction("Error404", "Error");
         }
 
-        var cartItems = HttpContext.Session.Get<List<CartItem>>(CartController.CART_KEY) ?? new List<CartItem>();
-
-        var model = new CheckoutViewModel
-        {
-            Name = user.Name,
-            Email = user.Email,
-            Phone = user.PhoneNumber,
-            CartItems = cartItems
-        };
-
-        return View(model);
+        return View(order);
     }
 
     [HttpPost]

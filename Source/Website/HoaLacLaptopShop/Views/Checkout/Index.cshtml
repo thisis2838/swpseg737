@@ -1,4 +1,4 @@
-﻿@model HoaLacLaptopShop.ViewModels.CheckoutViewModel
+﻿@model HoaLacLaptopShop.Models.Order
 
 <link href="~/css/StyleSheet.css" rel="stylesheet">
 <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
@@ -12,17 +12,17 @@
                     <div class="form-row">
                         <div class="form-group col-lg-6">
                             <label for="name">Name</label>
-                            <input type="text" class="form-control" id="name" name="name" value="@Model.Name" placeholder="Enter name" required>
+                            <input type="text" class="form-control" id="name" name="name" value="@Model.Buyer.Name" placeholder="Enter name" required>
                         </div>
                         <div class="form-group col-lg-6">
                             <label for="email">Email Address</label>
-                            <input type="email" class="form-control" id="email" name="email" value="@Model.Email" placeholder="Enter email" required>
+                            <input type="email" class="form-control" id="email" name="email" value="@Model.Buyer.Email" placeholder="Enter email" required>
                         </div>
                     </div>
                     <div class="form-row">
                         <div class="form-group col-lg-6">
                             <label for="phone">Phone</label>
-                            <input type="tel" class="form-control" id="phone" name="phone" value="@Model.Phone" placeholder="Enter Phone no." required>
+                            <input type="tel" class="form-control" id="phone" name="phone" value="@Model.Buyer.PhoneNumber" placeholder="Enter Phone no." required>
                         </div>
                         <div class="form-group col-lg-6">
                             <label for="country">Country</label>
@@ -87,19 +87,19 @@
         <div class="order-summary">
             <h5>Order Summary</h5>
             <ul class="list-group mb-3">
-                @foreach (var item in Model.CartItems)
+                @foreach (var item in Model.OrderDetails)
                 {
                     <li class="list-group-item d-flex justify-content-between" style="align-items: center">
                         <div>
-                            <h6 class="my-0">@item.productName</h6>
-                            <small class="text-muted">$@item.price * @item.quantity</small>
+                            <h6 class="my-0">@item.Product.Name</h6>
+                            <small class="text-muted">@item.Product.Price * @item.Amount</small>
                         </div>
-                        <span class="text-muted">$@item.total</span>
+                        <span class="text-muted">$@((item.Product.Price * item.Amount).ToString("F2"))</span>
                     </li>
                 }
                 <li class="list-group-item d-flex justify-content-between">
                     <span>Sub Total</span>
-                    <strong>@Model.CartItems.Sum(i => i.total)</strong>
+                    <strong>@Model.OrderDetails.Sum(i => i.Product.Price * i.Amount)</strong>
                 </li>
                 <li class="list-group-item d-flex justify-content-between">
                     <span>Discount</span>
@@ -107,7 +107,7 @@
                 </li>
                 <li class="list-group-item d-flex justify-content-between">
                     <strong>Total</strong>
-                    <strong>@Model.CartItems.Sum(i => i.total)</strong>
+                    <strong>@Model.OrderDetails.Sum(i => i.Product.Price * i.Amount)</strong>
                 </li>
             </ul>
         </div>

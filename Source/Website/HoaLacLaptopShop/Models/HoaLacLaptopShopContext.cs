@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace HoaLacLaptopShop.Models;
 
-public partial class HoaLacLaptopShopContext : IdentityDbContext<User>
+public partial class HoaLacLaptopShopContext :DbContext
 {
     public virtual DbSet<User> Users { get; set; }
     public virtual DbSet<Brand> Brands { get; set; }
