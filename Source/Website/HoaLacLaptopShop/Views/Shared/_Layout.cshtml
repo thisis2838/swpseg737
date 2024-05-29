@@ -66,15 +66,7 @@
                                         var username = HttpContextAccessor.HttpContext.Session.GetString("Username");
                                         if (userId != null)
                                         {
-                                            <div class="dropdown">
-                                                Hello <p class="link-primary dropdown-toggle" style="margin-right: 0">@username</p>
-                                                <ul class="dropdown-menu">
-                                                    <li><a class="dropdown-item" href="@Url.Action("Profile", "Users")">Profile</a></li>
-                                                    <li><a class="dropdown-item" href="@Url.Action("Index", "Users")"></a></li>
-                                                    <li><a class="dropdown-item" href="@Url.Action("Dashboard", "Users")"></a></li>
-                                                </ul>
-                                            </div>
-
+                                        <li><span>Hello <a class="btn btn-secondary" href="@Url.Action("Profile", "Users")" style="margin-right: 0">@username</a></span></li>
                                         <li><a href="@Url.Action("Logout", "Users")" style="margin-right: 0">Logout</a></li>
                                         }
                                         else
