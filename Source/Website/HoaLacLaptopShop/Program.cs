@@ -1,5 +1,7 @@
 using HoaLacLaptopShop.Helpers;
 using HoaLacLaptopShop.Models;
+using Microsoft.AspNetCore.Authentication.Cookies;
+
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,6 +12,11 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<HoaLacLaptopShopContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("HoaLacLaptopShop"));
+});
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(options =>
+{
+    options.LoginPath = "/User/Login";
+    options.AccessDeniedPath = "/AccessDenied";
 });
 
 builder.Services.AddDistributedMemoryCache();
@@ -37,6 +44,7 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+
 // Enable session middleware
 app.UseSession();
 // Set defaultuser with id 1 in DB to test
@@ -63,6 +71,8 @@ app.Use(async (context, next) =>
 });
 */
 
+
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(name: "default", pattern: "{controller=Home}/{action=Index}/{id?}");
