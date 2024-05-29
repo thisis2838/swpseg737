@@ -4,6 +4,7 @@ using System.Linq;
 using HoaLacLaptopShop.ViewModels;
 using Microsoft.EntityFrameworkCore;
 using HoaLacLaptopShop.Helpers;
+using HoaLacLaptopShop.Controllers;
 
 public class CheckoutController : Controller
 {
@@ -20,13 +21,13 @@ public class CheckoutController : Controller
         var userId =  HttpContext.Session.GetString("CurrentUserId");
         if (userId == null)
         {
-            return RedirectToAction("Error403", "Error");
+            return RedirectToAction("Index", "Error", new { type = KnownErrorType.Forbidden });
         }
 
         var user = _context.Users.SingleOrDefault(u => u.ID.ToString() == userId);
         if (user == null)
         {
-            return RedirectToAction("Error403", "Error");
+            return RedirectToAction("Index", "Error", new { type = KnownErrorType.Forbidden });
         }
 
         var cartItems = HttpContext.Session.Get<List<CartItem>>(CartController.CART_KEY) ?? new List<CartItem>();
@@ -48,13 +49,13 @@ public class CheckoutController : Controller
         var userId =  HttpContext.Session.GetString("CurrentUserId");
         if (userId == null)
         {
-            return RedirectToAction("Error403", "Error");
+            return RedirectToAction("Index", "Error", new { type = KnownErrorType.Forbidden });
         }
 
         var user = _context.Users.SingleOrDefault(u => u.ID.ToString() == userId);
         if (user == null)
         {
-             return RedirectToAction("Error403", "Error");
+             return RedirectToAction("Index", "Error", new { type = KnownErrorType.Forbidden });
         }
 
         var cartItems = HttpContext.Session.Get<List<CartItem>>(CartController.CART_KEY) ?? new List<CartItem>();

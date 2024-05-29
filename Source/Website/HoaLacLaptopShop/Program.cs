@@ -41,9 +41,7 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-
 app.UseRouting();
-
 
 // Enable session middleware
 app.UseSession();
@@ -70,6 +68,12 @@ app.Use(async (context, next) =>
     await next.Invoke();
 });
 */
+
+app.MapFallback(context => 
+{
+    context.Response.Redirect("/Error/NotFound");
+    return Task.CompletedTask;
+});
 
 
 app.UseAuthentication();
