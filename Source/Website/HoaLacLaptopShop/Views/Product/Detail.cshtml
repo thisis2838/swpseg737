@@ -8,16 +8,24 @@
 <section>
     <div class="container">
         <div class="row">
-            <div id="product-details">
+            <div id="product-details" style="height:350px">
                 <!--product-details-->
                 <div class="col-sm-4 product-information" style="height:100%">
-                    <div id="view-product" style="height:100%">
+                    <div class="col-lg-12 row" id="view-product" style="height:75%;margin:auto;">
                         <img id="product-main-img"
                              src="@Model.ProductImages.First().GetProductImageURL()"
                              style="object-fit: cover; height:100%"
                              alt="" />
                     </div>
+                    <div class="row">
+                        @foreach(var img in Model.ProductImages)
+                        {
+                            <img class="col-lg-4 product-extra-img" src="@img.GetProductImageURL()" onclick="changeMainImage(this)" alt="">
+                        }
+                        
+                    </div>
                 </div>
+                
 
                 <div class="col-sm-8" style="height:100%">
                     <div id="product-information" class="product-information" style="height:100%">
@@ -133,7 +141,7 @@
                             @if (@HttpContextAccessor.HttpContext.Session.GetString("CurrentUserId") != null)
                             {
                                 @if (Model.OrderDetails.Any(od => od.ProductId == Model.ID &&
-                                od.Order.BuyerID == Convert.ToInt32(@HttpContextAccessor.HttpContext.Session.GetString("CurrentUserId"))))
+                               od.Order.BuyerID == Convert.ToInt32(@HttpContextAccessor.HttpContext.Session.GetString("CurrentUserId"))))
                                 {
                                     if (Model.ProductReviews.Any(pr => pr.ProductId == Model.ID &&
                                     pr.ReviewerId == Convert.ToInt32(@HttpContextAccessor.HttpContext.Session.GetString("CurrentUserId"))))
@@ -155,6 +163,8 @@
                                                 <input type="hidden" id="lblRating" name="rating" />
                                             </div>
                                             <textarea name="review">@Model.ProductReviews.Where(pr => pr.ProductId == Model.ID && pr.ReviewerId == Convert.ToInt32(HttpContextAccessor.HttpContext.Session.GetString("CurrentUserId"))).FirstOrDefault().Content</textarea>
+                                            <input type="submit" class="btn btn-danger" name="delete" value="Delete"/>
+                              
                                             <button type="submit" class="btn btn-default pull-right">
                                                 Edit
                                             </button>
@@ -239,6 +249,11 @@
         }
     }
 
+    function changeMainImage(img) {
+        var mainImg = document.getElementById("product-main-img");
+        mainImg.src = img.src;
+    }
+
 </script>
 
 
@@ -273,6 +288,7 @@
         display: block;
         margin: auto;
     }
+
 
     .product-information {
         border: 2px solid #F7F7F0;

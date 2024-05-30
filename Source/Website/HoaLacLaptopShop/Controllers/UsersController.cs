@@ -14,6 +14,7 @@ namespace HoaLacLaptopShop.Controllers
     using global::HoaLacLaptopShop.Models;
     using global::HoaLacLaptopShop.ViewModels;
     using Microsoft.AspNetCore.Identity;
+    using global::HoaLacLaptopShop.Helpers;
 
     namespace HoaLacLaptopShop.Controllers
     {
@@ -101,33 +102,43 @@ namespace HoaLacLaptopShop.Controllers
 
             [HttpPost]
             [ValidateAntiForgeryToken]
-            public async Task<IActionResult> Login(LoginViewModel model)
+            public IActionResult Login(LoginViewModel model)
             {
                 if (ModelState.IsValid)
                 {
                     var user = _context.Users.SingleOrDefault(x => x.Email.Equals(model.Email));
-                    if (user != null)
+                    if (user == null)
                     {
-                        if (user.PassHash.Equals(ToMd5Hash(model.Password)))
+                        ModelState.AddModelError("Error", "Invalid input information");
+                    }
+                    else
+                    {
+                        if (!ToMd5Hash(model.Password).Equals(user.PassHash))
                         {
+                            ModelState.AddModelError("Error", "Invalid input information");
+                        }
+                        else
+                        {
+                            HttpContext.Session.Set<User>("user", user);
                             HttpContext.Session.SetString("CurrentUserId", user.ID.ToString());
                             HttpContext.Session.SetString("Username", user.Name);
                             return RedirectToAction("Index", "Home");
                         }
-                        else
-                        {
-                            ViewBag.Error = "Invalid information";
-                            return View(model);
-                        }
-                    }
-                    else
-                    {
-                        ViewBag.Error = "You need to login first";
-                        return View(model);
                     }
                 }
+                ModelState.AddModelError("Error", "Invalid input information");
                 return View(model);
             }
+
+            [HttpGet]
+            public IActionResult Logout()
+            {
+                HttpContext.Session.Remove("user");
+                HttpContext.Session.Remove("CurrentUserId");
+                HttpContext.Session.Remove("Username");
+                return RedirectToAction("Index", "Home");
+            }
+
 
             // GET: Users/Edit/5
             public async Task<IActionResult> Edit(int? id)
