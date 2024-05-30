@@ -118,13 +118,13 @@ namespace HoaLacLaptopShop.Controllers
                     var user = _context.Users.SingleOrDefault(x => x.Email.Equals(model.Email));
                     if (user == null)
                     {
-                        ModelState.AddModelError("Error", "Invalid input information");
+                        ModelState.AddModelError("Error", "This email is not registerd yet");
                     }
                     else
                     {
                         if (!ToMd5Hash(model.Password).Equals(user.PassHash))
                         {
-                            ModelState.AddModelError("Error", "Invalid input information");
+                            ModelState.AddModelError("Error", "Wrong password or email");
                         }
                         else
                         {
@@ -135,7 +135,7 @@ namespace HoaLacLaptopShop.Controllers
                         }
                     }
                 }
-                ModelState.AddModelError("Error", "Invalid input information");
+                ModelState.AddModelError("Error", "");
                 return View(model);
             }
             #endregion
@@ -155,9 +155,7 @@ namespace HoaLacLaptopShop.Controllers
                 var user = HttpContext.Session.Get<User>("user");
                 return View("Profile", user);
             }
-            #endregion
 
-            #region Update
             [HttpPost]
             [ValidateAntiForgeryToken]
             public async Task<IActionResult> Profile(int id, [Bind("ID,Name,Email,PassHash,PhoneNumber")] User user, string oldpass,
@@ -169,40 +167,25 @@ namespace HoaLacLaptopShop.Controllers
                 }
                 if (oldpass.IsNullOrEmpty() && !newpass.IsNullOrEmpty())
                 {
-                    ViewBag.MissingOldPass = "You have to enter old password";
-                    return RedirectToAction("Profile", "Users");
+                    ViewBag.Error = "You have to enter old password";
+                    return View(user);
                 }
                 if (!oldpass.IsNullOrEmpty() && newpass.IsNullOrEmpty())
                 {
-                    ViewBag.MissingNewPass = "You have to enter new password";
-                    return RedirectToAction("Profile", "Users");
+                    ViewBag.Error = "You have to enter new password";
+                    return View(user);
                 }
                 try
                 {
                     if (ModelState.IsValid)
                     {
-                        if (oldpass.IsNullOrEmpty() && newpass.IsNullOrEmpty())
 
-                        {
-                            user.PassHash = oldhash;
-                        }
                         if (ToMd5Hash(oldpass).Equals(oldhash))
                         {
-                            if (gender.Equals("Male"))
-                            {
-                                user.Gender = true;
-                            }
-                            else if (gender.Equals("Female"))
-                            {
-                                user.Gender = false;
-                            }
+                            user.Gender = gender.Equals("Male");
                             user.PassHash = ToMd5Hash(newpass);
                             _context.Update(user);
                             await _context.SaveChangesAsync();
-                            await Console.Out.WriteLineAsync("Update successfully");
-                            HttpContext.Session.Remove("user");
-                            HttpContext.Session.Remove("UserId");
-                            HttpContext.Session.Remove("Username");
                             HttpContext.Session.Set("user", user);
                             HttpContext.Session.SetString("UserId", user.ID.ToString());
                             HttpContext.Session.SetString("Username", user.Name);
