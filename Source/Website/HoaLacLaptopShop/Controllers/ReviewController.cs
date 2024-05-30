@@ -58,9 +58,8 @@ namespace HoaLacLaptopShop.Controllers
             }
         }
 
-        public IActionResult EditReview(int pId, int uId, string review, string rating)
+        public IActionResult EditReview(int pId, int uId, string review, string rating, string? delete)
         {
-
             var product = GetProducts()
                 .Include(x => x.ProductReviews.OrderByDescending(r => r.Time)).ThenInclude(x => x.Reviewer)
                 .Include(x => x.Laptop).ThenInclude(x => x.CPUSeries)
@@ -69,10 +68,17 @@ namespace HoaLacLaptopShop.Controllers
                 .Where(p => p.ID == pId)
                 .FirstOrDefault();
 
-            var reviewOld = _context.ProductReviews.Where(pr => pr.ProductId == pId && pr.ReviewerId == uId).FirstOrDefault();
-            reviewOld.Content = review;
-            reviewOld.Rating = Convert.ToInt32(rating);
-            reviewOld.Time = DateTime.Now;
+            if (delete == null)
+            {
+                var reviewOld = _context.ProductReviews.Where(pr => pr.ProductId == pId && pr.ReviewerId == uId).FirstOrDefault();
+                reviewOld.Content = review;
+                reviewOld.Rating = Convert.ToInt32(rating);
+                reviewOld.Time = DateTime.Now;
+            } else
+            {
+                var reviewOld = _context.ProductReviews.Where(pr => pr.ProductId == pId && pr.ReviewerId == uId).FirstOrDefault();
+                _context.Remove(reviewOld);
+            }
             _context.SaveChanges();
             return RedirectToAction("Detail", "Product", product);
 
