@@ -160,8 +160,8 @@ namespace HoaLacLaptopShop.Controllers
             #region Update
             [HttpPost]
             [ValidateAntiForgeryToken]
-            public async Task<IActionResult> Profile(int id, [Bind("ID,Name,Email,PassHash,Gender,PhoneNumber")] User user, string oldpass,
-                string newpass, string gender)
+            public async Task<IActionResult> Profile(int id, [Bind("ID,Name,Email,PassHash,PhoneNumber")] User user, string oldpass,
+                string oldhash, string newpass, string gender)
             {
                 if (id != user.ID)
                 {
@@ -182,12 +182,12 @@ namespace HoaLacLaptopShop.Controllers
                     if (ModelState.IsValid)
                     {
                         if (oldpass.IsNullOrEmpty() && newpass.IsNullOrEmpty())
+
                         {
-                            user.PassHash = user.PassHash;
+                            user.PassHash = oldhash;
                         }
-                        if (ToMd5Hash(oldpass).Equals(user.PassHash))
+                        if (ToMd5Hash(oldpass).Equals(oldhash))
                         {
-                            user.PassHash = ToMd5Hash(newpass);
                             if (gender.Equals("Male"))
                             {
                                 user.Gender = true;
@@ -196,6 +196,7 @@ namespace HoaLacLaptopShop.Controllers
                             {
                                 user.Gender = false;
                             }
+                            user.PassHash = ToMd5Hash(newpass);
                             _context.Update(user);
                             await _context.SaveChangesAsync();
                             await Console.Out.WriteLineAsync("Update successfully");
