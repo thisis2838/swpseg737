@@ -67,7 +67,7 @@
                                         var username = HttpContextAccessor.HttpContext.Session.GetString("Username");
                                         if (userId != null)
                                         {
-                                        <li><span>Hello <a class="btn btn-secondary" href="@Url.Action("Profile", "Users")" style="margin-right: 0">@username</a></span></li>
+                                        <li><span><a class="btn btn-secondary" href="@Url.Action("Profile", "Users")" style="margin-right: 0">@username</a></span></li>
                                         <li><a href="@Url.Action("Logout", "Users")" style="margin-right: 0">Logout</a></li>
                                         }
                                         else
