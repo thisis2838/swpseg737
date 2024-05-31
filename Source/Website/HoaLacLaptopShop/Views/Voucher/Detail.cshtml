@@ -1,0 +1,39 @@
+﻿@model IEnumerable<HoaLacLaptopShop.Models.Voucher>
+@{
+    ViewData["Title"] = "Detail";
+}
+
+<h2>Vouchers</h2>
+<table class="table">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Code</th>
+            <th>MinimumOrderPrice</th>
+            <th>DiscountValue</th>
+            <th>IsItPercentage</th>
+            <th>Expiry Date</th>
+            <th>IssuerID</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var voucher in Model)
+        {
+            <tr>
+                <td>@voucher.ID</td>
+                <td>@voucher.Code</td>
+                <td>@voucher.MinimumOrderPrice</td>
+                <td>@voucher.DiscountValue</td>
+                <td>@voucher.IsPercentageDiscount</td>
+                <td>@voucher.ExpiryDate.ToShortDateString()</td>
+                <td>@voucher.IssuerId</td>
+                <td>
+                    <a href="@Url.Action("Update", new { id = voucher.ID })">Update</a> |
+                    <a href="@Url.Action("Delete", new { id = voucher.ID })">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<a href="@Url.Action("Create")" class="btn btn-primary">Create New Voucher</a>
+<a asp-action="Index">Back to List</a>
