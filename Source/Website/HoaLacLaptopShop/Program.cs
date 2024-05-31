@@ -1,8 +1,8 @@
 using HoaLacLaptopShop.Helpers;
 using HoaLacLaptopShop.Models;
 using Microsoft.AspNetCore.Authentication.Cookies;
-
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,17 +13,20 @@ builder.Services.AddDbContext<HoaLacLaptopShopContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("HoaLacLaptopShop"));
 });
-builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(options =>
-{
-    options.LoginPath = "/User/Login";
-    options.AccessDeniedPath = "/AccessDenied";
-});
 
 builder.Services.AddDistributedMemoryCache();
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options
+    =>
+    {
+        options.LoginPath = "/Users/Login";
+        options.AccessDeniedPath = "/AccessDenied";
+    });
+builder.Services.AddAuthorization();
 
 builder.Services.AddSession(options =>
 {
-    options.IdleTimeout = TimeSpan.FromMinutes(10);
+    options.IdleTimeout = TimeSpan.FromMinutes(20);
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
 });
@@ -41,43 +44,14 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+
 app.UseRouting();
 
 // Enable session middleware
 app.UseSession();
-// Set defaultuser with id 1 in DB to test
-/*
-app.Use(async (context, next) =>
-{
-    // Check if the session doesn't have a default user set
-    if (string.IsNullOrEmpty(context.Session.GetString("CurrentUserId")))
-    {
-        using (var scope = app.Services.CreateScope())
-        {
-            var dbContext = scope.ServiceProvider.GetRequiredService<HoaLacLaptopShopContext>();
-            var defaultUser = dbContext.Users.FirstOrDefault(u => u.ID == 1);
 
-            if (defaultUser != null)
-            {
-                // Assuming DefaultUserId is a string
-                context.Session.SetString("CurrentUserId", defaultUser.ID.ToString());
-            }
-        }
-    }
-
-    await next.Invoke();
-});
-*/
-
-app.MapFallback(context => 
-{
-    context.Response.Redirect("/Error/NotFound");
-    return Task.CompletedTask;
-});
-
-
-app.UseAuthentication();
 app.UseAuthorization();
+app.UseAuthentication();
 
 app.MapControllerRoute(name: "default", pattern: "{controller=Home}/{action=Index}/{id?}");
 app.MapControllerRoute(name: "product", pattern: "{controller=Product}/{action=Detail}/{id?}");

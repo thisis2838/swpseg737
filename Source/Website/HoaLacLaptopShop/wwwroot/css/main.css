@@ -2493,3 +2493,7 @@ h2.title {
         overflow: hidden;
         white-space: nowrap;
     }
+
+#profile-name {
+    margin-top: 10px;
+}
