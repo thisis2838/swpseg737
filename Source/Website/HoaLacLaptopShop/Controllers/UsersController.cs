@@ -140,15 +140,6 @@ namespace HoaLacLaptopShop.Controllers
             }
             #endregion
 
-            [HttpGet]
-            public IActionResult Logout()
-            {
-                HttpContext.Session.Remove("user");
-                HttpContext.Session.Remove("UserId");
-                HttpContext.Session.Remove("Username");
-                return RedirectToAction("Index", "Home");
-            }
-
             #region Profile
             public IActionResult Profile()
             {
@@ -218,6 +209,7 @@ namespace HoaLacLaptopShop.Controllers
             {
                 HttpContext.Session.Remove("user");
                 HttpContext.Session.Remove("CurrentUserId");
+                HttpContext.Session.Remove("UserId");
                 HttpContext.Session.Remove("Username");
                 return RedirectToAction("Index", "Home");
             }
