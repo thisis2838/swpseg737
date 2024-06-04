@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using HoaLacLaptopShop.Models;
+using HoaLacLaptopShop.ViewModels;
 
 namespace HoaLacLaptopShop.Controllers
 {
@@ -19,10 +20,21 @@ namespace HoaLacLaptopShop.Controllers
         }
 
         // GET: NewsPosts
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(NewsPostIndexArgs? args = null)
         {
-            var hoaLacLaptopShopContext = _context.NewsPosts.Include(n => n.Author).OrderByDescending(x => x.Time);
-            return View(await hoaLacLaptopShopContext.ToListAsync());
+            var news = _context.NewsPosts.Include(n => n.Author).OrderByDescending(x => x.Time).AsQueryable();
+            if (!string.IsNullOrWhiteSpace(args?.SearchTerm))
+            {
+                var terms = args.SearchTerm;
+                var titleMatch = news.Where(x => x.Title.Contains(terms));
+                var descMatch = news.Where(x => !x.Title.Contains(terms) && x.Content.Contains(terms));
+                news = titleMatch.Concat(descMatch);
+            }
+            return View(new NewsPostIndexViewModel()
+            {
+                Posts = await news.ToListAsync(),
+                SearchTerm = args?.SearchTerm ?? null!,
+            });
         }
 
         // GET: NewsPosts/Details/5
