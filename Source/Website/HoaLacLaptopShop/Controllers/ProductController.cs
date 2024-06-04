@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing.Constraints;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Security.Cryptography;
 
 namespace HoaLacLaptopShop.Controllers
@@ -28,8 +29,9 @@ namespace HoaLacLaptopShop.Controllers
         public IActionResult Index(ProductIndexQuery args)
         {
             var products = GetProducts();
-            int min = products.Min(x => x.Price), max = products.Max(x => x.Price);
-            products = products.Where(x => x.IsLaptop ? args.ShowLaptops : args.ShowAccessories);
+            var min = products.Min(x => x.Price);
+            var max = products.Max(x => x.Price);
+            products = products.Where(x => (x.IsLaptop && args.ShowLaptops) || (!x.IsLaptop && args.ShowAccessories));
             if (args.Search != null) products = products.Where(x => x.Name.ToString().Contains(args.Search.ToString()));
             if (args.MinPrice.HasValue) products = products.Where(x => x.Price >= args.MinPrice);
             if (args.MaxPrice.HasValue) products = products.Where(x => x.Price <= args.MaxPrice);
@@ -41,13 +43,15 @@ namespace HoaLacLaptopShop.Controllers
             if (args.SelectedBrandIDs is null || args.SelectedBrandIDs.Count == 0)
                 args.SelectedBrandIDs = brands.Select(x => x.Brand.ID).ToList();
             list = list.Where(x => args.SelectedBrandIDs.Contains(x.Brand!.ID)).ToList();
+            var total = list.Count();
+            list = list.Take(16).ToList();
 
             return View(new ProductIndexViewModel(args)
             {
                 Products = list,
                 MinPossiblePrice = min,
                 MaxPossiblePrice = max,
-                Brands = brands
+                Brands = brands,
             });
         }
 
