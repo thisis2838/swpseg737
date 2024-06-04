@@ -63,7 +63,7 @@
                                 @*<<li><a href="@Url.ActionLink("Index", "Checkout")"><i class="fa fa-crosshairs"></i> Checkout</a></li>*@
                                 <li>
                                     @{
-                                        var userId = HttpContextAccessor.HttpContext.Session.GetString("UserId");
+                                        var userId = HttpContextAccessor.HttpContext.Session.GetString("CurrentUserId");
                                         var username = HttpContextAccessor.HttpContext.Session.GetString("Username");
                                         if (userId != null)
                                         {

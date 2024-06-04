@@ -129,7 +129,7 @@ namespace HoaLacLaptopShop.Controllers
                         else
                         {
                             HttpContext.Session.Set("user", user);
-                            HttpContext.Session.SetString("UserId", user.ID.ToString());
+                            HttpContext.Session.SetString("CurrentUserId", user.ID.ToString());
                             HttpContext.Session.SetString("Username", user.Name);
                             return RedirectToAction("Index", "Home");
                         }
@@ -178,7 +178,7 @@ namespace HoaLacLaptopShop.Controllers
                             _context.Update(user);
                             await _context.SaveChangesAsync();
                             HttpContext.Session.Set("user", user);
-                            HttpContext.Session.SetString("UserId", user.ID.ToString());
+                            HttpContext.Session.SetString("CurrentUserId", user.ID.ToString());
                             HttpContext.Session.SetString("Username", user.Name);
                             return RedirectToAction("Index", "Home");
                         }
@@ -209,7 +209,7 @@ namespace HoaLacLaptopShop.Controllers
             {
                 HttpContext.Session.Remove("user");
                 HttpContext.Session.Remove("CurrentUserId");
-                HttpContext.Session.Remove("UserId");
+                HttpContext.Session.Remove("CurrentUserId");
                 HttpContext.Session.Remove("Username");
                 return RedirectToAction("Index", "Home");
             }
