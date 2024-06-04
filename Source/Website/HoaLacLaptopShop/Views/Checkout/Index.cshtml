@@ -33,14 +33,14 @@
                         <div class="form-group col-lg-6">
                             <label for="city">City</label>
                             <select class="form-control" id="city" name="city" placeholder="Choose city" required>
-                                <option value="">Select City</option>
+                                <option value="0">Select City</option>
                                 // Options rendered here
                             </select>
                         </div>
                         <div class="form-group col-lg-6">
                             <label for="district">District</label>
                             <select class="form-control" id="district" name="district" required>
-                                <option value="">Select District</option>
+                                <option value="0">Select District</option>
                                 // Options rendered here
                             </select>
                         </div>
@@ -132,57 +132,54 @@
     // Get the select tags by id
     const provinceSelect = document.getElementById("city");
     const districtSelect = document.getElementById("district");
+    
+    document.addEventListener('DOMContentLoaded', () => {
 
-    function getProvinces() {
-        // Call the API from the website you provided
-        fetch('https://vapi.vnappmob.com/api/province')
-            .then(response => response.json()) // Convert the data to JSON
-            .then(data => {
-                // Loop through the list of provinces and add to the select tag
-                data.results.forEach(province => {
-                    const option = document.createElement("option"); // Create a new option
-                    option.text = province.province_name; // Set the text of the option to the province name
-                    option.value = province.province_name; // Set the value of the option to the province id
-                    option.setAttribute("data-id", province.province_id); // Set the data-id attribute to the province id
-                    provinceSelect.add(option); // Add the option to the select tag
+        function getProvinces() {
+            fetch('https://esgoo.net/api-tinhthanh/1/0.htm')
+                .then(function (response) {
+                    return response.json();
+                })
+                .then(function (data_tinh) {
+                    if (data_tinh.error === 0) {
+
+                        data_tinh.data.forEach(function (val_tinh) {
+                            var option = document.createElement('option');
+                            option.value = val_tinh.id;
+                            option.innerHTML = val_tinh.full_name;
+                            provinceSelect.appendChild(option);
+                        });
+                    }
                 });
-            })
-            .catch(error => {
-                console.error('There was an error calling the API:', error); // Display the error if there is one
-            });
-    }
+        }
 
-    // Function to call the API and get the list of districts by province
-    function getDistricts(province_id) {
-        // Call the API from the website you provided with the parameter being the province id
-        fetch('https://vapi.vnappmob.com/api/province/district/' + province_id)
-            .then(response => response.json()) // Convert the data to JSON
-            .then(data => {
-                // Clear the old options in the district select tag
-                districtSelect.innerHTML = '<option value="">Select District</option>';
-                // Loop through the list of districts and add to the select tag
-                data.results.forEach(district => {
-                    const option = document.createElement("option"); // Create a new option
-                    option.text = district.district_name; // Set the text of the option to the district name
-                    option.value = district.district_name; // Set the value of the option to the district id
-                    districtSelect.add(option); // Add the option to the select tag
+        // Function to get districts
+        function getDistricts(provinceId) {
+            fetch('https://esgoo.net/api-tinhthanh/2/' + provinceId + '.htm')
+                .then(function (response) {
+                    return response.json();
+                })
+                .then(function (data_quan) {
+                    if (data_quan.error === 0) {
+                        districtSelect.innerHTML = ''; // Clear previous options
+
+                        data_quan.data.forEach(function (val_quan) {
+                            var option = document.createElement('option');
+                            option.value = val_quan.id;
+                            option.innerHTML = val_quan.full_name;
+                            districtSelect.appendChild(option);
+                        });
+                    }
                 });
-            })
-            .catch(error => {
-                console.error('There was an error calling the API:', error); // Display the error if there is one
-            });
-    }
+        }
 
-    // Call the function to get the list of provinces when the webpage is loaded
-    getProvinces();
-
-    // Add an onchange event to the province select tag
-    provinceSelect.onchange = function () {
-        // Get the id of the selected province from the data-id attribute
-        const province_id = this.options[this.selectedIndex].getAttribute("data-id");
-        // Call the function to get the list of districts by province
-        getDistricts(province_id);
-    };
+        getProvinces();
+        provinceSelect.addEventListener('change', function (e) {
+            var provinceId = e.target.value;
+            // Get districts based on selected province
+            getDistricts(provinceId);
+        });
+    })
 
     function selectCard(element) {
         // Remove 'active' class from all siblings
@@ -202,6 +199,8 @@
     function parseCurrency(value) {
         return parseFloat(value.replace(/\./g, '').replace(/,/g, '.'));
     }
+
+    const totalAmountElement = document.getElementById('total-amount');
 
     document.getElementById('voucherForm').addEventListener('submit', function (event) {
         event.preventDefault();
@@ -232,8 +231,8 @@
                     discountElement.textContent = '-0';
                     totalAmountElement.textContent = formatCurrency(subtotal);
                 }
-                document.getElementById('totalPrice').value = totalAmountElement.textContent
             })
             .catch(error => console.error('Error:', error));
     });
+    document.getElementById('totalPrice').value = parseCurrency(totalAmountElement.textContent);
 </script>
