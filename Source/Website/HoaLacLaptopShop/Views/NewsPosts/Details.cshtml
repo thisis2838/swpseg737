@@ -7,7 +7,7 @@
 <h1>@Model.Title</h1>
 <h4><span>Posted at <b>@Model.Time.ToString("hh:mm:ss tt")</b> at <b>@Model.Time.ToString("yyyy-MM-dd")</b> by <b>@Model.Author!.Name</b></span></h4>
 <hr />
-<div style="margin-bottom: 20px"><span style="white-space: pre-line;">@Model.Content</span></div>
+<div style="margin-bottom: 20px"><div>@Html.Raw(Model.Content)</div></div>
 <div>
     <a asp-action="Edit" asp-route-id="@Model?.ID">Edit</a> |
     <a asp-action="Delete" asp-route-id="@Model?.ID">Delete</a> |

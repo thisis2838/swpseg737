@@ -13,8 +13,12 @@ namespace HoaLacLaptopShop.Controllers
     using System.Text;
     using global::HoaLacLaptopShop.Models;
     using global::HoaLacLaptopShop.ViewModels;
-    using Microsoft.AspNetCore.Identity;
+    using Microsoft.AspNetCore.Authorization;
+    using System.Security.Claims;
+    using Microsoft.AspNetCore.Authentication;
+    using Microsoft.AspNetCore.Authentication.Cookies;
     using global::HoaLacLaptopShop.Helpers;
+    using Microsoft.IdentityModel.Tokens;
 
     namespace HoaLacLaptopShop.Controllers
     {
@@ -65,7 +69,8 @@ namespace HoaLacLaptopShop.Controllers
                 }
             }
 
-            // GET: Users/Create
+            #region Register
+            // GET: Users/Register
             public IActionResult Register()
             {
                 return View();
@@ -93,47 +98,117 @@ namespace HoaLacLaptopShop.Controllers
                 }
                 return View(user);
             }
+            #endregion
 
+            #region Login
             // GET: Users/Login
-            public IActionResult Login()
+            public IActionResult Login(string? ReturnUrl)
             {
+                ViewBag.ReturnUrl = ReturnUrl;
                 return View();
             }
 
             [HttpPost]
             [ValidateAntiForgeryToken]
-            public IActionResult Login(LoginViewModel model)
+            public IActionResult Login(LoginViewModel model, string? ReturnUrl)
             {
+                ViewBag.ReturnUrl = ReturnUrl;
                 if (ModelState.IsValid)
                 {
                     var user = _context.Users.SingleOrDefault(x => x.Email.Equals(model.Email));
                     if (user == null)
                     {
-                        ModelState.AddModelError("Error", "Invalid input information");
+                        ModelState.AddModelError("Error", "This email is not registerd yet");
                     }
                     else
                     {
                         if (!ToMd5Hash(model.Password).Equals(user.PassHash))
                         {
-                            ModelState.AddModelError("Error", "Invalid input information");
+                            ModelState.AddModelError("Error", "Wrong password or email");
                         }
                         else
                         {
-                            HttpContext.Session.Set<User>("user", user);
+                            HttpContext.Session.Set("user", user);
                             HttpContext.Session.SetString("CurrentUserId", user.ID.ToString());
                             HttpContext.Session.SetString("Username", user.Name);
                             return RedirectToAction("Index", "Home");
                         }
                     }
                 }
-                ModelState.AddModelError("Error", "Invalid input information");
+                ModelState.AddModelError("Error", "");
                 return View(model);
             }
+            #endregion
+
+            #region Profile
+            public IActionResult Profile()
+            {
+                var user = HttpContext.Session.Get<User>("user");
+                return View("Profile", user);
+            }
+
+            [HttpPost]
+            [ValidateAntiForgeryToken]
+            public async Task<IActionResult> Profile(int id, [Bind("ID,Name,Email,PassHash,PhoneNumber")] User user, string oldpass,
+                string oldhash, string newpass, string gender)
+            {
+                if (id != user.ID)
+                {
+                    return NotFound();
+                }
+                if (oldpass.IsNullOrEmpty() && !newpass.IsNullOrEmpty())
+                {
+                    ViewBag.Error = "You have to enter old password";
+                    return View(user);
+                }
+                if (!oldpass.IsNullOrEmpty() && newpass.IsNullOrEmpty())
+                {
+                    ViewBag.Error = "You have to enter new password";
+                    return View(user);
+                }
+                try
+                {
+                    if (ModelState.IsValid)
+                    {
+
+                        if (ToMd5Hash(oldpass).Equals(oldhash))
+                        {
+                            user.Gender = gender.Equals("Male");
+                            user.PassHash = ToMd5Hash(newpass);
+                            _context.Update(user);
+                            await _context.SaveChangesAsync();
+                            HttpContext.Session.Set("user", user);
+                            HttpContext.Session.SetString("CurrentUserId", user.ID.ToString());
+                            HttpContext.Session.SetString("Username", user.Name);
+                            return RedirectToAction("Index", "Home");
+                        }
+                        else
+                        {
+                            ViewBag.Error = "Incorrect password";
+                            return RedirectToAction("Profile", "Users");
+                        }
+                    }
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!UserExists(user.ID))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+                return View(user);
+            }
+            #endregion
 
             [HttpGet]
             public IActionResult Logout()
             {
                 HttpContext.Session.Remove("user");
+                HttpContext.Session.Remove("CurrentUserId");
                 HttpContext.Session.Remove("CurrentUserId");
                 HttpContext.Session.Remove("Username");
                 return RedirectToAction("Index", "Home");
@@ -161,7 +236,8 @@ namespace HoaLacLaptopShop.Controllers
             // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
             [HttpPost]
             [ValidateAntiForgeryToken]
-            public async Task<IActionResult> Edit(int id, [Bind("ID,Name,Email,PassHash,Gender,PhoneNumber,Role")] User user)
+            public async Task<IActionResult> Edit(int id, [Bind("Name,Email,PassHash,Gender,PhoneNumber")] User user, string oldpass,
+                string newpass, string gender)
             {
                 if (id != user.ID)
                 {
@@ -172,8 +248,25 @@ namespace HoaLacLaptopShop.Controllers
                 {
                     try
                     {
-                        _context.Update(user);
-                        await _context.SaveChangesAsync();
+                        if (ToMd5Hash(oldpass).Equals(user.PassHash))
+                        {
+                            user.PassHash = ToMd5Hash(newpass);
+                            if (gender.Equals("Male"))
+                            {
+                                user.Gender = true;
+                            }
+                            else if (gender.Equals("Female"))
+                            {
+                                user.Gender = false;
+                            }
+                            _context.Update(user);
+                            await _context.SaveChangesAsync();
+                        }
+                        else
+                        {
+                            ViewBag.Error = "Incorrect password";
+                            return RedirectToAction("Profile", "Users");
+                        }
                     }
                     catch (DbUpdateConcurrencyException)
                     {

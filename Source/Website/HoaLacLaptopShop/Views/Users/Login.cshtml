@@ -6,8 +6,8 @@
 <h1>Login to your account</h1>
 <div class="row">
     <div class="col-md-6">
-        <form asp-action="Login">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <form asp-action="Login" asp-route-returnurl="@ViewBag.ReturnUrl">
+            <div asp-validation-summary="All" class="text-danger"></div>
             <div class="form-group">
                 <label asp-for="Email" class="control-label"></label>
                 <input asp-for="Email" class="form-control" type="email" />
@@ -24,7 +24,7 @@
             </div>
             <br />
             <div>
-                <a class="link-primary" href="#">Forgot your password?</a>
+                <a class="link-danger" asp-controller="User" asp-action="ForgotPassword">Forgot your password?</a>
             </div>
             <br />
             @if (ViewBag.Error != null)
@@ -34,6 +34,7 @@
                 </p>
             }
             <div class="form-group">
+                <div></div>
                 <input type="submit" value="Login" class="btn btn-primary" />
             </div>
         </form>

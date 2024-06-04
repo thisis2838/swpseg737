@@ -2467,7 +2467,9 @@ h2.title {
     padding: 20px;
     margin-top: 20px;
     margin-bottom: 20px;
-    border-radius: 10px
+    border-radius: 10px;
+    max-height: 200px;
+    overflow: clip;
 }
 
     .news-entry-long h1 {
@@ -2477,7 +2479,6 @@ h2.title {
     }
 
     .news-entry-long .news-summary {
-        text-overflow: ellipsis;
         overflow: hidden;
         white-space: nowrap;
     }
@@ -2493,3 +2494,7 @@ h2.title {
         overflow: hidden;
         white-space: nowrap;
     }
+
+#profile-name {
+    margin-top: 10px;
+}

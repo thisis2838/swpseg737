@@ -24,6 +24,7 @@ namespace HoaLacLaptopShop.ViewModels
         public string? Search { get; set; } = null;
         public int? MinPrice { get; init; } = null;
         public int? MaxPrice { get; init; } = null;
+        
         public List<int>? SelectedBrandIDs { get; set; } = null;
     }
 
@@ -35,6 +36,7 @@ namespace HoaLacLaptopShop.ViewModels
         public required int MinPossiblePrice;
         public required int MaxPossiblePrice;
 
+
         public ProductIndexViewModel(ProductIndexQuery query)
         {
             this.ShowLaptops = query.ShowLaptops;
@@ -44,5 +46,6 @@ namespace HoaLacLaptopShop.ViewModels
             this.MaxPrice = query.MaxPrice;
             this.SelectedBrandIDs = query.SelectedBrandIDs;
         }
+
     }
 }
