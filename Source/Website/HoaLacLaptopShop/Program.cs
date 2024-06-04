@@ -1,4 +1,5 @@
 using HoaLacLaptopShop.Helpers;
+using HoaLacLaptopShop.Middlewares;
 using HoaLacLaptopShop.Models;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
@@ -51,6 +52,7 @@ app.UseRouting();
 app.UseSession();
 
 app.UseAuthorization();
+app.UseMiddleware<RoleSyncMiddleware>();
 app.UseAuthentication();
 
 app.MapControllerRoute(name: "default", pattern: "{controller=Home}/{action=Index}/{id?}");

@@ -6,7 +6,17 @@ using System.ComponentModel.DataAnnotations;
 
 namespace HoaLacLaptopShop.Models;
 
-public partial class User
+public class RoledActor
+{
+    [DisplayName("Is Administrator?")]
+    public bool IsAdmin { get; set; }
+    [DisplayName("Is Marketing Staff?")]
+    public bool IsMarketing { get; set; }
+    [DisplayName("Is Sales Staff?")]
+    public bool IsSales { get; set; }
+}
+
+public partial class User : RoledActor
 {
     public int ID { get; set; }
     public string Name { get; set; } = null!;
@@ -17,10 +27,6 @@ public partial class User
     [DisplayName("Phone Number")]
     public string PhoneNumber { get; set; } = null!;
     public CustomerTier CustomerTier { get; set; } = CustomerTier.Regular;
-    public bool IsSales { get; set; } = false;
-    public bool IsMarketing { get; set; } = false;
-    public bool IsAdmin { get; set; } = false;
-
     public virtual ICollection<NewsPost> NewsPosts { get; set; } = new List<NewsPost>();
     public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
     public virtual ICollection<ProductReview> ProductReviews { get; set; } = new List<ProductReview>();
