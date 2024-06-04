@@ -274,3 +274,5 @@ CREATE TABLE NewsPosts
         FOREIGN KEY REFERENCES Users(id)
 );
 GO
+
+select * from Laptops
