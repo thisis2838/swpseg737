@@ -27,7 +27,7 @@ namespace HoaLacLaptopShop.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Route("Login"), Route("Account/Login")]
-        public async Task<ActionResult> LoginAsync(LoginViewModel model)
+        public async Task<ActionResult> Login(LoginViewModel model)
         {
             var user = _context.Users.FirstOrDefault(x => x.Email == model.Email);
             if (user == null)
@@ -36,12 +36,12 @@ namespace HoaLacLaptopShop.Controllers
                 return View("Login", model);
             }
             var hash = new PasswordHasher<User>();
-            if (hash.VerifyHashedPassword(user, user.PassHash, model.Password) == PasswordVerificationResult.Failed)
+            if (hash.VerifyHashedPassword(user, user.PassHash!, model.Password) == PasswordVerificationResult.Failed)
             {
                 this.SetError("Incorrect password");
                 return View("Login", model);
             }
-            await HttpContext.SignOutAsync();
+            await HttpContext.SignOut();
             HttpContext.LoginAsUser(user);
             this.SetMessage($"Loggin in as {user.Name}");
             return RedirectToAction("Index", "Home");
@@ -49,17 +49,17 @@ namespace HoaLacLaptopShop.Controllers
 
         [HttpGet]
         [Route("Logout"), Route("Account/Logout")]
-        public async Task<ActionResult> LogoutAsync()
+        public async Task<ActionResult> Logout()
         {
             this.SetMessage($"Logged out");
-            await HttpContext.SignOutAsync();
+            await HttpContext.SignOut();
             return RedirectToAction("Index", "Home");
         }
 
         [Authorize]
         public IActionResult Index()
         {
-            return View(HttpContext.GetCurrentUser(_context));
+            return View(HttpContext.GetCurrentUser());
         }
 
         [HttpGet]
@@ -70,7 +70,7 @@ namespace HoaLacLaptopShop.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> RegisterAsync([Bind("ID, Name, Email, Password, PhoneNumber")] RegisterViewModel model, string gender)
+        public async Task<ActionResult> Register([Bind("ID, Name, Email, Password, PhoneNumber")] RegisterViewModel model, string gender)
         {
             new List<string>
             {
@@ -95,7 +95,7 @@ namespace HoaLacLaptopShop.Controllers
                 user.IsSales = user.IsMarketing = user.IsAdmin = false;
                 _context.Add(user);
                 await _context.SaveChangesAsync();
-                await HttpContext.SignOutAsync();
+                await HttpContext.SignOut();
                 HttpContext.LoginAsUser(user);
                 return RedirectToAction(nameof(Index));
             }
@@ -105,7 +105,7 @@ namespace HoaLacLaptopShop.Controllers
         [Authorize]
         public ActionResult Edit()
         {
-            var currentUser = HttpContext.GetCurrentUser(_context)!;
+            var currentUser = HttpContext.GetCurrentUser()!;
             return View(new AccountEditViewModel()
             {
                 ID = currentUser.ID,
@@ -136,7 +136,7 @@ namespace HoaLacLaptopShop.Controllers
                 try
                 {
                     var hasher = new PasswordHasher<User>();
-                    var user = HttpContext.GetCurrentUser(_context);
+                    var user = HttpContext.GetCurrentUser();
 
                     model.PassHash = string.IsNullOrEmpty(model.NewPassword) ? user.PassHash : hasher.HashPassword(user, model.NewPassword);
                     if (hasher.VerifyHashedPassword(user, user.PassHash, model.CurrentPassword) == PasswordVerificationResult.Failed)

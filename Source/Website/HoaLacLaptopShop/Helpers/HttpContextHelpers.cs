@@ -14,7 +14,7 @@ namespace HoaLacLaptopShop.Helpers
                 (
                     new ClaimsPrincipal(new ClaimsIdentity(new List<Claim>
                     {
-                        new Claim(ClaimTypes.NameIdentifier, user.ID.ToString())
+                        new Claim(ClaimTypes.NameIdentifier, user.ID.ToString()),
                     },
                     "Login"
                 )));
@@ -34,12 +34,26 @@ namespace HoaLacLaptopShop.Helpers
             return int.Parse(identity.Claims.First(x => x.Type == ClaimTypes.NameIdentifier).Value);
         }
 
+        public static string? GetCurrentUserName(this HttpContext context)
+        {
+            var identity = context.GetCurrentIdentity();
+            if (identity == null) return null;
+            return identity.Claims.First(x => x.Type == ClaimTypes.Name).Value;
+        }
+
         public static bool IsLoggedIn(this HttpContext context)
         {
             return context.GetCurrentUserID() is not null;
         }
 
-        public static User? GetCurrentUser(this HttpContext context, HoaLacLaptopShopContext dbContext)
+        public static User? GetCurrentUser(this HttpContext context)
+        {
+            return context.IsLoggedIn()
+                ? context.Items["CurrentUser"] as User
+                : null;
+        }
+
+        public static User? GetCurrentUser1(this HttpContext context, HoaLacLaptopShopContext dbContext)
         {
             var id = context.GetCurrentUserID();
             if (!id.HasValue) return null;
@@ -56,6 +70,12 @@ namespace HoaLacLaptopShop.Helpers
                 IsSales = roles.Any(x => x == "Sales"),
                 IsMarketing = roles.Any(x => x == "Marketing")
             };
+        }
+
+        public static async Task SignOut(this HttpContext context)
+        {
+            await context.SignOutAsync().ContinueWith(x => context.Items["CurrentUser"] = null);
+            return;
         }
     }
 }

@@ -38,6 +38,7 @@ namespace HoaLacLaptopShop.Middlewares
                     if (user.IsSales) identity.AddClaim(new Claim(ClaimTypes.Role, "Sales"));
                     if (user.IsAdmin) identity.AddClaim(new Claim(ClaimTypes.Role, "Admin"));
                 }
+                context.Items["CurrentUser"] = user;
             }
             await _next(context);
         }
