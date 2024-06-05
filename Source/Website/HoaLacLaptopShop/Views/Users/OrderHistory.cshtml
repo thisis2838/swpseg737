@@ -1,0 +1,62 @@
+﻿@model List<Order>
+@{
+    ViewData["Title"] = "Order History";
+}
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Creation Time</th>
+            <th>Order Products</th>
+            @* <th>Location</th> *@
+            <th>Status</th>
+            <th>Total Price</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+       <tbody id="table-body">
+        @foreach (var item in Model.Take(10)) // initially show 10 rows
+        {
+            <tr>
+                <td>@item.ID</td>
+                <td>@item.CreationTime</td>
+                <td>
+                    @foreach (var orderItem in item.OrderDetails)
+                    {
+                        <span>@orderItem.Amount @orderItem.Product.Name</span>
+                        <br />
+                    }
+                </td>
+                <td><span class="badge bg-@getStatusBadge(item.Status)">@item.Status</span></td>
+                <td>@item.TotalPrice</td>               
+                <td><a class="btn btn-primary">View Details</a></td>
+            </tr>
+        }
+        </tbody> 
+</table>
+<button id="load-more" class="btn btn-primary" style="display: none;">Load More</button>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function () {
+        const totalRows = @Model.Count(); // total number of rows in the model
+        const rowsToShow = 10;
+        let currentIndex = rowsToShow;
+
+        if (totalRows > rowsToShow) {
+            $('#load-more').show();
+        }
+
+        $('#load-more').click(function () {
+            $('#table-body').find('tr').slice(currentIndex, currentIndex + rowsToShow).show();
+            currentIndex += rowsToShow;
+
+            if (currentIndex >= totalRows) {
+                $('#load-more').hide();
+            }
+        });
+
+        // Initially hide rows beyond the first set
+        $('#table-body').find('tr').slice(rowsToShow).hide();
+    });
+</script>

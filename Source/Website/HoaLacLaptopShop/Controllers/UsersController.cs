@@ -321,6 +321,24 @@ namespace HoaLacLaptopShop.Controllers
             {
                 return _context.Users.Any(e => e.ID == id);
             }
+
+            public IActionResult OrderHistory()
+            {
+                String userId = HttpContext.Session.GetString("CurrentUserId");
+                if ( userId != null)
+                {
+                    var order = _context.Orders
+                            .Include(o => o.OrderDetails)
+                                .ThenInclude(oi => oi.Product)
+                            .Include(o => o.Buyer)
+                            .Where(o => o.BuyerID.ToString() == userId).ToList();
+                    return View(order);              
+                }
+                else
+                {
+                    return RedirectToAction("Index", "Error", new { type = KnownErrorType.Forbidden });
+                }
+            }
         }
     }
 }
