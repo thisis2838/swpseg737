@@ -1,4 +1,5 @@
 ﻿@model HoaLacLaptopShop.Models.User
+
 @{
     ViewData["Title"] = "Delete";
 }
@@ -41,22 +42,28 @@
             @Html.DisplayFor(model => model.PhoneNumber)
         </dd>
         <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.CustomerTier)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.CustomerTier)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.IsAdmin)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.IsAdmin)
+        </dd>
+        <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.IsMarketing)
         </dt>
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.IsMarketing)
         </dd>
-        <dt class="col-sm-2">
+        <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.IsSales)
         </dt>
-        <dd class="col-sm-10">
+        <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.IsSales)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.IsAdmin)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.IsAdmin)
         </dd>
     </dl>
     

@@ -1,4 +1,5 @@
 using HoaLacLaptopShop.Helpers;
+using HoaLacLaptopShop.Middlewares;
 using HoaLacLaptopShop.Models;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
@@ -19,10 +20,15 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
     .AddCookie(options
     =>
     {
-        options.LoginPath = "/Users/Login";
-        options.AccessDeniedPath = "/AccessDenied";
+        options.LoginPath = "/Account/Login";
+        options.AccessDeniedPath = "/Account/AccessDenied";
     });
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("RequireAdmin", policy => policy.RequireRole("Admin"));
+    options.AddPolicy("RequireMarketing", policy => policy.RequireRole("Marketing"));
+    options.AddPolicy("RequireStaff", policy => policy.RequireRole("Staff"));
+});
 
 builder.Services.AddSession(options =>
 {
@@ -50,8 +56,9 @@ app.UseRouting();
 // Enable session middleware
 app.UseSession();
 
-app.UseAuthorization();
 app.UseAuthentication();
+app.UseMiddleware<RoleSyncMiddleware>();
+app.UseAuthorization();
 
 app.MapControllerRoute(name: "default", pattern: "{controller=Home}/{action=Index}/{id?}");
 app.MapControllerRoute(name: "product", pattern: "{controller=Product}/{action=Detail}/{id?}");

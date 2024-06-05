@@ -1,15 +1,14 @@
-﻿@model HoaLacLaptopShop.Models.User
-@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+﻿@using HoaLacLaptopShop.Helpers
+@model HoaLacLaptopShop.ViewModels.AccountEditViewModel
 @{
-    ViewData["Title"] = "User Profile";
+    ViewData["Title"] = "Profile";
 }
 <div>
     @{
-        var username = HttpContextAccessor.HttpContext.Session.GetString("Username");
-        if (username != null)
+        if (Context.IsLoggedIn())
         {
             @DateTime.Now
-            <h1>Hello @username.ToUpper()</h1>
+            <h1>Hello @Context.GetCurrentUser()!.Name.ToUpper()</h1>
             <hr />
             <div class="row">
                 <div class="col-md-6">
@@ -17,7 +16,7 @@
                         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                         @Html.AntiForgeryToken()
                         <input type="hidden" asp-for="ID" />
-                        <input type="hidden" value="@Model.PassHash" name="oldhash"/>
+                        <input type="hidden" value="@Model.PassHash" name="oldhash" />
                         <div class="form-group">
                             <label asp-for="Email" class="control-label"></label>
                             <input asp-for="Email" class="form-control" value="@Model.Email" />
@@ -82,3 +81,4 @@
         }
     }
 </div>
+
