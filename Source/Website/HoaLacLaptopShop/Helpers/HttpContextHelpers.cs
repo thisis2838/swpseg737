@@ -8,16 +8,18 @@ namespace HoaLacLaptopShop.Helpers
 {
     public static class HttpContextHelpers
     {
-        public static async void LoginAsUser(this HttpContext context, User user)
+        public static async Task LoginAsUser(this HttpContext context, User user)
         {
             await context.SignInAsync
-                (
-                    new ClaimsPrincipal(new ClaimsIdentity(new List<Claim>
-                    {
-                        new Claim(ClaimTypes.NameIdentifier, user.ID.ToString()),
-                    },
-                    "Login"
-                )));
+            (
+                new ClaimsPrincipal(new ClaimsIdentity(new List<Claim>
+                {
+                    new Claim(ClaimTypes.NameIdentifier, user.ID.ToString()),
+                },
+                "Login"
+            )))
+            .ContinueWith(x => context.Items["CurrentUser"] = user);
+            return;
         }
 
         private static ClaimsIdentity? GetCurrentIdentity(this HttpContext context)
@@ -34,13 +36,6 @@ namespace HoaLacLaptopShop.Helpers
             return int.Parse(identity.Claims.First(x => x.Type == ClaimTypes.NameIdentifier).Value);
         }
 
-        public static string? GetCurrentUserName(this HttpContext context)
-        {
-            var identity = context.GetCurrentIdentity();
-            if (identity == null) return null;
-            return identity.Claims.First(x => x.Type == ClaimTypes.Name).Value;
-        }
-
         public static bool IsLoggedIn(this HttpContext context)
         {
             return context.GetCurrentUserID() is not null;
@@ -51,13 +46,6 @@ namespace HoaLacLaptopShop.Helpers
             return context.IsLoggedIn()
                 ? context.Items["CurrentUser"] as User
                 : null;
-        }
-
-        public static User? GetCurrentUser1(this HttpContext context, HoaLacLaptopShopContext dbContext)
-        {
-            var id = context.GetCurrentUserID();
-            if (!id.HasValue) return null;
-            return dbContext.Users.AsNoTracking().Single(x => x.ID == id.Value);
         }
 
         public static RoledActor? GetCurrentUserRoles(this HttpContext context)

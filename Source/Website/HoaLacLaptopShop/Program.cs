@@ -23,7 +23,12 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.LoginPath = "/Account/Login";
         options.AccessDeniedPath = "/Account/AccessDenied";
     });
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("RequireAdmin", policy => policy.RequireRole("Admin"));
+    options.AddPolicy("RequireMarketing", policy => policy.RequireRole("Marketing"));
+    options.AddPolicy("RequireStaff", policy => policy.RequireRole("Staff"));
+});
 
 builder.Services.AddSession(options =>
 {
@@ -51,9 +56,9 @@ app.UseRouting();
 // Enable session middleware
 app.UseSession();
 
-app.UseAuthorization();
-app.UseMiddleware<RoleSyncMiddleware>();
 app.UseAuthentication();
+app.UseMiddleware<RoleSyncMiddleware>();
+app.UseAuthorization();
 
 app.MapControllerRoute(name: "default", pattern: "{controller=Home}/{action=Index}/{id?}");
 app.MapControllerRoute(name: "product", pattern: "{controller=Product}/{action=Detail}/{id?}");

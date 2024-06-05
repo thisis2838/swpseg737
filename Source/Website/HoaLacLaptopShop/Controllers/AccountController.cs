@@ -6,6 +6,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace HoaLacLaptopShop.Controllers
 {
@@ -42,7 +45,7 @@ namespace HoaLacLaptopShop.Controllers
                 return View("Login", model);
             }
             await HttpContext.SignOut();
-            HttpContext.LoginAsUser(user);
+            await HttpContext.LoginAsUser(user);
             this.SetMessage($"Loggin in as {user.Name}");
             return RedirectToAction("Index", "Home");
         }
@@ -96,8 +99,8 @@ namespace HoaLacLaptopShop.Controllers
                 _context.Add(user);
                 await _context.SaveChangesAsync();
                 await HttpContext.SignOut();
-                HttpContext.LoginAsUser(user);
-                return RedirectToAction(nameof(Index));
+                await HttpContext.LoginAsUser(user);
+                return RedirectToAction("Index", "Home");
             }
             return View(model);
         }
@@ -109,7 +112,13 @@ namespace HoaLacLaptopShop.Controllers
             return View(new AccountEditViewModel()
             {
                 ID = currentUser.ID,
-                Email = currentUser.Email
+                Email = currentUser.Email,
+                Name = currentUser.Name,
+                Gender = currentUser.Gender,
+                PhoneNumber = currentUser.PhoneNumber,
+                IsAdmin = currentUser.IsAdmin,
+                IsMarketing = currentUser.IsMarketing,
+                IsSales = currentUser.IsSales
             });
         }
 

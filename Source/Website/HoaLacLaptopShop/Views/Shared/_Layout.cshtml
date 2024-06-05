@@ -64,7 +64,7 @@
                                     @{
                                         if (Context.IsLoggedIn())
                                         {
-                                        <li><span><a class="btn btn-secondary" href="@Url.Action("Edit", "Account")" style="margin-right: 0">@Context.GetCurrentUserName</a></span></li>
+                                        <li><span><a class="btn btn-secondary" href="@Url.Action("Edit", "Account")" style="margin-right: 0">@Context.GetCurrentUser()!.Name</a></span></li>
                                         <li><a href="@Url.Action("Logout", "Account")" style="margin-right: 0">Logout</a></li>
                                         <li><a href="@Url.ActionLink("Index", "Cart")"><i class="fa fa-shopping-cart"></i> Cart</a></li>
                                         }
@@ -101,6 +101,14 @@
                                 <li><a href="@Url.Action("Index", "Product")">Products</a></li>
                                 <li><a href="@Url.Action("Index", "NewsPosts")">News</a></li>
                                 <li><a href="@Url.Action("About", "Home")">About Us</a></li>
+                                <li>
+                                    @{
+                                        if (Context.GetCurrentUser()?.IsAdmin ?? false)
+                                        {
+                                            <a href="@Url.Action("Index", "Users")">Manage Users</a>
+                                        }
+                                    }
+                                </li>
                             </ul>
                         </div>
                     </div>

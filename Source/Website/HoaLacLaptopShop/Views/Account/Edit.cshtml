@@ -8,7 +8,7 @@
         if (Context.IsLoggedIn())
         {
             @DateTime.Now
-            <h1>Hello @Context.GetCurrentUserName</h1>
+            <h1>Hello @Context.GetCurrentUser()!.Name.ToUpper()</h1>
             <hr />
             <div class="row">
                 <div class="col-md-6">
