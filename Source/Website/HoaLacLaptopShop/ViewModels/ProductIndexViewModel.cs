@@ -26,12 +26,17 @@ namespace HoaLacLaptopShop.ViewModels
         public int? MaxPrice { get; init; } = null;
         
         public List<int>? SelectedBrandIDs { get; set; } = null;
+
+        public List<int>? SelectedCpuIDs { get; set; } = null;
+        public List<int>? SelectedGpuIDs { get; set; } = null;
     }
 
     public class ProductIndexViewModel : ProductIndexQuery
     {
         public required List<Product> Products;
         public required List<BrandEntry> Brands;
+        public required List<LaptopCPUSeries> Cpus;
+        public required List<LaptopGPUSeries> Gpus;
 
         public required int MinPossiblePrice;
         public required int MaxPossiblePrice;
@@ -45,6 +50,8 @@ namespace HoaLacLaptopShop.ViewModels
             this.MinPrice = query.MinPrice;
             this.MaxPrice = query.MaxPrice;
             this.SelectedBrandIDs = query.SelectedBrandIDs;
+            this.SelectedCpuIDs = query.SelectedCpuIDs;
+            this.SelectedGpuIDs = query.SelectedGpuIDs;
         }
 
     }
