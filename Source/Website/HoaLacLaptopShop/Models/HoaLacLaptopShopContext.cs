@@ -4,7 +4,6 @@ using System.Configuration;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace HoaLacLaptopShop.Models;
 
@@ -33,237 +32,196 @@ public partial class HoaLacLaptopShopContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        const int VERY_SHORT_TEXT_LENGTH = 20;
+        const int SHORT_TEXT_LENGTH = 256;
+        const int MEDIUM_TEXT_LENGTH = 1024;
+        const int LONG_TEXT_LENGTH = 2048;
+
         modelBuilder.Entity<Brand>(entity =>
         {
-            entity.HasKey(e => e.ID).HasName("PK__Brands__3213E83FADFD3A46");
+            entity.HasKey(e => e.ID);
+            entity.ToTable("Brands");
 
             entity.Property(e => e.ID).HasColumnName("id");
-            entity.Property(e => e.Country).HasMaxLength(255).HasColumnName("country");
-            entity.Property(e => e.Description).HasColumnName("description");
-            entity.Property(e => e.Name).HasColumnName("name");
+            entity.Property(e => e.Name).HasMaxLength(SHORT_TEXT_LENGTH).HasColumnName("name");
+            entity.Property(e => e.Country).HasMaxLength(SHORT_TEXT_LENGTH).HasColumnName("country");
+            entity.Property(e => e.Description).HasMaxLength(MEDIUM_TEXT_LENGTH).HasColumnName("description");
         });
 
         modelBuilder.Entity<Laptop>(entity =>
         {
-            entity.HasKey(e => e.ProductID).HasName("PK__Laptops__2D10D14AC18029F9");
+            entity.HasKey(e => e.ProductID);
+            entity.ToTable("Laptops");
 
             entity.Property(e => e.ProductID).ValueGeneratedNever().HasColumnName("productID");
             entity.Property(e => e.CPUSeriesID).HasColumnName("cpuSeries");
             entity.Property(e => e.GPUSeriesID).HasColumnName("gpuSeries");
-            entity.Property(e => e.RAM).HasColumnName("ram");
-            entity.Property(e => e.RefreshRate).HasColumnName("refreshRate");
-            entity.Property(e => e.ScreenAspectRatio).HasMaxLength(20).IsUnicode(false).HasColumnName("screenAspectRatio");
-            entity.Property(e => e.ScreenResolution).HasMaxLength(20).IsUnicode(false).HasColumnName("screenResolution");
             entity.Property(e => e.ScreenSize).HasColumnName("screenSize");
-            entity.Property(e => e.StorageSize).HasColumnName("storageSize");
+            entity.Property(e => e.ScreenAspectRatio).HasMaxLength(VERY_SHORT_TEXT_LENGTH).IsUnicode(false).HasColumnName("screenAspectRatio");
+            entity.Property(e => e.ScreenResolution).HasMaxLength(VERY_SHORT_TEXT_LENGTH).IsUnicode(false).HasColumnName("screenResolution");
             entity.Property(e => e.StorageType).HasConversion<byte>().HasColumnName("storageType");
+            entity.Property(e => e.StorageSize).HasColumnName("storageSize");
+            entity.Property(e => e.RefreshRate).HasColumnName("refreshRate");
+            entity.Property(e => e.RAM).HasColumnName("ram");
 
-            entity.HasOne(d => d.CPUSeries).WithMany(p => p.Laptops)
-                .HasForeignKey(d => d.CPUSeriesID)
-                .HasConstraintName("FK__Laptops__cpuSeri__34C8D9D1");
-
-            entity.HasOne(d => d.GPUSeries).WithMany(p => p.Laptops)
-                .HasForeignKey(d => d.GPUSeriesID)
-                .HasConstraintName("FK__Laptops__gpuSeri__35BCFE0A");
-
-            entity.HasOne(d => d.Product).WithOne(p => p.Laptop)
-                .HasForeignKey<Laptop>(d => d.ProductID)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Laptops__product__33D4B598");
+            entity.HasOne(d => d.CPUSeries).WithMany(p => p.Laptops).HasForeignKey(d => d.CPUSeriesID);
+            entity.HasOne(d => d.GPUSeries).WithMany(p => p.Laptops).HasForeignKey(d => d.GPUSeriesID);
+            entity.HasOne(d => d.Product).WithOne(p => p.Laptop).HasForeignKey<Laptop>(d => d.ProductID).OnDelete(DeleteBehavior.ClientSetNull);
         });
 
         modelBuilder.Entity<LaptopCPUSeries>(entity =>
         {
-            entity.HasKey(e => e.ID).HasName("PK__LaptopCP__3213E83F91A5ABDE");
-
+            entity.HasKey(e => e.ID);
             entity.ToTable("LaptopCPUSeries");
 
             entity.Property(e => e.ID).HasColumnName("id");
-            entity.Property(e => e.Description).HasColumnName("description");
             entity.Property(e => e.ManufacturerID).HasColumnName("manufacturerID");
-            entity.Property(e => e.Name).HasColumnName("name");
+            entity.Property(e => e.Name).HasMaxLength(SHORT_TEXT_LENGTH).HasColumnName("name");
 
-            entity.HasOne(d => d.Manufacturer).WithMany(p => p.LaptopCPUSeries)
-                .HasForeignKey(d => d.ManufacturerID)
-                .HasConstraintName("FK__LaptopCPU__manuf__2E1BDC42");
+            entity.HasOne(d => d.Manufacturer).WithMany(p => p.LaptopCPUSeries).HasForeignKey(d => d.ManufacturerID);
         });
 
         modelBuilder.Entity<LaptopGPUSeries>(entity =>
         {
-            entity.HasKey(e => e.ID).HasName("PK__LaptopGP__3213E83F94E0AC02");
-
+            entity.HasKey(e => e.ID);
             entity.ToTable("LaptopGPUSeries");
 
             entity.Property(e => e.ID).HasColumnName("id");
-            entity.Property(e => e.Description).HasColumnName("description");
             entity.Property(e => e.ManufacturerID).HasColumnName("manufacturerID");
-            entity.Property(e => e.Name).HasColumnName("name");
+            entity.Property(e => e.Name).HasMaxLength(SHORT_TEXT_LENGTH).HasColumnName("name");
 
-            entity.HasOne(d => d.Manufacturer).WithMany(p => p.LaptopGPUSeries)
-                .HasForeignKey(d => d.ManufacturerID)
-                .HasConstraintName("FK__LaptopGPU__manuf__30F848ED");
+            entity.HasOne(d => d.Manufacturer).WithMany(p => p.LaptopGPUSeries).HasForeignKey(d => d.ManufacturerID);
         });
 
         modelBuilder.Entity<NewsPost>(entity =>
         {
-            entity.HasKey(e => e.ID).HasName("PK__NewsPost__3213E83F70570594");
+            entity.HasKey(e => e.ID);
+            entity.ToTable("NewsPosts");
 
             entity.Property(e => e.ID).HasColumnName("id");
             entity.Property(e => e.AuthorId).HasColumnName("authorID");
-            entity.Property(e => e.Content).HasColumnName("content");
-            entity.Property(e => e.Time)
-                .HasColumnType("datetime")
-                .HasColumnName("time");
-            entity.Property(e => e.Title).HasColumnName("title");
+            entity.Property(e => e.Time).HasColumnType("datetime").HasColumnName("postTime");
+            entity.Property(e => e.Title).HasMaxLength(SHORT_TEXT_LENGTH).HasColumnName("title");
+            entity.Property(e => e.Token).HasMaxLength(SHORT_TEXT_LENGTH).IsUnicode(false).HasColumnName("token");
 
-            entity.HasOne(d => d.Author).WithMany(p => p.NewsPosts)
-                .HasForeignKey(d => d.AuthorId)
-                .HasConstraintName("FK__NewsPosts__autho__46E78A0C");
+            entity.HasOne(d => d.Author).WithMany(p => p.NewsPosts).HasForeignKey(d => d.AuthorId);
         });
 
         modelBuilder.Entity<Order>(entity =>
         {
-            entity.HasKey(e => e.ID).HasName("PK__Orders__3213E83F06EE3152");
+            entity.HasKey(e => e.ID);
+            entity.ToTable("Orders");
 
             entity.Property(e => e.ID).HasColumnName("id");
-            entity.Property(e => e.Address).HasColumnName("address");
             entity.Property(e => e.BuyerID).HasColumnName("buyerID");
-            entity.Property(e => e.CreationTime)
-                .HasColumnType("datetime")
-                .HasColumnName("creationTime");
-            entity.Property(e => e.Note).HasColumnName("note");
-            entity.Property(e => e.PaymentMethod).HasConversion<byte>().HasColumnName("paymentMethod");
-            entity.Property(e => e.PhoneNumber)
-                .HasMaxLength(20)
-                .IsUnicode(false)
-                .HasColumnName("phoneNumber");
             entity.Property(e => e.Status).HasConversion<byte>().HasColumnName("status");
-            entity.Property(e => e.TotalPrice).HasColumnName("totalPrice");
+            entity.Property(e => e.OrderTime).HasColumnType("datetime").HasColumnName("orderTime");
+            entity.Property(e => e.Province).HasMaxLength(SHORT_TEXT_LENGTH).HasColumnName("province");
+            entity.Property(e => e.District).HasMaxLength(SHORT_TEXT_LENGTH).HasColumnName("district");
+            entity.Property(e => e.Ward).HasMaxLength(SHORT_TEXT_LENGTH).HasColumnName("ward");
+            entity.Property(e => e.Street).HasMaxLength(SHORT_TEXT_LENGTH).HasColumnName("street");
+            entity.Property(e => e.RecipientName).HasMaxLength(SHORT_TEXT_LENGTH).HasColumnName("recipientName");
+            entity.Property(e => e.PhoneNumber).HasMaxLength(VERY_SHORT_TEXT_LENGTH).IsUnicode(false).HasColumnName("phoneNumber");
+            entity.Property(e => e.Note).HasMaxLength(MEDIUM_TEXT_LENGTH).HasColumnName("note");
+            entity.Property(e => e.TotalPrice).HasColumnType("money").HasColumnName("totalPrice");
+            entity.Property(e => e.DiscountedPrice).HasColumnType("money").HasColumnName("discountedPrice");
+            entity.Property(e => e.PaymentMethod).HasConversion<byte>().HasColumnName("paymentMethod");
             entity.Property(e => e.VoucherID).HasColumnName("voucherID");
 
-            entity.HasOne(d => d.Buyer).WithMany(p => p.Orders)
-                .HasForeignKey(d => d.BuyerID)
-                .HasConstraintName("FK__Orders__buyerID__3B75D760");
-
-            entity.HasOne(d => d.Voucher).WithMany(p => p.Orders)
-                .HasForeignKey(d => d.VoucherID)
-                .HasConstraintName("FK__Orders__voucherI__3C69FB99");
+            entity.HasOne(d => d.Buyer).WithMany(p => p.Orders).HasForeignKey(d => d.BuyerID);
+            entity.HasOne(d => d.Voucher).WithMany(p => p.Orders).HasForeignKey(d => d.VoucherID);
         });
 
         modelBuilder.Entity<OrderDetail>(entity =>
         {
-            entity.HasKey(e => new { e.OrderId, e.ProductId }).HasName("PK__OrderDet__BAD83E698EBBE4D9");
+            entity.HasKey(e => new { e.OrderId, e.ProductId });
+            entity.ToTable("OrderDetails");
 
             entity.Property(e => e.OrderId).HasColumnName("orderID");
             entity.Property(e => e.ProductId).HasColumnName("productID");
-            entity.Property(e => e.Amount).HasColumnName("amount");
+            entity.Property(e => e.Quantity).HasColumnName("quantity");
+            entity.Property(e => e.ProductPrice).HasColumnName("productPrice");
 
-            entity.HasOne(d => d.Order).WithMany(p => p.OrderDetails)
-                .HasForeignKey(d => d.OrderId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__OrderDeta__order__3F466844");
-
-            entity.HasOne(d => d.Product).WithMany(p => p.OrderDetails)
-                .HasForeignKey(d => d.ProductId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__OrderDeta__produ__403A8C7D");
+            entity.HasOne(d => d.Order).WithMany(p => p.OrderDetails).HasForeignKey(d => d.OrderId).OnDelete(DeleteBehavior.ClientSetNull);
+            entity.HasOne(d => d.Product).WithMany(p => p.OrderDetails).HasForeignKey(d => d.ProductId).OnDelete(DeleteBehavior.ClientSetNull);
         });
 
         modelBuilder.Entity<Product>(entity =>
         {
-            entity.HasKey(e => e.ID).HasName("PK__Products__3213E83FADA3C068");
+            entity.HasKey(e => e.ID);
+            entity.ToTable("Products");
 
             entity.Property(e => e.ID).HasColumnName("id");
             entity.Property(e => e.BrandId).HasColumnName("brandID");
-            entity.Property(e => e.Description).HasColumnName("description");
-            entity.Property(e => e.IsLaptop).HasColumnName("isLaptop");
-            entity.Property(e => e.Name).HasColumnName("name");
+            entity.Property(e => e.Name).HasMaxLength(SHORT_TEXT_LENGTH).HasColumnName("name");
             entity.Property(e => e.Price).HasColumnName("price");
             entity.Property(e => e.Stock).HasColumnName("stock");
+            entity.Property(e => e.Description).HasMaxLength(LONG_TEXT_LENGTH).HasColumnName("description");
+            entity.Property(e => e.IsDeleted).HasColumnName("isDeleted");
+            entity.Property(e => e.IsLaptop).HasColumnName("isLaptop");
 
-            entity.HasOne(d => d.Brand).WithMany(p => p.Products)
-                .HasForeignKey(d => d.BrandId)
-                .HasConstraintName("FK__Products__brandI__286302EC");
+            entity.HasOne(d => d.Brand).WithMany(p => p.Products).HasForeignKey(d => d.BrandId);
         });
 
         modelBuilder.Entity<ProductImage>(entity =>
         {
-            entity.HasKey(e => new { e.ProductId, e.DisplayIndex }).HasName("PK__ProductI__0BA8325D28D0C147");
+            entity.HasKey(e => new { e.ProductId, e.DisplayIndex });
+            entity.ToTable("ProductImages");
 
             entity.Property(e => e.ProductId).HasColumnName("productID");
             entity.Property(e => e.DisplayIndex).HasColumnName("displayIndex");
-            entity.Property(e => e.Token).IsUnicode(false).HasColumnName("token");
+            entity.Property(e => e.Token).IsUnicode(false).HasMaxLength(SHORT_TEXT_LENGTH).HasColumnName("token");
 
-            entity.HasOne(d => d.Product).WithMany(p => p.ProductImages)
-                .HasForeignKey(d => d.ProductId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__ProductIm__produ__2B3F6F97");
+            entity.HasOne(d => d.Product).WithMany(p => p.ProductImages).HasForeignKey(d => d.ProductId).OnDelete(DeleteBehavior.ClientSetNull);
         });
 
         modelBuilder.Entity<ProductReview>(entity =>
         {
-            entity.HasKey(e => new { e.ProductId, e.ReviewerId }).HasName("PK__ProductR__D0B0ECA9C4398442");
-
+            entity.HasKey(e => new { e.ProductId, e.ReviewerId });
             entity.ToTable("ProductReviews");
 
             entity.Property(e => e.ProductId).HasColumnName("productID");
             entity.Property(e => e.ReviewerId).HasColumnName("reviewerID");
-            entity.Property(e => e.Content).HasColumnName("content");
+            entity.Property(e => e.ReviewTime).HasColumnName("reviewTime");
             entity.Property(e => e.Rating).HasColumnName("rating");
-            entity.Property(e => e.Time).HasColumnName("time");
+            entity.Property(e => e.Content).HasMaxLength(MEDIUM_TEXT_LENGTH).HasColumnName("content");
 
-            entity.HasOne(d => d.Product).WithMany(p => p.ProductReviews)
-                .HasForeignKey(d => d.ProductId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__ProductRe__produ__4316F928");
-
-            entity.HasOne(d => d.Reviewer).WithMany(p => p.ProductReviews)
-                .HasForeignKey(d => d.ReviewerId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__ProductRe__revie__440B1D61");
+            entity.HasOne(d => d.Product).WithMany(p => p.ProductReviews).HasForeignKey(d => d.ProductId).OnDelete(DeleteBehavior.ClientSetNull);
+            entity.HasOne(d => d.Reviewer).WithMany(p => p.ProductReviews).HasForeignKey(d => d.ReviewerId).OnDelete(DeleteBehavior.ClientSetNull);
         });
 
         modelBuilder.Entity<User>(entity =>
         {
-            entity.HasKey(e => e.ID).HasName("PK__Users__3213E83FF649F4D9");
+            entity.HasKey(e => e.ID);
+            entity.ToTable("Users");
 
             entity.Property(e => e.ID).HasColumnName("id");
-            entity.Property(e => e.Email).HasColumnName("email");
+            entity.Property(e => e.Name).HasMaxLength(SHORT_TEXT_LENGTH).HasColumnName("name");
+            entity.Property(e => e.Email).HasMaxLength(SHORT_TEXT_LENGTH).HasColumnName("email");
+            entity.Property(e => e.PassHash).HasMaxLength(SHORT_TEXT_LENGTH).IsUnicode(false).IsFixedLength().HasColumnName("passHash");
             entity.Property(e => e.Gender).HasColumnName("gender");
-            entity.Property(e => e.Name).HasColumnName("name");
-            entity.Property(e => e.PassHash)
-                .HasMaxLength(32)
-                .IsUnicode(false)
-                .IsFixedLength()
-                .HasColumnName("passHash");
-            entity.Property(e => e.PhoneNumber)
-                .HasMaxLength(20)
-                .IsUnicode(false)
-                .HasColumnName("phoneNumber");
-            entity.Property(e => e.CustomerTier).HasConversion<byte>().HasColumnName("customerTier");
+            entity.Property(e => e.PhoneNumber).HasMaxLength(VERY_SHORT_TEXT_LENGTH).IsUnicode(false).HasColumnName("phoneNumber");
             entity.Property(e => e.IsSales).HasColumnName("isSales");
             entity.Property(e => e.IsMarketing).HasColumnName("isMarketing");
             entity.Property(e => e.IsAdmin).HasColumnName("isAdmin");
+            entity.Property(e => e.IsDeleted).HasColumnName("isDeleted");
         });
 
         modelBuilder.Entity<Voucher>(entity =>
         {
-            entity.HasKey(e => e.ID).HasName("PK__Vouchers__3213E83FD53F6DFD");
+            entity.HasKey(e => e.ID);
+            entity.ToTable("Voucher");
 
             entity.Property(e => e.ID).HasColumnName("id");
-            entity.Property(e => e.Code)
-                .HasMaxLength(20)
-                .IsUnicode(false)
-                .HasColumnName("code");
-            entity.Property(e => e.DiscountValue).HasColumnName("discountValue");
-            entity.Property(e => e.ExpiryDate).HasColumnName("expiryDate");
-            entity.Property(e => e.IsPercentageDiscount).HasColumnName("isPercentageDiscount");
             entity.Property(e => e.IssuerId).HasColumnName("issuerID");
-            entity.Property(e => e.MinimumOrderPrice).HasColumnName("minimumOrderPrice");
+            entity.Property(e => e.Code).HasMaxLength(VERY_SHORT_TEXT_LENGTH).IsUnicode(false).HasColumnName("code");
+            entity.Property(e => e.MinimumOrderPrice).HasColumnType("money").HasColumnName("minimumOrderPrice");
+            entity.Property(e => e.DiscountValue).HasColumnType("money").HasColumnName("discountValue");
+            entity.Property(e => e.IsPercentageDiscount).HasColumnName("isPercentageDiscount");
+            entity.Property(e => e.ExpiryDate).HasColumnName("expiryDate");
+            entity.Property(e => e.IsDeleted).HasColumnName("isDeleted");
 
-            entity.HasOne(d => d.Issuer).WithMany(p => p.Vouchers)
-                .HasForeignKey(d => d.IssuerId)
-                .HasConstraintName("FK__Vouchers__issuer__38996AB5");
+            entity.HasOne(d => d.Issuer).WithMany(p => p.Vouchers).HasForeignKey(d => d.IssuerId);
         });
 
         OnModelCreatingPartial(modelBuilder);

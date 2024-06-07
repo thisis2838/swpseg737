@@ -9,4 +9,9 @@ namespace HoaLacLaptopShop.Helpers
             return $"/images/products/{image.Token}.jpeg";
         }
     }
+    public class VoucherRequest
+    {
+        public string VoucherCode { get; set; }
+        public decimal Subtotal { get; set; }
+    }
 }

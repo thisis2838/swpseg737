@@ -6,6 +6,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using HoaLacLaptopShop.Models;
+using HoaLacLaptopShop.ViewModels;
+using Microsoft.AspNetCore.Authorization;
+using HoaLacLaptopShop.Helpers;
 
 namespace HoaLacLaptopShop.Controllers
 {
@@ -18,14 +21,23 @@ namespace HoaLacLaptopShop.Controllers
             _context = context;
         }
 
-        // GET: NewsPosts
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(NewsPostIndexArgs? args = null)
         {
-            var hoaLacLaptopShopContext = _context.NewsPosts.Include(n => n.Author).OrderByDescending(x => x.Time);
-            return View(await hoaLacLaptopShopContext.ToListAsync());
+            var news = _context.NewsPosts.Include(n => n.Author).OrderByDescending(x => x.Time).AsQueryable();
+            if (!string.IsNullOrWhiteSpace(args?.SearchTerm))
+            {
+                var terms = args.SearchTerm;
+                var titleMatch = news.Where(x => x.Title.Contains(terms));
+                /* TODO var descMatch = news.Where(x => !x.Title.Contains(terms) && x.Content.Contains(terms));
+                news = titleMatch.Concat(descMatch);*/
+            }
+            return View(new NewsPostIndexViewModel()
+            {
+                Posts = await news.ToListAsync(),
+                SearchTerm = args?.SearchTerm ?? null!,
+            });
         }
 
-        // GET: NewsPosts/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -44,32 +56,32 @@ namespace HoaLacLaptopShop.Controllers
             return View(newsPost);
         }
 
-        // GET: NewsPosts/Create
+        [Authorize(Roles = "Sales")]
         public IActionResult Create()
         {
-            ViewData["AuthorId"] = new SelectList(_context.Users, "ID", "ID");
             return View();
         }
 
-        // POST: NewsPosts/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ID,Title,Content,AuthorId")] NewsPost newsPost)
+        [Authorize(Roles = "Sales")]
+        public async Task<IActionResult> Create([Bind("ID,Title,Content")] NewsPost newsPost)
         {
+            ModelState.Remove(nameof(NewsPost.AuthorId));
+
             if (ModelState.IsValid)
             {
                 newsPost.Time = DateTime.Now;
+                newsPost.AuthorId = HttpContext.GetCurrentUser()!.ID;
+
                 _context.Add(newsPost);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["AuthorId"] = new SelectList(_context.Users, "ID", "ID", newsPost.AuthorId);
             return View(newsPost);
         }
 
-        // GET: NewsPosts/Edit/5
+        [Authorize(Roles = "Sales")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -82,33 +94,42 @@ namespace HoaLacLaptopShop.Controllers
             {
                 return NotFound();
             }
-            ViewData["AuthorId"] = new SelectList(_context.Users, "ID", "ID", newsPost.AuthorId);
+            if (!HttpContext.GetCurrentUser()!.IsAdmin && newsPost.AuthorId != HttpContext.GetCurrentUserID())
+            {
+                return Unauthorized();
+            }
+
             return View(newsPost);
         }
 
-        // POST: NewsPosts/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ID,Title,Content,AuthorId")] NewsPost newsPost)
+        [Authorize(Roles = "Sales")]
+        public async Task<IActionResult> Edit(int? id, [Bind("ID,Title,Content")] NewsPost newsPost)
         {
-            if (id != newsPost.ID)
+            if (id != newsPost.ID) return NotFound();
+            var targetPost = await _context.NewsPosts.FindAsync(id);
+            if (targetPost is null) return NotFound();
+
+            if (!HttpContext.GetCurrentUser()!.IsAdmin && targetPost.AuthorId != HttpContext.GetCurrentUserID())
             {
-                return NotFound();
+                return Unauthorized();
             }
 
             if (ModelState.IsValid)
             {
                 try
                 {
-                    newsPost.Time = DateTime.Now;
-                    _context.Update(newsPost);
+                    targetPost.Title = newsPost.Title;
+                    //TODO targetPost.Content = newsPost.Content;
+                    targetPost.Time = DateTime.Now;
+
+                    _context.Update(targetPost);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!NewsPostExists(newsPost.ID))
+                    if (!NewsPostExists(targetPost.ID))
                     {
                         return NotFound();
                     }
@@ -117,13 +138,12 @@ namespace HoaLacLaptopShop.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Details), new { id = newsPost.ID });
+                return RedirectToAction(nameof(Details));
             }
-            ViewData["AuthorId"] = new SelectList(_context.Users, "ID", "ID", newsPost.AuthorId);
             return View(newsPost);
         }
 
-        // GET: NewsPosts/Delete/5
+        [Authorize(Roles = "Sales")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -131,25 +151,31 @@ namespace HoaLacLaptopShop.Controllers
                 return NotFound();
             }
 
-            var newsPost = await _context.NewsPosts
-                .Include(n => n.Author)
-                .FirstOrDefaultAsync(m => m.ID == id);
+            var newsPost = await _context.NewsPosts.Include(n => n.Author).FirstOrDefaultAsync(m => m.ID == id);
             if (newsPost == null)
             {
                 return NotFound();
+            }
+            if (!HttpContext.GetCurrentUser()!.IsAdmin && newsPost.AuthorId != HttpContext.GetCurrentUserID())
+            {
+                return Unauthorized();
             }
 
             return View(newsPost);
         }
 
-        // POST: NewsPosts/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Sales")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var newsPost = await _context.NewsPosts.FindAsync(id);
             if (newsPost != null)
             {
+                if (!HttpContext.GetCurrentUser()!.IsAdmin && newsPost.AuthorId != HttpContext.GetCurrentUserID())
+                {
+                    return Unauthorized();
+                }
                 _context.NewsPosts.Remove(newsPost);
             }
 

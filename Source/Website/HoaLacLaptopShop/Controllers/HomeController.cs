@@ -24,7 +24,9 @@ namespace HoaLacLaptopShop.Controllers
             {
                 PopularLaptops = products.Where(x => x.IsLaptop).OrderByDescending(x => x.OrderDetails.Count).Take(10).ToList(),
                 PopularAccessories = products.Where(x => !x.IsLaptop).OrderByDescending(x => x.OrderDetails.Count).Take(10).ToList(),
-                ProductsByBrand = products.Take(10).GroupBy(x => x.Brand).AsEnumerable().ToDictionary(x => x.Key!, x => x.ToList()),
+                ProductsByBrand = products.GroupBy(x => x.Brand)
+                    .Select(x => new {x.Key, Items = x.Take(5)})
+                    .ToDictionary(x => x.Key!, x => x.Items.ToList()),
                 LatestNews = _context.NewsPosts.OrderByDescending(x => x.Time).Take(3).ToList()
             });
         }

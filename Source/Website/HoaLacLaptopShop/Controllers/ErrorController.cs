@@ -23,7 +23,14 @@ namespace HoaLacLaptopShop.Controllers
                     {
                         ErrorCode = 403,
                         ErrorName = "Forbidden",
-                        Message = "The page you've just tried to access is beyond your authority."
+                        Message = "The page you've just tried to access is barred from you."
+                    });
+                case KnownErrorType.Unauthorized:
+                    return Index(new ErrorViewModel()
+                    {
+                        ErrorCode = 401,
+                        ErrorName = "Unauthorized",
+                        Message = "The page you've just tried to access is not within your authority."
                     });
                 case KnownErrorType.Unknown:
                 default:
@@ -44,10 +51,11 @@ namespace HoaLacLaptopShop.Controllers
         }
     }
 
-    public enum KnownErrorType
+    public enum KnownErrorType : int
     {
-        Unknown,
-        NotFound,
-        Forbidden
+        Unknown = 0,
+        NotFound = 404,
+        Forbidden = 403,
+        Unauthorized = 401
     }
 }

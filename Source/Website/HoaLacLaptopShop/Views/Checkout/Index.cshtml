@@ -1,4 +1,4 @@
-﻿@model HoaLacLaptopShop.ViewModels.CheckoutViewModel
+﻿@model HoaLacLaptopShop.Models.Order
 
 <link href="~/css/StyleSheet.css" rel="stylesheet">
 <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
@@ -12,17 +12,17 @@
                     <div class="form-row">
                         <div class="form-group col-lg-6">
                             <label for="name">Name</label>
-                            <input type="text" class="form-control" id="name" name="name" value="@Model.Name" placeholder="Enter name" required>
+                            <input type="text" class="form-control" id="name" name="name" value="@Model.Buyer.Name" placeholder="Enter name" required>
                         </div>
                         <div class="form-group col-lg-6">
                             <label for="email">Email Address</label>
-                            <input type="email" class="form-control" id="email" name="email" value="@Model.Email" placeholder="Enter email" required>
+                            <input type="email" class="form-control" id="email" name="email" value="@Model.Buyer.Email" placeholder="Enter email" required>
                         </div>
                     </div>
                     <div class="form-row">
                         <div class="form-group col-lg-6">
                             <label for="phone">Phone</label>
-                            <input type="tel" class="form-control" id="phone" name="phone" value="@Model.Phone" placeholder="Enter Phone no." required>
+                            <input type="tel" class="form-control" id="phone" name="phone" value="@Model.Buyer.PhoneNumber" placeholder="Enter Phone no." required>
                         </div>
                         <div class="form-group col-lg-6">
                             <label for="country">Country</label>
@@ -32,7 +32,7 @@
                     <div class="form-row">
                         <div class="form-group col-lg-6">
                             <label for="city">City</label>
-                            <select class="form-control" id="city" name="city" name="Choose city" required>
+                            <select class="form-control" id="city" name="city" placeholder="Choose city" required>
                                 <option value="">Select City</option>
                                 // Options rendered here
                             </select>
@@ -49,7 +49,7 @@
                         <label for="address">Address</label>
                         <input type="text" class="form-control" id="address" name="address" placeholder="Enter address" required>
                     </div>
-
+                    
                 </div>
             </div>
            
@@ -76,6 +76,8 @@
                                 </label>
                             </div>
                         </div>
+                        <input type="hidden" id="voucherCode" name="voucherCode" value=""/>
+                        <input type="hidden" id="totalPrice" name="totalPrice" value="" />
                     </div>
                 </div>
             </div>
@@ -84,30 +86,37 @@
     </div>
 
     <div class="col-lg-4">
+     <!-- Voucher Form (Separate) -->
+        <form id="voucherForm" class="form-inline">
+            <div class="form-group">
+                <input type="text" class="form-control mr-2" id="voucher-code" placeholder="Enter voucher code">
+                <button type="submit" class="btn btn-primary">Submit</button>
+            </div>
+        </form>
         <div class="order-summary">
             <h5>Order Summary</h5>
             <ul class="list-group mb-3">
-                @foreach (var item in Model.CartItems)
+                @foreach (var item in Model.OrderDetails)
                 {
                     <li class="list-group-item d-flex justify-content-between" style="align-items: center">
                         <div>
-                            <h6 class="my-0">@item.productName</h6>
-                            <small class="text-muted">$@item.price * @item.quantity</small>
+                            <h6 class="my-0">@item.Product.Name</h6>
+                            <small class="text-muted">@item.Product.Price * @item.Quantity</small>
                         </div>
-                        <span class="text-muted">$@item.total</span>
+                        <span class="text-muted">@string.Format("{0:N0}", item.Product.Price * item.Quantity)</span>
                     </li>
                 }
                 <li class="list-group-item d-flex justify-content-between">
                     <span>Sub Total</span>
-                    <strong>@Model.CartItems.Sum(i => i.total)</strong>
+                    <strong id="subtotal">@string.Format("{0:N0}", Model.OrderDetails.Sum(i => i.Product.Price * i.Quantity))</strong>
                 </li>
                 <li class="list-group-item d-flex justify-content-between">
                     <span>Discount</span>
-                    <strong>-$0</strong> <!-- Adjust as necessary -->
+                    <strong id="discount-value">-0</strong> <!-- Adjust as necessary -->
                 </li>
                 <li class="list-group-item d-flex justify-content-between">
                     <strong>Total</strong>
-                    <strong>@Model.CartItems.Sum(i => i.total)</strong>
+                    <strong id="total-amount">@string.Format("{0:N0}", Model.OrderDetails.Sum(i => i.Product.Price * i.Quantity))</strong>
                 </li>
             </ul>
         </div>
@@ -184,4 +193,47 @@
         // Add 'active' class to the clicked element
         element.classList.add('active');
     }
+</script>
+<script>
+    function formatCurrency(value) {
+        return new Intl.NumberFormat('vi-VN', { style: 'decimal' }).format(value);
+    }
+
+    function parseCurrency(value) {
+        return parseFloat(value.replace(/\./g, '').replace(/,/g, '.'));
+    }
+
+    document.getElementById('voucherForm').addEventListener('submit', function (event) {
+        event.preventDefault();
+        const voucherCode = document.getElementById('voucher-code').value;
+        const subtotalElement = document.getElementById('subtotal');
+        const subtotal = parseCurrency(subtotalElement.textContent);
+        document.getElementById('voucherCode').value = voucherCode; // Update hidden field in the main form
+
+        fetch('/Checkout/CheckVoucher', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '@Html.AntiForgeryToken()' // Ensure you generate this token correctly
+            },
+            body: JSON.stringify({ voucherCode: voucherCode, subtotal: subtotal })
+        })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data)
+                const discountElement = document.getElementById('discount-value');
+                const totalAmountElement = document.getElementById('total-amount');
+                // document.getElementById('voucherCode').value = voucherCode;
+
+                if (data.valid === true) {
+                    discountElement.textContent = `-${formatCurrency(data.discount)}`;
+                    totalAmountElement.textContent = `${formatCurrency(subtotal - data.discount)}`;
+                } else {
+                    discountElement.textContent = '-0';
+                    totalAmountElement.textContent = formatCurrency(subtotal);
+                }
+                document.getElementById('totalPrice').value = totalAmountElement.textContent
+            })
+            .catch(error => console.error('Error:', error));
+    });
 </script>
