@@ -17,13 +17,14 @@ builder.Services.AddDbContext<HoaLacLaptopShopContext>(options =>
 });
 
 builder.Services.AddDistributedMemoryCache();
-builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-    .AddCookie(options
-    =>
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie
+(
+    options=>
     {
         options.LoginPath = "/Account/Login";
         options.AccessDeniedPath = "/Error/403";
-    });
+    }
+);
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("RequireAdmin", policy => policy.RequireRole("Admin"));

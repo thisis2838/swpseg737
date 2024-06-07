@@ -1,4 +1,4 @@
-﻿@model HoaLacLaptopShop.Models.NewsPost
+﻿@model HoaLacLaptopShop.ViewModels.NewsPostDetailsViewModel
 @using HoaLacLaptopShop.Helpers
 
 @{
@@ -8,7 +8,7 @@
 <h1>@Model.Title</h1>
 <h4><span>Posted at <b>@Model.Time.ToString("hh:mm:ss tt")</b> at <b>@Model.Time.ToString("yyyy-MM-dd")</b> by <b>@Model.Author!.Name</b></span></h4>
 <hr />
-<div style="margin-bottom: 20px"><div>@*TODO Html.Raw(Model.Content)*@</div></div>
+<div style="margin-bottom: 20px">@Html.Raw(Model.Content)</iframe></div>
 <div>
     @{
         var user = Context.GetCurrentUser();
