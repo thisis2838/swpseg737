@@ -125,7 +125,7 @@ public class CartController : Controller
                 productName = od.Product.Name,
                 link = db.ProductImages.FirstOrDefault(pi => pi.ProductId == od.ProductId)?.GetProductImageURL(),
                 price = od.Product.Price,
-                quantity = od.Amount
+                quantity = od.Quantity
             })
             .ToList();
 
@@ -148,10 +148,10 @@ public class CartController : Controller
             {
                 BuyerID = user.ID,
                 Status = OrderStatus.Created,
-                Address = "user address",
+                //TODO Address = "user address",
                 PhoneNumber = user.PhoneNumber,
-                CreationTime = DateTime.Now,
-                TotalPrice = (float)cart.Sum(c => c.total),
+                OrderTime = DateTime.Now,
+                TotalPrice = (decimal)cart.Sum(c => c.total),
                 PaymentMethod = PaymentMethod.CashOnDelivery, // // Defeaul Payment
             };
 
@@ -159,7 +159,7 @@ public class CartController : Controller
         }
         else
         {
-            existingOrder.TotalPrice = (float)cart.Sum(c => c.total);
+            existingOrder.TotalPrice = (decimal)cart.Sum(c => c.total);
         }
 
         // Update order details. Iterate through cart -> add to orderDetails table
@@ -171,13 +171,13 @@ public class CartController : Controller
                 orderDetail = new OrderDetail
                 {
                     ProductId = cartItem.id,
-                    Amount = cartItem.quantity,
+                    Quantity = cartItem.quantity,
                 };
                 existingOrder.OrderDetails.Add(orderDetail);
             }
             else
             {
-                orderDetail.Amount = cartItem.quantity;
+                orderDetail.Quantity = cartItem.quantity;
             }
         }
 
@@ -203,7 +203,7 @@ public class CartController : Controller
 
         if (existingOrder != null)
         {
-            existingOrder.TotalPrice = (float)cart.Sum(c => c.total);
+            existingOrder.TotalPrice = (decimal)cart.Sum(c => c.total);
 
             // Update or remove order details
             foreach (var orderDetail in existingOrder.OrderDetails.ToList())
@@ -215,7 +215,7 @@ public class CartController : Controller
                 }
                 else
                 {
-                    orderDetail.Amount = cartItem.quantity;
+                    orderDetail.Quantity = cartItem.quantity;
                 }
             }
 

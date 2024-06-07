@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
+
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<HoaLacLaptopShopContext>(options =>
@@ -21,13 +22,13 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
     =>
     {
         options.LoginPath = "/Account/Login";
-        options.AccessDeniedPath = "/Account/AccessDenied";
+        options.AccessDeniedPath = "/Error/403";
     });
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("RequireAdmin", policy => policy.RequireRole("Admin"));
     options.AddPolicy("RequireMarketing", policy => policy.RequireRole("Marketing"));
-    options.AddPolicy("RequireStaff", policy => policy.RequireRole("Staff"));
+    options.AddPolicy("RequireSales", policy => policy.RequireRole("Sales"));
 });
 
 builder.Services.AddSession(options =>
@@ -50,7 +51,7 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-
+app.UseStatusCodePagesWithRedirects("/Error/{0}");
 app.UseRouting();
 
 // Enable session middleware

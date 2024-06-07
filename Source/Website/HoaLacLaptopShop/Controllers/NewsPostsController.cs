@@ -28,8 +28,8 @@ namespace HoaLacLaptopShop.Controllers
             {
                 var terms = args.SearchTerm;
                 var titleMatch = news.Where(x => x.Title.Contains(terms));
-                var descMatch = news.Where(x => !x.Title.Contains(terms) && x.Content.Contains(terms));
-                news = titleMatch.Concat(descMatch);
+                /* TODO var descMatch = news.Where(x => !x.Title.Contains(terms) && x.Content.Contains(terms));
+                news = titleMatch.Concat(descMatch);*/
             }
             return View(new NewsPostIndexViewModel()
             {
@@ -121,7 +121,7 @@ namespace HoaLacLaptopShop.Controllers
                 try
                 {
                     targetPost.Title = newsPost.Title;
-                    targetPost.Content = newsPost.Content;
+                    //TODO targetPost.Content = newsPost.Content;
                     targetPost.Time = DateTime.Now;
 
                     _context.Update(targetPost);

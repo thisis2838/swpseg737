@@ -48,18 +48,6 @@ namespace HoaLacLaptopShop.Helpers
                 : null;
         }
 
-        public static RoledActor? GetCurrentUserRoles(this HttpContext context)
-        {
-            if (context.GetCurrentUserID() is null) return null;
-            var roles = context.GetCurrentIdentity()!.FindAll(ClaimTypes.Role).Select(x => x.Value);
-            return new RoledActor()
-            {
-                IsAdmin = roles.Any(x => x == "Admin"),
-                IsSales = roles.Any(x => x == "Sales"),
-                IsMarketing = roles.Any(x => x == "Marketing")
-            };
-        }
-
         public static async Task SignOut(this HttpContext context)
         {
             await context.SignOutAsync().ContinueWith(x => context.Items["CurrentUser"] = null);

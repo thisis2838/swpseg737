@@ -101,14 +101,14 @@
                     <li class="list-group-item d-flex justify-content-between" style="align-items: center">
                         <div>
                             <h6 class="my-0">@item.Product.Name</h6>
-                            <small class="text-muted">@item.Product.Price * @item.Amount</small>
+                            <small class="text-muted">@item.Product.Price * @item.Quantity</small>
                         </div>
-                        <span class="text-muted">@string.Format("{0:N0}", item.Product.Price * item.Amount)</span>
+                        <span class="text-muted">@string.Format("{0:N0}", item.Product.Price * item.Quantity)</span>
                     </li>
                 }
                 <li class="list-group-item d-flex justify-content-between">
                     <span>Sub Total</span>
-                    <strong id="subtotal">@string.Format("{0:N0}", Model.OrderDetails.Sum(i => i.Product.Price * i.Amount))</strong>
+                    <strong id="subtotal">@string.Format("{0:N0}", Model.OrderDetails.Sum(i => i.Product.Price * i.Quantity))</strong>
                 </li>
                 <li class="list-group-item d-flex justify-content-between">
                     <span>Discount</span>
@@ -116,7 +116,7 @@
                 </li>
                 <li class="list-group-item d-flex justify-content-between">
                     <strong>Total</strong>
-                    <strong id="total-amount">@string.Format("{0:N0}", Model.OrderDetails.Sum(i => i.Product.Price * i.Amount))</strong>
+                    <strong id="total-amount">@string.Format("{0:N0}", Model.OrderDetails.Sum(i => i.Product.Price * i.Quantity))</strong>
                 </li>
             </ul>
         </div>

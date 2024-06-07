@@ -54,7 +54,7 @@ namespace HoaLacLaptopShop.Controllers
         public IActionResult Detail(int id)
         {
             var product = GetProducts()
-                .Include(x => x.ProductReviews.OrderByDescending(r => r.Time)).ThenInclude(x => x.Reviewer)
+                .Include(x => x.ProductReviews.OrderByDescending(r => r.ReviewTime)).ThenInclude(x => x.Reviewer)
                 .Include(x => x.Laptop).ThenInclude(x => x.CPUSeries)
                 .Include(x => x.Laptop).ThenInclude(x => x.GPUSeries)
                 .Include(x => x.OrderDetails).ThenInclude(x => x.Order)

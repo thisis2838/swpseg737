@@ -64,13 +64,15 @@ public class CheckoutController : Controller
 
         var order = _context.Orders.SingleOrDefault(o => o.BuyerID == user.ID && o.Status == OrderStatus.Created);
         order.Status = OrderStatus.Delivering; // Change status to delivering
-        order.Address = $"{address}, {district}, {city}"; // Adjusted address format
+        order.Province = city;
+        order.District = district;
+        //TODO order.Address = $"{address}, {district}, {city}"; // Adjusted address format
         order.PhoneNumber = phone;
-        order.CreationTime = DateTime.Now;
+        order.OrderTime = DateTime.Now;
         order.PaymentMethod = paymentMethod;
         // Handling voucherId
         var voucher = _context.Vouchers.SingleOrDefault(v => v.Code == voucherCode);
-        order.TotalPrice = float.Parse(totalPrice);
+        order.TotalPrice = decimal.Parse(totalPrice);
         order.VoucherID = voucher != null ? voucher.ID : null;
         foreach (var cartItem in cartItems)
         {
@@ -101,7 +103,7 @@ public class CheckoutController : Controller
             return Json(new { valid = false, discount = 0 });
         }
 
-        float discount = CalculateDiscount(voucher, request.Subtotal);
+        decimal discount = CalculateDiscount(voucher, request.Subtotal);
         return Json(new { valid = true, discount = discount });
     }
     private bool CheckVoucherCode(Voucher voucher)
@@ -111,7 +113,7 @@ public class CheckoutController : Controller
         return DateTime.Now.Date <= voucher.ExpiryDate.ToDateTime(new TimeOnly());
     }
 
-    private float CalculateDiscount(Voucher voucher, float subtotal)
+    private decimal CalculateDiscount(Voucher voucher, decimal subtotal)
     {
         if (subtotal < voucher.MinimumOrderPrice)
         {
