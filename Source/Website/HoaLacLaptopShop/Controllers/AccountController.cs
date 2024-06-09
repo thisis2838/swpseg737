@@ -44,6 +44,11 @@ namespace HoaLacLaptopShop.Controllers
                 this.SetError("Incorrect password");
                 return View("Login", model);
             }
+            if (user.IsDeleted)
+            {
+                this.SetError("This account has been deleted");
+                return View("Login", model);
+            }
             await HttpContext.SignOut();
             await HttpContext.LoginAsUser(user);
             this.SetMessage($"Loggin in as {user.Name}");
