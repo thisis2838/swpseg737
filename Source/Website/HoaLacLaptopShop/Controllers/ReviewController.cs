@@ -50,7 +50,7 @@ namespace HoaLacLaptopShop.Controllers
 
                 _context.ProductReviews.Add(pr);
                 _context.SaveChanges();
-                return RedirectToAction("Detail", "Product", product);
+                return RedirectToAction("Detail", "Products", product);
             }
             else
             {
@@ -80,7 +80,7 @@ namespace HoaLacLaptopShop.Controllers
                 _context.Remove(reviewOld);
             }
             _context.SaveChanges();
-            return RedirectToAction("Detail", "Product", product);
+            return RedirectToAction("Detail", "Products", product);
 
         }
     }

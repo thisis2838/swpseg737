@@ -1,7 +1,7 @@
 ﻿@model HoaLacLaptopShop.ViewModels.ProductIndexViewModel
 
 <div class="col-sm-3">
-    <form id="priceForm" asp-controller="Product" asp-action="Index" method="get" style="margin-bottom:5px;">
+    <form id="priceForm" asp-controller="Products" asp-action="Index" method="get" style="margin-bottom:5px;">
         <div class="search_box">
             <label asp-for="Search" class="control-label"></label>
             <input asp-for="Search" class="form-control" style="width: 100%" />
@@ -24,6 +24,45 @@
             </span>
             <div id="slider"></div>
         </div>
+        @if(Model.ShowLaptops)
+        {
+            <div class="">
+                <label class="control-label">CPU</label>
+                <ul>
+                    @for (int i = 0; i < Model.Cpus!.Count; i++)
+                    {
+                        var cpu = Model.Cpus[i];
+                        var selected = Model.SelectedCpuIDs!.Contains(cpu.ID);
+                        <li>
+                            <input type="checkbox"
+                                   id="brand_@cpu.ID"
+                                   name="SelectedCpuIDs"
+                                   value="@cpu.ID"
+                            @(selected ? "checked" : "") />
+                            <label for="cpu_@cpu.ID">@($"{cpu.Name}")</label>
+                        </li>
+                    }
+                </ul>
+            </div>
+            <div class="">
+                <label class="control-label">GPU</label>
+                <ul>
+                    @for (int i = 0; i < Model.Gpus!.Count; i++)
+                    {
+                        var gpu = Model.Gpus[i];
+                        var selected = Model.SelectedGpuIDs!.Contains(gpu.ID);
+                        <li>
+                            <input type="checkbox"
+                                   id="brand_@gpu.ID"
+                                   name="SelectedGpuIDs"
+                                   value="@gpu.ID"
+                            @(selected ? "checked" : "") />
+                            <label for="gpu_@gpu.ID">@($"{gpu.Name}")</label>
+                        </li>
+                    }
+                </ul>
+            </div>
+        }
         <div class="">
             <label class="control-label">Brands</label>
             <ul>

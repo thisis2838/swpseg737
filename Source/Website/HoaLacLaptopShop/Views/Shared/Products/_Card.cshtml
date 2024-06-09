@@ -3,7 +3,7 @@
 
 <div class="product-image-wrapper">
 	<div class="single-products">
-		<a class="productinfo text-center" href="@Url.Action("Detail", "Product", new {id = Model.ID})">
+		<a class="productinfo text-center" href="@Url.Action("Detail", "Products", new {id = Model.ID})">
 			<div>
 				<img 
 					src="@Model.ProductImages.First().GetProductImageURL()" 

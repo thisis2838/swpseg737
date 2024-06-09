@@ -63,6 +63,6 @@ app.UseMiddleware<RoleSyncMiddleware>();
 app.UseAuthorization();
 
 app.MapControllerRoute(name: "default", pattern: "{controller=Home}/{action=Index}/{id?}");
-app.MapControllerRoute(name: "product", pattern: "{controller=Product}/{action=Detail}/{id?}");
+app.MapControllerRoute(name: "Products", pattern: "{controller=Products}/{action=Detail}/{id?}");
 
 app.Run();
