@@ -41,7 +41,7 @@ public class CheckoutController : Controller
     }
 
     [HttpPost]
-    public IActionResult ConfirmOrder(string name, string email, string phone, string address, string city, String totalPrice, string district, PaymentMethod paymentMethod, String voucherCode)
+    public IActionResult ConfirmOrder(string name, string email, string phone, string address, string city, string district, PaymentMethod paymentMethod, string voucherCode, string totalPrice)
     {
         var userId =  HttpContext.Session.GetString("CurrentUserId");
         if (userId == null)

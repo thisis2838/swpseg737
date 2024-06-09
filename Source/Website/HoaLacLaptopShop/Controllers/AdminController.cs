@@ -5,6 +5,8 @@ using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
 using Microsoft.EntityFrameworkCore;
 using SixLabors.ImageSharp.Formats.Jpeg;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace HoaLacLaptopShop.Controllers
 {
@@ -15,6 +17,13 @@ namespace HoaLacLaptopShop.Controllers
         private readonly IWebHostEnvironment _environment;
 
         public AdminController(HoaLacLaptopShopContext context, IWebHostEnvironment environment)
+        private readonly HoaLacLaptopShopContext _context;
+        
+        public AdminController(HoaLacLaptopShopContext context)
+        {
+            _context = context;
+        }
+        public IActionResult Product()
         {
             _context = context;
             _environment = environment;
@@ -76,8 +85,8 @@ namespace HoaLacLaptopShop.Controllers
                     Description = model.Description,
                     IsLaptop = model.IsLaptop,
                 };
-                if(file != null && file.Length > 0)
-{
+                if (file != null && file.Length > 0)
+                {
                     // Get the path to the wwwroot/images/products directory
                     string uploadDirectory = Path.Combine(_environment.WebRootPath, "images", "products");
 
@@ -100,13 +109,13 @@ namespace HoaLacLaptopShop.Controllers
                     }
 
                     List<ProductImage> pi = new List<ProductImage>
-    {
-        new ProductImage()
-        {
-            DisplayIndex = 0,
-            Token = uniqueFileName
-        }
-    };
+                    {
+                        new ProductImage()
+                        {
+                            DisplayIndex = 0,
+                            Token = uniqueFileName
+                        }
+                    };
                     product.ProductImages = pi;
                 }
                 if (model.IsLaptop)
@@ -134,6 +143,13 @@ namespace HoaLacLaptopShop.Controllers
                 TotalCount = _context.Products.Count(),
                 PageIndex = 1
             });
+        
+        public IActionResult Order()
+        {
+            var order = _context.Orders.Include(o => o.Buyer)
+                .Include(o => o.OrderDetails)
+                    .ThenInclude(oi => oi.Product).ToList();
+            return View(order);
         }
 
     }
