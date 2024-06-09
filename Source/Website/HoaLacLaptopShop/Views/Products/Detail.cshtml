@@ -138,18 +138,17 @@
                                 <p>No reviews yet</p>
                             }
 
-                            @if (@HttpContextAccessor.HttpContext.Session.GetString("CurrentUserId") != null)
+                            @if (Context.IsLoggedIn())
                             {
-                                @if (Model.OrderDetails.Any(od => od.ProductId == Model.ID &&
-                               od.Order.BuyerID == Convert.ToInt32(@HttpContextAccessor.HttpContext.Session.GetString("CurrentUserId"))))
+                                var userID = Context.GetCurrentUserID()!;
+                                @if (Model.OrderDetails.Any(od => od.ProductId == Model.ID && od.Order.BuyerID == userID))
                                 {
-                                    if (Model.ProductReviews.Any(pr => pr.ProductId == Model.ID &&
-                                    pr.ReviewerId == Convert.ToInt32(@HttpContextAccessor.HttpContext.Session.GetString("CurrentUserId"))))
+                                    if (Model.ProductReviews.Any(pr => pr.ProductId == Model.ID && pr.ReviewerId == userID))
                                     {
                                         <p><b>Edit Your Review</b></p>
                                         <form asp-action="EditReview" asp-controller="Review">
                                             <input type="hidden" name="pId" value="@Model.ID" />
-                                            <input type="hidden" name="uId" value="@HttpContextAccessor.HttpContext.Session.GetString("CurrentUserId")" />
+                                            <input type="hidden" name="uId" value="@userID" />
                                             <div onmouseout="CRateSelected()">
                                                 <div style="display: inline-block;">
                                                     <span style="display: inline-block;" id="span1" onmouseout="CRateOut(1)" onmouseover="CRateOver(1)" onclick="CRateClick(1)" class="glyphicon glyphicon-star-empty"></span>
@@ -162,7 +161,7 @@
                                             <div>
                                                 <input type="hidden" id="lblRating" name="rating" />
                                             </div>
-                                            <textarea name="review">@Model.ProductReviews.Where(pr => pr.ProductId == Model.ID && pr.ReviewerId == Convert.ToInt32(HttpContextAccessor.HttpContext.Session.GetString("CurrentUserId"))).FirstOrDefault().Content</textarea>
+                                            <textarea name="review">@Model.ProductReviews.Where(pr => pr.ProductId == Model.ID && pr.ReviewerId == userID).FirstOrDefault().Content</textarea>
                                             <input type="submit" class="btn btn-danger" name="delete" value="Delete"/>
                               
                                             <button type="submit" class="btn btn-default pull-right">
@@ -175,7 +174,7 @@
                                         <p><b>Write Your Review</b></p>
                                         <form asp-action="AddReview" asp-controller="Review">
                                             <input type="hidden" name="pId" value="@Model.ID" />
-                                            <input type="hidden" name="uId" value="@HttpContextAccessor.HttpContext.Session.GetString("CurrentUserId")" />
+                                            <input type="hidden" name="uId" value="@userID" />
                                             <div onmouseout="CRateSelected()">
                                                 <div style="display: inline-block;">
                                                     <span style="display: inline-block;" id="span1" onmouseout="CRateOut(1)" onmouseover="CRateOver(1)" onclick="CRateClick(1)" class="glyphicon glyphicon-star-empty"></span>

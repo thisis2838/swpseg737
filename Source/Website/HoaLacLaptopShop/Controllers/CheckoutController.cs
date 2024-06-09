@@ -19,18 +19,14 @@ public class CheckoutController : Controller
     [HttpGet]
     public IActionResult Index()
     {
-        var userId = HttpContext.Session.GetString("CurrentUserId");
-        if (userId == null)
-        {
-            return RedirectToAction("Index", "Error", new { type = KnownErrorType.Forbidden });
-        }
+        var userId = HttpContext.GetCurrentUserID()!;
 
         // Find the order associated with the current user
         var order = _context.Orders
             .Include(o => o.OrderDetails)  // Include related OrderItems
                 .ThenInclude(oi => oi.Product)
             .Include(o => o.Buyer)       // Include related Buyer
-            .SingleOrDefault(o => o.BuyerID.ToString() == userId && o.Status == OrderStatus.Created);
+            .SingleOrDefault(o => o.BuyerID.ToString() == userId.ToString() && o.Status == OrderStatus.Created);
 
         if (order == null)
         {
@@ -43,17 +39,7 @@ public class CheckoutController : Controller
     [HttpPost]
     public IActionResult ConfirmOrder(string name, string email, string phone, string address, string city, string district, PaymentMethod paymentMethod, string voucherCode, string totalPrice)
     {
-        var userId =  HttpContext.Session.GetString("CurrentUserId");
-        if (userId == null)
-        {
-            return RedirectToAction("Index", "Error", new { type = KnownErrorType.Forbidden });
-        }
-
-        var user = _context.Users.SingleOrDefault(u => u.ID.ToString() == userId);
-        if (user == null)
-        {
-             return RedirectToAction("Index", "Error", new { type = KnownErrorType.Forbidden });
-        }
+        var user = HttpContext.GetCurrentUser();
 
         var cartItems = HttpContext.Session.Get<List<CartItem>>(CartController.CART_KEY) ?? new List<CartItem>();
         if (!cartItems.Any())

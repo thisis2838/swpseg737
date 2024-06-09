@@ -36,12 +36,12 @@
                     {
                         <tr>
                             <td>@item.ID</td>
-                            <td>@item.CreationTime</td>
+                            <td>@item.OrderTime</td>
                             <td>@item.Buyer.Name</td>
                             <td>
                                 @foreach(var orderItem in item.OrderDetails)
                                 {
-                                    <span>@orderItem.Amount @orderItem.Product.Name</span><br />
+                                    <span>@orderItem.Quantity @orderItem.Product.Name</span><br />
                                 }
                             </td>
                             <td>@item.TotalPrice</td>

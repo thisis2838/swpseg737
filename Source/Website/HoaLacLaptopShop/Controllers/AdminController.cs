@@ -17,13 +17,6 @@ namespace HoaLacLaptopShop.Controllers
         private readonly IWebHostEnvironment _environment;
 
         public AdminController(HoaLacLaptopShopContext context, IWebHostEnvironment environment)
-        private readonly HoaLacLaptopShopContext _context;
-        
-        public AdminController(HoaLacLaptopShopContext context)
-        {
-            _context = context;
-        }
-        public IActionResult Product()
         {
             _context = context;
             _environment = environment;
@@ -31,16 +24,12 @@ namespace HoaLacLaptopShop.Controllers
 
         private IQueryable<Product> GetProducts(int page)
         {
-            return _context.Products
-                .Skip((page - 1) * 10)
-                .Take(10)
-                .Include(x => x.ProductImages)
-                .Include(x => x.Brand);
+            return _context.Products.Skip((page - 1) * 10).Take(10).Include(x => x.ProductImages).Include(x => x.Brand);
         }
 
         public IActionResult Product(int? page)
         {
-            var products = GetProducts(page != null ? Convert.ToInt32(page) : 1);
+            var products = GetProducts(page != null ? page.Value : 1);
 
             return View(new ProductAdminViewModel
             {
@@ -143,14 +132,12 @@ namespace HoaLacLaptopShop.Controllers
                 TotalCount = _context.Products.Count(),
                 PageIndex = 1
             });
+        }
         
         public IActionResult Order()
         {
-            var order = _context.Orders.Include(o => o.Buyer)
-                .Include(o => o.OrderDetails)
-                    .ThenInclude(oi => oi.Product).ToList();
+            var order = _context.Orders.Include(o => o.Buyer).Include(o => o.OrderDetails).ThenInclude(oi => oi.Product).ToList();
             return View(order);
         }
-
     }
 }
