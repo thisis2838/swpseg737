@@ -2,6 +2,7 @@
 using HoaLacLaptopShop.Helpers;
 using HoaLacLaptopShop.Models;
 using HoaLacLaptopShop.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -31,20 +32,10 @@ public class CartController : Controller
     }
 
     [HttpPost]
+    [Authorize]
     public IActionResult AddToCart(int id, int quantity = 1)
     {
-        var userId =  HttpContext.Session.GetString("CurrentUserId");
-
-        if (userId == null)
-        {
-            return RedirectToAction("Index", "Error", new { type = KnownErrorType.Forbidden } );
-        }
-
-        var user = db.Users.SingleOrDefault(u => u.ID.ToString() == userId);
-        if (user == null)
-        {
-            return RedirectToAction("Index", "Error", new { type = KnownErrorType.Forbidden });
-        }
+        var user = HttpContext.GetCurrentUser();
 
         var cart = Cart;
         var item = cart.SingleOrDefault(p => p.Id == id);
@@ -82,6 +73,7 @@ public class CartController : Controller
         return RedirectToAction("Index");
     }
 
+    [Authorize]
     public IActionResult RemoveCart(int id)
     {
         var cart = Cart;
@@ -91,26 +83,15 @@ public class CartController : Controller
             cart.Remove(item);
 
             // Update the order in the database
-            UpdateOrder(HttpContext.Session.GetString("CurrentUserId"), cart);
-
+            UpdateOrder(HttpContext.GetCurrentUserID()!.ToString()!, cart);
             HttpContext.Session.Set(CART_KEY, cart);
         }
         return RedirectToAction("Index");
     }
 
-    public void LoadCartFromDatabase()
+    private void LoadCartFromDatabase()
     {
-        var userId = HttpContext.Session.GetString("CurrentUserId");
-        if (string.IsNullOrEmpty(userId))
-        {
-            return;
-        }
-
-        var user = db.Users.SingleOrDefault(u => u.ID.ToString() == userId);
-        if (user == null)
-        {
-            return;
-        }
+        var user = HttpContext.GetCurrentUser();
 
         var existingOrder = db.Orders
             .Include(o => o.OrderDetails)
@@ -121,11 +102,11 @@ public class CartController : Controller
         {
             var cartItems = existingOrder.OrderDetails.Select(od => new CartItem
             {
-                Id = od.ProductId,
-                ProductName = od.Product.Name,
-                Link = db.ProductImages.FirstOrDefault(pi => pi.ProductId == od.ProductId)?.GetProductImageURL(),
-                Price = od.Product.Price,
-                Quantity = od.Amount
+                id = od.ProductId,
+                productName = od.Product.Name,
+                link = db.ProductImages.FirstOrDefault(pi => pi.ProductId == od.ProductId)?.GetProductImageURL(),
+                price = od.Product.Price,
+                quantity = od.Quantity
             })
             .ToList();
 
@@ -133,9 +114,9 @@ public class CartController : Controller
         }
     }
     // For add to Cart -> Changes in Order and OrderDetails
+    [Authorize]
     private void SaveOrder(User user, List<CartItem> cart)
     {
-
         // Find existing order in DB
         var existingOrder = db.Orders
             .Include(o => o.OrderDetails)
@@ -148,10 +129,14 @@ public class CartController : Controller
             {
                 BuyerID = user.ID,
                 Status = OrderStatus.Created,
-                Address = "user address",
+                District = "",
+                Province = "",
+                Ward = "",
+                Street = "",
+                RecipientName = user.Name,
                 PhoneNumber = user.PhoneNumber,
-                CreationTime = DateTime.Now,
-                TotalPrice = (float)cart.Sum(c => c.Total),
+                OrderTime = DateTime.Now,
+                TotalPrice = (decimal)cart.Sum(c => c.total),
                 PaymentMethod = PaymentMethod.CashOnDelivery, // // Defeaul Payment
             };
 
@@ -159,7 +144,7 @@ public class CartController : Controller
         }
         else
         {
-            existingOrder.TotalPrice = (float)cart.Sum(c => c.Total);
+            existingOrder.TotalPrice = (decimal)cart.Sum(c => c.total);
         }
 
         // Update order details. Iterate through cart -> add to orderDetails table
@@ -170,20 +155,21 @@ public class CartController : Controller
             {
                 orderDetail = new OrderDetail
                 {
-                    ProductId = cartItem.Id,
-                    Amount = cartItem.Quantity,
+                    ProductId = cartItem.id,
+                    Quantity = cartItem.quantity,
                 };
                 existingOrder.OrderDetails.Add(orderDetail);
             }
             else
             {
-                orderDetail.Amount = cartItem.Quantity;
+                orderDetail.Quantity = cartItem.quantity;
             }
         }
 
         db.SaveChanges();
     }
     // For remove item from cart
+    [Authorize]
     private void UpdateOrder(string userId, List<CartItem> cart)
     {
         if (string.IsNullOrEmpty(userId))
@@ -203,7 +189,7 @@ public class CartController : Controller
 
         if (existingOrder != null)
         {
-            existingOrder.TotalPrice = (float)cart.Sum(c => c.Total);
+            existingOrder.TotalPrice = (decimal)cart.Sum(c => c.total);
 
             // Update or remove order details
             foreach (var orderDetail in existingOrder.OrderDetails.ToList())
@@ -215,7 +201,7 @@ public class CartController : Controller
                 }
                 else
                 {
-                    orderDetail.Amount = cartItem.Quantity;
+                    orderDetail.Quantity = cartItem.quantity;
                 }
             }
 

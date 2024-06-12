@@ -19,18 +19,14 @@ public class CheckoutController : Controller
     [HttpGet]
     public IActionResult Index()
     {
-        var userId = HttpContext.Session.GetString("CurrentUserId");
-        if (userId == null)
-        {
-            return RedirectToAction("Index", "Error", new { type = KnownErrorType.Forbidden });
-        }
+        var userId = HttpContext.GetCurrentUserID()!;
 
         // Find the order associated with the current user
         var order = _context.Orders
             .Include(o => o.OrderDetails)  // Include related OrderItems
                 .ThenInclude(oi => oi.Product)
             .Include(o => o.Buyer)       // Include related Buyer
-            .SingleOrDefault(o => o.BuyerID.ToString() == userId && o.Status == OrderStatus.Created);
+            .SingleOrDefault(o => o.BuyerID.ToString() == userId.ToString() && o.Status == OrderStatus.Created);
 
         if (order == null)
         {
@@ -41,19 +37,9 @@ public class CheckoutController : Controller
     }
 
     [HttpPost]
-    public IActionResult ConfirmOrder(string name, string email, string phone, string address, string city, string district, PaymentMethod paymentMethod, string voucherCode, string totalPrice)
+    public IActionResult ConfirmOrder(string name, string email, string phone, string address, string city, string district, string ward, PaymentMethod paymentMethod, string voucherCode)
     {
-        var userId =  HttpContext.Session.GetString("CurrentUserId");
-        if (userId == null)
-        {
-            return RedirectToAction("Index", "Error", new { type = KnownErrorType.Forbidden });
-        }
-
-        var user = _context.Users.SingleOrDefault(u => u.ID.ToString() == userId);
-        if (user == null)
-        {
-             return RedirectToAction("Index", "Error", new { type = KnownErrorType.Forbidden });
-        }
+        var user = HttpContext.GetCurrentUser();
 
         var cartItems = HttpContext.Session.Get<List<CartItem>>(CartController.CART_KEY) ?? new List<CartItem>();
         if (!cartItems.Any())
@@ -64,14 +50,22 @@ public class CheckoutController : Controller
 
         var order = _context.Orders.SingleOrDefault(o => o.BuyerID == user.ID && o.Status == OrderStatus.Created);
         order.Status = OrderStatus.Delivering; // Change status to delivering
-        order.Address = $"{address}, {district}, {city}"; // Adjusted address format
+        order.RecipientName = name;
+        // Set the corresponding locations
+        order.Province = city;
+        order.District = district;
+        order.Ward = ward;
+        order.Street = address;
+
         order.PhoneNumber = phone;
-        order.CreationTime = DateTime.Now;
+        order.OrderTime = DateTime.Now;
         order.PaymentMethod = paymentMethod;
         // Handling voucherId
         var voucher = _context.Vouchers.SingleOrDefault(v => v.Code == voucherCode);
-        order.TotalPrice = float.Parse(totalPrice);
+        order.TotalPrice = order.OrderDetails.Sum(oi => oi.SubTotal);
         order.VoucherID = voucher != null ? voucher.ID : null;
+        
+
         foreach (var cartItem in cartItems)
         {
             var product = _context.Products.SingleOrDefault(p => p.ID == cartItem.Id);
@@ -95,15 +89,21 @@ public class CheckoutController : Controller
     [HttpPost]
     public IActionResult CheckVoucher([FromBody] VoucherRequest request)
     {
-        var voucher = _context.Vouchers.SingleOrDefault(v => v.Code == request.VoucherCode);
+        if (string.IsNullOrEmpty(request.voucherCode))
+        {
+            return Json(new { valid = false, discount = 0 });
+        }
+
+        var voucher = _context.Vouchers.SingleOrDefault(v => v.Code == request.voucherCode);
         if (voucher == null || !CheckVoucherCode(voucher))
         {
             return Json(new { valid = false, discount = 0 });
         }
 
-        float discount = CalculateDiscount(voucher, request.Subtotal);
+        decimal discount = CalculateDiscount(voucher, request.subTotal);
         return Json(new { valid = true, discount = discount });
     }
+
     private bool CheckVoucherCode(Voucher voucher)
     {
         // Your logic to check if the voucher code is valid
@@ -111,7 +111,7 @@ public class CheckoutController : Controller
         return DateTime.Now.Date <= voucher.ExpiryDate.ToDateTime(new TimeOnly());
     }
 
-    private float CalculateDiscount(Voucher voucher, float subtotal)
+    private decimal CalculateDiscount(Voucher voucher, decimal subtotal)
     {
         if (subtotal < voucher.MinimumOrderPrice)
         {

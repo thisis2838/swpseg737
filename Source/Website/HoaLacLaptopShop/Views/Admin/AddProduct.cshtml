@@ -1,0 +1,205 @@
+﻿@using HoaLacLaptopShop.Helpers
+@model HoaLacLaptopShop.Models.Product
+
+@{
+    Layout = "~/Views/Shared/_Layout2.cshtml";
+}
+
+<div class="mb-3" style="display:flex; justify-content:space-between">
+    <h1 class="h3 d-inline align-middle">
+        <a href="@Url.Action("Product","Admin")">
+            Product list
+        </a>
+    </h1>
+</div>
+
+<div class="row">
+    <div class="card">
+        <div class="tab-content">
+            <div class="tab-pane fade show active" id="account" role="tabpanel">
+                <div class="card">
+                    <div class="card-body">
+                        <form method="post" asp-action="AddProduct" asp-controller="Admin" enctype="multipart/form-data">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label" asp-for="Name">Name</label>
+                                        <input asp-for="Name" type="text" name="name" class="form-control" placeholder="Name">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label" asp-for="Price">Price</label>
+                                        <input type="number" asp-for="Price" name="price" class="form-control" placeholder="Price">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label" asp-for="Stock">Stock</label>
+                                        <input type="number" asp-for="Stock" name="stock" class="form-control" placeholder="Stock">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Brand</label><br />
+                                        <select class="form-control form-select"  name="brand">
+                                            <option selected>Brand</option>
+                                            @foreach (var brand in ViewData["Brands"] as List<Brand>)
+                                            {
+                                                <option value="@brand.ID">@brand.Name</option>
+                                            }
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label" asp-for="Description">Description</label>
+                                        <textarea name="description" asp-for="Description" class="form-control" cols="10" rows="10" placeholder="Description"></textarea>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+
+                                    <div class="mb-3">
+                                        <label class="form-label">Product Type</label><br />
+                                        <label class="form-check-label">
+                                            <input type="radio" asp-for="IsLaptop" value="1" name="productType" checked> Laptop
+                                        </label>
+                                        <label class="form-check-label">
+                                            <input type="radio" asp-for="IsLaptop" value="0" name="productType"> Accessories
+                                        </label>
+                                    </div>
+
+                                    <div class="mb-3 laptop" id="cpuContainer">
+                                        <label class="form-label">CPU</label><br />
+                                        <select class="form-control form-select" name="cpu">
+                                            <option selected disabled>CPU</option>
+                                            @foreach (var cpu in ViewData["Cpus"] as List<LaptopCPUSeries>)
+                                            {
+                                                <option value="@cpu.ID">@cpu.Name</option>
+                                            }
+                                        </select>
+                                    </div>
+
+                                    <div class="mb-3 laptop" id="gpuContainer">
+                                        <label class="form-label">GPU</label><br />
+                                        <select class="form-control form-select" name="gpu">
+                                            <option selected disabled>GPU</option>
+                                            @foreach (var gpu in ViewData["Gpus"] as List<LaptopGPUSeries>)
+                                            {
+                                                <option value="@gpu.ID">@gpu.Name</option>
+                                            }
+                                        </select>
+                                    </div>
+                                    <div class="mb-3 laptop">
+                                        <label class="form-label">Screensize</label>
+                                        <select class="form-control form-select" name="screensize">
+                                            @{
+                                                var screensize = new[] { 11.6, 12, 13.3, 14, 15.6, 16, 17 };
+                                            }
+                                            <option selected disabled>Inch</option>
+                                            @foreach (float i in screensize)
+                                            {
+                                                <option value="@i">@i inch</option>
+                                            }
+                                        </select>
+                                    </div>
+
+                                    <div class="mb-3 laptop">
+                                        <label class="form-label">Screensize</label>
+                                        <select class="form-control form-select" name="screenresolution">
+                                            <option selected disabled>Resolution</option>
+                                            @{
+                                                var screenresolution = new[] { "1920×1080", "1366×768", "1280×1024", "1024×768" };
+                                            }
+                                            @foreach (string i in screenresolution)
+                                            {
+                                                <option value="@i">@i</option>
+                                            }
+                                        </select>
+                                    </div>
+
+                                    <div class="mb-3 laptop">
+                                        <label class="form-label">Storage type</label>
+                                        <select class="form-control form-select" name="storagetype">
+                                            <option selected disabled>Type</option>
+
+                                            <option value="SSD">SSD</option>
+                                            <option value="HDD">HDD</option>
+
+                                        </select>
+                                    </div>
+                                    <div class="mb-3 laptop">
+                                        <label class="form-label">Storage Size</label>
+                                        <select class="form-control form-select" name="storagesize">
+                                            <option selected disabled>Size</option>
+                                            @{
+                                                var storagesize = new[] { 256, 512, 1024 };
+                                            }
+                                            @foreach (int i in storagesize)
+                                            {
+                                                <option value="@i">@i GB</option>
+                                            }
+                                        </select>
+                                    </div>
+
+                                    <div class="mb-3 laptop">
+                                        <label class="form-label">Refesh rate</label>
+                                        <select class="form-control form-select" name="refreshrate">
+                                            <option selected disabled>Rate</option>
+                                            @{
+                                                var refreshrate = new[] { 60, 144, 165 };
+                                            }
+                                            @foreach (int i in refreshrate)
+                                            {
+                                                <option value="@i">@i Hz</option>
+                                            }
+                                        </select>
+                                    </div>
+
+                                    <div class="mb-3 laptop">
+                                        <label class="form-label">Ram</label>
+                                        <select class="form-control form-select" name="ram">
+                                            <option selected disabled>Ram</option>
+                                            @{
+                                                var ram = new[] { 8, 16, 32, 64 };
+                                            }
+                                            @foreach (int i in ram)
+                                            {
+                                                <option value="@i">@i GB</option>
+                                            }
+                                        </select>
+                                    </div>
+
+                                    <div class="text-center">
+                                        <div class="mt-2">
+                                            @* <label for="upload-input" class="btn btn-primary">
+                                                <i class="fas fa-upload"></i> Upload
+                                            </label> *@
+                                            <input type="file" name="file" id="upload-input" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary">Add product</button>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Get references to the CPU and GPU containers
+
+        var laptops = Array.from(document.getElementsByClassName('laptop'));
+
+        // Add event listener to the radio buttons
+        var radioButtons = document.querySelectorAll('input[name="productType"]');
+        radioButtons.forEach(function (radio) {
+            radio.addEventListener('change', function () {
+                if (radio.value === '1') {
+                    laptops.forEach(function (lap) {
+                        lap.style.display = 'block';
+                    });
+                } else {
+                    laptops.forEach(function (lap) {
+                        lap.style.display = 'none';
+                    });
+                }
+            });
+        });
+    </script>

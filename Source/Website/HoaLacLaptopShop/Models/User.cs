@@ -9,29 +9,33 @@ namespace HoaLacLaptopShop.Models;
 public partial class User
 {
     public int ID { get; set; }
+    [Required(AllowEmptyStrings = false, ErrorMessage = "Require username"), MaxLength(256)]
     public string Name { get; set; } = null!;
+    [Required(AllowEmptyStrings = false, ErrorMessage = "Require email"), MaxLength(256)]
     public string Email { get; set; } = null!;
-    [Display(Name = "Password")]
+    [Display(Name = "Password"), MaxLength(256)]
     public string? PassHash { get; set; }
     public bool Gender { get; set; }
-    [DisplayName("Phone Number")]
+    [
+        Required(AllowEmptyStrings = false, ErrorMessage = "Require phone number"),
+        MaxLength(20),
+        RegularExpression("^[0-9]+$", ErrorMessage = "Phone number can only contain digits"),
+        DisplayName("Phone Number")
+    ]
     public string PhoneNumber { get; set; } = null!;
-    public CustomerTier CustomerTier { get; set; } = CustomerTier.Regular;
-    public bool IsSales { get; set; } = false;
-    public bool IsMarketing { get; set; } = false;
-    public bool IsAdmin { get; set; } = false;
+
+
+    [DisplayName("Is Administrator?")]
+    public bool IsAdmin { get; set; }
+    [DisplayName("Is Marketing Staff?")]
+    public bool IsMarketing { get; set; }
+    [DisplayName("Is Sales Staff?")]
+    public bool IsSales { get; set; }
+    [DisplayName("Is Deleted?")]
+    public bool IsDeleted { get; set; }
 
     public virtual ICollection<NewsPost> NewsPosts { get; set; } = new List<NewsPost>();
     public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
     public virtual ICollection<ProductReview> ProductReviews { get; set; } = new List<ProductReview>();
     public virtual ICollection<Voucher> Vouchers { get; set; } = new List<Voucher>();
-}
-
-public enum CustomerTier
-{
-    Regular,
-    Frequenter,
-    Bronze,
-    Silver,
-    Gold
 }
