@@ -74,13 +74,13 @@ public class CheckoutController : Controller
         order.VoucherID = voucher != null ? voucher.ID : null;
         foreach (var cartItem in cartItems)
         {
-            var product = _context.Products.SingleOrDefault(p => p.ID == cartItem.id);
+            var product = _context.Products.SingleOrDefault(p => p.ID == cartItem.Id);
             if (product == null)
             {
-                TempData["Message"] = $"Product with id {cartItem.id} not found!";
+                TempData["Message"] = $"Product with id {cartItem.Id} not found!";
                 return RedirectToAction("Index", "Cart");
             }
-            product.Stock -= cartItem.quantity;
+            product.Stock -= cartItem.Quantity;
             // Decrease the product quantity
         }
         _context.SaveChanges();

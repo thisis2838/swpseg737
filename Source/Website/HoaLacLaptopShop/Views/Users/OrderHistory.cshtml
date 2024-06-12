@@ -2,6 +2,23 @@
 @{
     ViewData["Title"] = "Order History";
 }
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+<div class="row" style="justify-content:space-around; margin-bottom: 30px;">
+    <div class="col-md-6 align-items-center" style="display: flex; gap: 16px">
+        <i class="fa-solid fa-filter"></i>
+        <span>YEAR</span>
+        <select id="filter-year" class="form-select">
+            <option value="">Any</option>
+            <!-- Add year options dynamically or manually -->
+        </select>
+        <span>Location</span>
+        <select id="filter-year" class="form-select">
+            <option value="value">Any</option>
+        </select>
+    </div>
+    
+</div>
 
 <table class="table table-striped">
     <thead>
@@ -28,9 +45,11 @@
                         <br />
                     }
                 </td>
-                <td><span class="badge bg-@getStatusBadge(item.Status)">@item.Status</span></td>
+                <td><span class="badge bg-@(item.Status)">@item.Status</span></td>
                 <td>@item.TotalPrice</td>               
-                <td><a class="btn btn-primary">View Details</a></td>
+                <td>
+                     <a asp-route-id="@item.ID" asp-controller="Users" asp-action="OrderHistory" class="btn btn-primary" style="margin-top: 0; border-radius: 50%"><i class="fa-solid fa-chevron-right"></i></a>
+                </td>
             </tr>
         }
         </tbody> 

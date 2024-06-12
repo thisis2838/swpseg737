@@ -55,5 +55,5 @@ app.UseAuthentication();
 
 app.MapControllerRoute(name: "default", pattern: "{controller=Home}/{action=Index}/{id?}");
 app.MapControllerRoute(name: "product", pattern: "{controller=Product}/{action=Detail}/{id?}");
-
+app.MapControllerRoute(name: "OrderHistory", pattern: "{controller=Users}/{action=OrderHistory}/{id?}");
 app.Run();

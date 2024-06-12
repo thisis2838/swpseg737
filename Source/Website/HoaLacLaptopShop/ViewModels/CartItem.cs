@@ -3,11 +3,11 @@
 	public class CartItem
 	{
 		// productID
-		public int id { get; set; }
-		public string productName { get; set; }
-		public string link { get; set; }
-		public double price { get; set; }
-		public int quantity { get; set; }
-		public double total => price * quantity;
+		public int Id { get; set; }
+		public string ProductName { get; set; }
+		public string Link { get; set; }
+		public double Price { get; set; }
+		public int Quantity { get; set; }
+		public double Total => Price * Quantity;
 	}
 }

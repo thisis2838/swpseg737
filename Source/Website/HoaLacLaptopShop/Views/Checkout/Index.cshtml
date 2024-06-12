@@ -145,8 +145,9 @@
 
                         data_tinh.data.forEach(function (val_tinh) {
                             var option = document.createElement('option');
-                            option.value = val_tinh.id;
+                            option.value = val_tinh.full_name;
                             option.innerHTML = val_tinh.full_name;
+                            option.setAttribute('data-province-id', val_tinh.id); // Set tinh.id as a data attribute
                             provinceSelect.appendChild(option);
                         });
                     }
@@ -175,8 +176,8 @@
 
         getProvinces();
         provinceSelect.addEventListener('change', function (e) {
-            var provinceId = e.target.value;
-            // Get districts based on selected province
+            var selectedOption = e.target.options[e.target.selectedIndex];
+            var provinceId = selectedOption.getAttribute('data-province-id'); // Get provinceId from data attribute
             getDistricts(provinceId);
         });
     })

@@ -29,33 +29,33 @@
                     {
                         <tr class="row" style="align-items:center">
                             <td class="cart_product">
-                                <a href="#"><img src="@item.link" alt="@item.productName" class="img-fluid" style="width: 120px; height: 120px;"></a>
+                                <a href="#"><img src="@item.Link" alt="@item.ProductName" class="img-fluid" style="width: 120px; height: 120px;"></a>
                             </td>
                             <td class="cart_description">
-                                <h4><a asp-controller="Product" asp-action="Detail" asp-route-pid="@item.id">@item.productName</a></h4>
+                                <h4><a asp-controller="Product" asp-action="Detail" asp-route-pid="@item.Id">@item.ProductName</a></h4>
                             </td>
                             <td class="cart_price">
-                                <p>@item.price</p>
+                                <p>@item.Price</p>
                             </td>
                             <td class="cart_quantity">
                                 <div class="d-flex align-items-center">
                                     <form asp-controller="Cart" asp-action="AddToCart">
-                                        <input type="hidden" name="id" value="@item.id" />
+                                        <input type="hidden" name="id" value="@item.Id" />
                                         <button type="submit">+</button>
                                     </form>
-                                    <input class="form-control text-center" type="text" name="quantity" value="@item.quantity" autocomplete="off" style="width: 50px;">
+                                    <input class="form-control text-center" type="text" name="quantity" value="@item.Quantity" autocomplete="off" style="width: 50px;">
                                     <form asp-controller="Cart" asp-action="AddToCart">
-                                        <input type="hidden" name="id" value="@item.id" />
+                                        <input type="hidden" name="id" value="@item.Id" />
                                         <input type="hidden" name="quantity" value="-1" />
                                         <button type="submit">-</button>
                                     </form>
                                 </div>
                             </td>
                             <td class="cart_total">
-                                <p class="font-weight-bold">@item.total</p>
+                                <p class="font-weight-bold">@item.Total</p>
                             </td>
                             <td class="cart_delete">
-                                <a class="btn btn-outline-danger btn-sm" asp-action="RemoveCart" asp-controller="Cart" asp-route-id="@item.id"><i class="fa fa-times"></i></a>
+                                <a class="btn btn-outline-danger btn-sm" asp-action="RemoveCart" asp-controller="Cart" asp-route-id="@item.Id"><i class="fa fa-times"></i></a>
                             </td>
                         </tr>
                     }
@@ -68,9 +68,9 @@
             <div class="col-sm-6" style="float: right">
                 <div class="total_area">
                     <ul>
-                        <li>Cart Sub Total <span>@Model.Sum(c => c.total)</span></li>
+                        <li>Cart Sub Total <span>@Model.Sum(c => c.Total)</span></li>
                         <li>Shipping Cost <span>Free</span></li>
-                        <li>Total <span>@Model.Sum(c => c.total)</span></li>
+                        <li>Total <span>@Model.Sum(c => c.Total)</span></li>
                     </ul>
                     <a class="btn btn-default update" href="">Update</a>
                     <a class="btn btn-default check_out" asp-action="Index" asp-controller="Checkout">Check Out</a>
