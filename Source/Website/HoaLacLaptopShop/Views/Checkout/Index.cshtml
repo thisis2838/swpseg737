@@ -235,7 +235,7 @@
     };
 
      function parseCurrency(value) {
-        return parseFloat(value.toString().replace(/./g, '').replace(/,/g, '.'));
+        return parseFloat(value.toString().replace('.', '').replace(',', '.'));
     }
 
     const totalAmountElement = document.getElementById('total-amount');
