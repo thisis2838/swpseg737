@@ -210,7 +210,7 @@ public partial class HoaLacLaptopShopContext : DbContext
         modelBuilder.Entity<Voucher>(entity =>
         {
             entity.HasKey(e => e.ID);
-            entity.ToTable("Voucher");
+            entity.ToTable("Vouchers");
 
             entity.Property(e => e.ID).HasColumnName("id");
             entity.Property(e => e.IssuerId).HasColumnName("issuerID");

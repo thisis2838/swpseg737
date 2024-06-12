@@ -235,7 +235,7 @@
     };
 
      function parseCurrency(value) {
-        return parseFloat(value.toString().replace(/./g, '').replace(/,/g, '.'));
+        return parseFloat(value.toString().replace('.', '').replace(',', ''));
     }
 
     const totalAmountElement = document.getElementById('total-amount');
@@ -246,6 +246,7 @@
         const voucherCode = document.getElementById('voucher-code').value;
         const subtotalElement = document.getElementById('subtotal');
         const subtotal = parseCurrency(subtotalElement.textContent);
+        
         document.getElementById('voucherCode').value = voucherCode; // Update hidden field in the main form
         const requestPayload = { voucherCode: voucherCode, subTotal: subtotal };
         fetch('/Checkout/CheckVoucher', {

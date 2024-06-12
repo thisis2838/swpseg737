@@ -63,6 +63,8 @@ namespace HoaLacLaptopShop.Controllers
         public async Task<IActionResult> AddProduct(Product model, int? brand, int? cpu, int? gpu, float? screensize, string? screenresolution, string? storagetype, int? storagesize, int? refreshrate, int? ram, IFormFile file)
         {
             var products = GetProducts(1);
+
+            ModelState.Remove(nameof(Models.Product.Brand));
             if (ModelState.IsValid)
             {
                 Product product = new Product()
