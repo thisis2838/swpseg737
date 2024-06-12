@@ -89,15 +89,21 @@ public class CheckoutController : Controller
     [HttpPost]
     public IActionResult CheckVoucher([FromBody] VoucherRequest request)
     {
-        var voucher = _context.Vouchers.SingleOrDefault(v => v.Code == request.VoucherCode);
+        if (string.IsNullOrEmpty(request.voucherCode))
+        {
+            return Json(new { valid = false, discount = 0 });
+        }
+
+        var voucher = _context.Vouchers.SingleOrDefault(v => v.Code == request.voucherCode);
         if (voucher == null || !CheckVoucherCode(voucher))
         {
             return Json(new { valid = false, discount = 0 });
         }
 
-        decimal discount = CalculateDiscount(voucher, request.Subtotal);
+        decimal discount = CalculateDiscount(voucher, request.subTotal);
         return Json(new { valid = true, discount = discount });
     }
+
     private bool CheckVoucherCode(Voucher voucher)
     {
         // Your logic to check if the voucher code is valid

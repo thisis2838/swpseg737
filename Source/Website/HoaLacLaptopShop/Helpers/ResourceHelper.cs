@@ -15,7 +15,7 @@ namespace HoaLacLaptopShop.Helpers
     }
     public class VoucherRequest
     {
-        public string VoucherCode { get; set; }
-        public decimal Subtotal { get; set; }
+        public string voucherCode { get; set; }
+        public decimal subTotal { get; set; }
     }
 }
