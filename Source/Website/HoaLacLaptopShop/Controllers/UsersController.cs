@@ -9,6 +9,7 @@ using HoaLacLaptopShop.Models;
 using Microsoft.AspNetCore.Authorization;
 using HoaLacLaptopShop.ViewModels;
 using Microsoft.AspNetCore.Identity;
+using HoaLacLaptopShop.Helpers;
 
 namespace HoaLacLaptopShop.Controllers
 {
@@ -164,6 +165,45 @@ namespace HoaLacLaptopShop.Controllers
         private bool UserExists(int id)
         {
             return _context.Users.Any(e => e.ID == id);
+        }
+
+        // Get: Users/OrderHistory
+        public IActionResult OrderHistory()
+        {
+            String userId = HttpContext.GetCurrentUser().ID.ToString();
+            if (userId != null)
+            {
+                var order = _context.Orders
+                        .Include(o => o.OrderDetails)
+                            .ThenInclude(oi => oi.Product)
+                        .Include(o => o.Buyer)
+                        .Where(o => o.BuyerID.ToString() == userId).ToList();
+                return View(order);
+            }
+            else
+            {
+                return RedirectToAction("Index", "Error", new { type = KnownErrorType.Forbidden });
+            }
+        }
+
+        public IActionResult OrderHistory(int id)
+        {
+            String userId = HttpContext.GetCurrentUser().ID.ToString();
+
+            if (userId != null)
+            {
+                var order = _context.Orders
+                        .Include(o => o.OrderDetails)
+                            .ThenInclude(oi => oi.Product)
+                        .Include(o => o.Voucher)
+                        .FirstOrDefault(o => o.BuyerID.ToString() == userId && o.ID == id);
+                if (order == null) return RedirectToAction("Index", "Error", new { type = KnownErrorType.NotFound });
+                return View(order);
+            }
+            else
+            {
+                return RedirectToAction("Index", "Error", new { type = KnownErrorType.Forbidden });
+            }
         }
     }
 }

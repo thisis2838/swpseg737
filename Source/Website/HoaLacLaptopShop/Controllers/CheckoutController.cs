@@ -37,7 +37,7 @@ public class CheckoutController : Controller
     }
 
     [HttpPost]
-    public IActionResult ConfirmOrder(string name, string email, string phone, string address, string city, string district, PaymentMethod paymentMethod, string voucherCode, string totalPrice)
+    public IActionResult ConfirmOrder(string name, string email, string phone, string address, string city, string district, string ward, PaymentMethod paymentMethod, string voucherCode)
     {
         var user = HttpContext.GetCurrentUser();
 
@@ -50,16 +50,22 @@ public class CheckoutController : Controller
 
         var order = _context.Orders.SingleOrDefault(o => o.BuyerID == user.ID && o.Status == OrderStatus.Created);
         order.Status = OrderStatus.Delivering; // Change status to delivering
+        order.RecipientName = name;
+        // Set the corresponding locations
         order.Province = city;
         order.District = district;
-        //TODO order.Address = $"{address}, {district}, {city}"; // Adjusted address format
+        order.Ward = ward;
+        order.Street = address;
+
         order.PhoneNumber = phone;
         order.OrderTime = DateTime.Now;
         order.PaymentMethod = paymentMethod;
         // Handling voucherId
         var voucher = _context.Vouchers.SingleOrDefault(v => v.Code == voucherCode);
-        order.TotalPrice = decimal.Parse(totalPrice);
+        order.TotalPrice = order.OrderDetails.Sum(oi => oi.SubTotal);
         order.VoucherID = voucher != null ? voucher.ID : null;
+        
+
         foreach (var cartItem in cartItems)
         {
             var product = _context.Products.SingleOrDefault(p => p.ID == cartItem.id);
