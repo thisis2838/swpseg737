@@ -9,7 +9,7 @@ public partial class Product
 {
     public int ID { get; set; }
     public int BrandId { get; set; }
-    public virtual Brand Brand { get; set; } = null!;
+    public virtual Brand? Brand { get; set; } = null!;
 
 
     [Required(AllowEmptyStrings = false), MaxLength(256)]

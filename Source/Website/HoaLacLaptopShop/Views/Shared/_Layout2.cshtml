@@ -52,7 +52,7 @@
 	<div class="wrapper">
 		<nav id="sidebar" class="sidebar js-sidebar">
 			<div class="sidebar-content js-simplebar">
-				<a class="sidebar-brand" href="index.html">
+				<a class="sidebar-brand" href="@(Url.Action("Index", "Home"))">
 					<span class="sidebar-brand-text align-middle">
 						Laptop Shop
 						<sup><small class="badge bg-primary text-uppercase">Pro</small></sup>
@@ -79,7 +79,7 @@
 								<ul id="dashboards" class="sidebar-dropdown list-unstyled collapse " data-bs-parent="#sidebar">
 									<li class="sidebar-item"><a class="sidebar-link" href="@Url.Action("Index", "Users")">User</a></li>
 									<li class="sidebar-item">
-										<a class="sidebar-link" href="dashboard-ecommerce.html">Product</a>
+										<a class="sidebar-link" href="@Url.Action("Product","Admin")">Product</a>
 									</li>
 									<li class="sidebar-item">
 										<a class="sidebar-link" href="dashboard-crypto.html">News</a>
@@ -712,7 +712,7 @@
 			}, 15000);
 		});
 	</script>
-	@* @await RenderSectionAsync("Scripts", required: false) *@
+	@await RenderSectionAsync("Scripts", required: false)
 </body>
 
 </html>

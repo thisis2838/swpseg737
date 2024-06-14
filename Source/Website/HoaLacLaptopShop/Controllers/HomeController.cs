@@ -16,16 +16,16 @@ namespace HoaLacLaptopShop.Controllers
         }
         public IActionResult Index()
         {
-            var products = _context.Products
+            var products = Enumerable.Empty<Product>();/* _context.Products
                 .Include(x => x.ProductImages)
                 .Include(x => x.OrderDetails)
-                .Include(x => x.Brand);
+                .Include(x => x.Brand);*/
             return View(new HomeViewModel
             {
                 PopularLaptops = products.Where(x => x.IsLaptop).OrderByDescending(x => x.OrderDetails.Count).Take(10).ToList(),
                 PopularAccessories = products.Where(x => !x.IsLaptop).OrderByDescending(x => x.OrderDetails.Count).Take(10).ToList(),
                 ProductsByBrand = products.GroupBy(x => x.Brand)
-                    .Select(x => new {x.Key, Items = x.Take(5)})
+                    .Select(x => new { x.Key, Items = x.Take(5) })
                     .ToDictionary(x => x.Key!, x => x.Items.ToList()),
                 LatestNews = _context.NewsPosts.OrderByDescending(x => x.Time).Take(3).ToList()
             });
