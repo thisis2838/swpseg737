@@ -36,7 +36,7 @@
                                     </div>
                                     <div class="mb-3">
                                         <label class="form-label">Brand</label><br />
-                                        <select class="form-control form-select"  name="brand">
+                                        <select class="form-control form-select" asp-for="BrandId" name="brand">
                                             <option selected>Brand</option>
                                             @foreach (var brand in ViewData["Brands"] as List<Brand>)
                                             {

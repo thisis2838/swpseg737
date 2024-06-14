@@ -48,7 +48,8 @@ public class CheckoutController : Controller
             return RedirectToAction("Index", "Cart");
         }
 
-        var order = _context.Orders.SingleOrDefault(o => o.BuyerID == user.ID && o.Status == OrderStatus.Created);
+        var order = _context.Orders.Include(o => o.OrderDetails).SingleOrDefault(o => o.BuyerID == user.ID && o.Status == OrderStatus.Created);
+                            
         order.Status = OrderStatus.Delivering; // Change status to delivering
         order.RecipientName = name;
         // Set the corresponding locations
@@ -56,7 +57,6 @@ public class CheckoutController : Controller
         order.District = district;
         order.Ward = ward;
         order.Street = address;
-
         order.PhoneNumber = phone;
         order.OrderTime = DateTime.Now;
         order.PaymentMethod = paymentMethod;
@@ -64,7 +64,7 @@ public class CheckoutController : Controller
         var voucher = _context.Vouchers.SingleOrDefault(v => v.Code == voucherCode);
         order.TotalPrice = order.OrderDetails.Sum(oi => oi.SubTotal);
         order.VoucherID = voucher != null ? voucher.ID : null;
-        
+        order.DiscountedPrice = voucher != null ? CalculateDiscount(voucher, order.OrderDetails.Sum(oi => oi.SubTotal)) : 0;
 
         foreach (var cartItem in cartItems)
         {

@@ -102,11 +102,11 @@ public class CartController : Controller
         {
             var cartItems = existingOrder.OrderDetails.Select(od => new CartItem
             {
-                id = od.ProductId,
-                productName = od.Product.Name,
-                link = db.ProductImages.FirstOrDefault(pi => pi.ProductId == od.ProductId)?.GetProductImageURL(),
-                price = od.Product.Price,
-                quantity = od.Quantity
+                Id = od.ProductId,
+                ProductName = od.Product.Name,
+                Link = db.ProductImages.FirstOrDefault(pi => pi.ProductId == od.ProductId)?.GetProductImageURL(),
+                Price = od.Product.Price,
+                Quantity = od.Quantity
             })
             .ToList();
 
@@ -136,7 +136,7 @@ public class CartController : Controller
                 RecipientName = user.Name,
                 PhoneNumber = user.PhoneNumber,
                 OrderTime = DateTime.Now,
-                TotalPrice = (decimal)cart.Sum(c => c.total),
+                TotalPrice = (decimal)cart.Sum(c => c.Total),
                 PaymentMethod = PaymentMethod.CashOnDelivery, // // Defeaul Payment
             };
 
@@ -144,7 +144,7 @@ public class CartController : Controller
         }
         else
         {
-            existingOrder.TotalPrice = (decimal)cart.Sum(c => c.total);
+            existingOrder.TotalPrice = (decimal)cart.Sum(c => c.Total);
         }
 
         // Update order details. Iterate through cart -> add to orderDetails table
@@ -155,14 +155,15 @@ public class CartController : Controller
             {
                 orderDetail = new OrderDetail
                 {
-                    ProductId = cartItem.id,
-                    Quantity = cartItem.quantity,
+                    ProductId = cartItem.Id,
+                    Quantity = cartItem.Quantity,
+                    ProductPrice = (int)cartItem.Price
                 };
                 existingOrder.OrderDetails.Add(orderDetail);
             }
             else
             {
-                orderDetail.Quantity = cartItem.quantity;
+                orderDetail.Quantity = cartItem.Quantity;
             }
         }
 
@@ -189,7 +190,7 @@ public class CartController : Controller
 
         if (existingOrder != null)
         {
-            existingOrder.TotalPrice = (decimal)cart.Sum(c => c.total);
+            existingOrder.TotalPrice = (decimal)cart.Sum(c => c.Total);
 
             // Update or remove order details
             foreach (var orderDetail in existingOrder.OrderDetails.ToList())
@@ -201,7 +202,7 @@ public class CartController : Controller
                 }
                 else
                 {
-                    orderDetail.Quantity = cartItem.quantity;
+                    orderDetail.Quantity = cartItem.Quantity;
                 }
             }
 

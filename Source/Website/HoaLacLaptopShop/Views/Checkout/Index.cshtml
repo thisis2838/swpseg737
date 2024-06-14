@@ -86,7 +86,6 @@
                             </div>
                         </div>
                         <input type="hidden" id="voucherCode" name="voucherCode" value=""/>
-                        <input type="hidden" id="discountValue" name="discountValue" value="" />
                     </div>
                 </div>
             </div>
@@ -234,9 +233,12 @@
         return new Intl.NumberFormat('vi-VN', { style: 'decimal' }).format(value);
     };
 
-     function parseCurrency(value) {
-        return parseFloat(value.toString().replace('.', '').replace(',', '.'));
-    }
+    function parseCurrency(value) {
+        const stringValue = value.toString();
+        const normalizedValue = stringValue.replace(/\./g, '').replace(',', '.');
+        return parseFloat(normalizedValue);
+
+    };
 
     const totalAmountElement = document.getElementById('total-amount');
     const discountElement = document.getElementById('discount-value');
@@ -246,6 +248,7 @@
         const voucherCode = document.getElementById('voucher-code').value;
         const subtotalElement = document.getElementById('subtotal');
         const subtotal = parseCurrency(subtotalElement.textContent);
+        
         document.getElementById('voucherCode').value = voucherCode; // Update hidden field in the main form
         const requestPayload = { voucherCode: voucherCode, subTotal: subtotal };
         fetch('/Checkout/CheckVoucher', {
@@ -260,17 +263,17 @@
             .then(data => {
                 console.log(data)
 
-                // document.getElementById('voucherCode').value = voucherCode;
+                document.getElementById('voucherCode').value = voucherCode;
 
                 if (data.valid === true) {
                     discountElement.textContent = `-${formatCurrency(data.discount)}`;
                     totalAmountElement.textContent = `${formatCurrency(subtotal - data.discount)}`;
                 } else {
                     discountElement.textContent = '-0';
-                    totalAmountElement.textContent = formatCurrency(subtotal);
+                    totalAmountElement.textContent = `${formatCurrency(subtotal)}`;
                 }
             })
             .catch(error => console.error('Error:', error));
     });
-    document.getElementById('discountValue').value = parseCurrency(discountElement);
+    
 </script>

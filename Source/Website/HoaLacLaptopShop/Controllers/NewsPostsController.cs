@@ -54,7 +54,14 @@ namespace HoaLacLaptopShop.Controllers
         }
         private async Task<String> GetContent(NewsPost post)
         {
-            return await System.IO.File.ReadAllTextAsync(GetContentPath(post));
+            try
+            {
+                return await System.IO.File.ReadAllTextAsync(GetContentPath(post));
+            }
+            catch (Exception ex)
+            {
+                return "Error while trying to retrieve news content. Please contact an administrator. \n" + ex.Message;
+            }
         }
         private void SaveContent(NewsPost post, string content)
         {

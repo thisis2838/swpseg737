@@ -63,6 +63,8 @@ namespace HoaLacLaptopShop.Controllers
         public async Task<IActionResult> AddProduct(Product model, int? brand, int? cpu, int? gpu, float? screensize, string? screenresolution, string? storagetype, int? storagesize, int? refreshrate, int? ram, IFormFile file)
         {
             var products = GetProducts(1);
+
+            ModelState.Remove(nameof(Models.Product.Brand));
             if (ModelState.IsValid)
             {
                 Product product = new Product()
@@ -138,6 +140,43 @@ namespace HoaLacLaptopShop.Controllers
         {
             var order = _context.Orders.Include(o => o.Buyer).Include(o => o.OrderDetails).ThenInclude(oi => oi.Product).ToList();
             return View(order);
+        }
+
+        public IActionResult OrderDetail(int id)
+        {
+            var order = _context.Orders
+                    .Include(o => o.OrderDetails).ThenInclude(oi => oi.Product)
+                    .Include(o => o.Buyer)
+                    .SingleOrDefault(o => o.ID == id);
+            if (order == null)
+            {
+                return RedirectToAction("Index", "Error", new { type = KnownErrorType.Forbidden });
+            }
+
+            return View(order);
+        }
+
+        [HttpPost]
+        public IActionResult UpdateOrder(int id, string recipientName, string email, string phoneNumber,
+                                  string city, string district, string ward, string street, string note)
+        {
+            var existingOrder = _context.Orders
+                    .Include(o => o.OrderDetails).ThenInclude(oi => oi.Product)
+                    .Include(o => o.Buyer)
+                    .SingleOrDefault(o => o.ID == id);
+            
+            if (existingOrder == null) return RedirectToAction("Index", "Error", new { type = KnownErrorType.Forbidden });
+
+            existingOrder.RecipientName = recipientName;
+            existingOrder.Buyer.Email = email; // Update nested property
+            existingOrder.PhoneNumber = phoneNumber;
+            existingOrder.Province = city;
+            existingOrder.District = district;
+            existingOrder.Ward = ward;
+            existingOrder.Street = street;
+            existingOrder.Note = note;
+
+            return View("OrderDetail", existingOrder);
         }
     }
 }

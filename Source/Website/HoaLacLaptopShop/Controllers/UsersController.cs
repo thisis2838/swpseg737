@@ -204,44 +204,9 @@ namespace HoaLacLaptopShop.Controllers
             {
                 return RedirectToAction("Index", "Error", new { type = KnownErrorType.Forbidden });
             }
-
-            // Get: Users/OrderHistory
-            public IActionResult OrderHistory()
-            {
-                String userId = HttpContext.Session.GetString("CurrentUserId");
-                if ( userId != null)
-                {
-                    var order = _context.Orders
-                            .Include(o => o.OrderDetails)
-                                .ThenInclude(oi => oi.Product)
-                            .Include(o => o.Buyer)
-                            .Where(o => o.BuyerID.ToString() == userId).ToList();
-                    return View(order);              
-                }
-                else
-                {
-                    return RedirectToAction("Index", "Error", new { type = KnownErrorType.Forbidden });
-                }
-            }
-
-            public IActionResult OrderHistory(int id)
-            {
-                String userId = HttpContext.Session.GetString("CurrentUserId");
-
-                if (userId != null)
-                {
-                    var order = _context.Orders
-                            .Include(o => o.OrderDetails)
-                                .ThenInclude(oi => oi.Product)
-                            .Include(o => o.Voucher)
-                            .FirstOrDefault(o => o.BuyerID.ToString() == userId && o.ID == id);
-                    if (order == null) return RedirectToAction("Index", "Error", new { type = KnownErrorType.NotFound });
-                    return View(order);
-                } else
-                {
-                    return RedirectToAction("Index", "Error", new { type = KnownErrorType.Forbidden });
-                }
-            }
         }
+        // Get: Users/OrderHistory
+      
+        
     }
 }
