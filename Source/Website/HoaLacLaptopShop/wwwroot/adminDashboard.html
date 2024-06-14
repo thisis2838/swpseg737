@@ -1233,7 +1233,7 @@
 			new Chart(document.getElementById("chartjs-dashboard-bar"), {
 				type: "bar",
 				data: {
-					labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+					labels: getLabels(),
 					datasets: [{
 						label: "This year",
 						backgroundColor: window.theme.primary,
@@ -1269,6 +1269,19 @@
 					}
 				}
 			});
+
+			 function getLabels() {
+				var currentDate = new Date();
+				var labels = [];
+				for (var i = 0; i < 7; i++) {
+					var date = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() - i);
+					var day = date.getDate();
+					var month = date.getMonth() + 1;
+					var formattedDate = day + "/" + month;
+					labels.unshift(formattedDate);
+				}
+				return labels;
+			} 
 		});
 	</script>
 	<script>
