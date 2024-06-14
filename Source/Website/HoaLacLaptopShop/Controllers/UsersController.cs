@@ -94,22 +94,17 @@ namespace HoaLacLaptopShop.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ID,Name,Email,NewPassword,PhoneNumber,IsAdmin,IsMarketing,IsSales")] UserEditViewModel model, string gender)
+        public async Task<IActionResult> Edit(int id, [Bind("ID,Name,Email,PassHash,Gender,PhoneNumber,IsAdmin,IsMarketing,IsSales")] UserEditViewModel model)
         {
             if (id != model.ID)
             {
                 return NotFound();
             }
-
+            ModelState.Remove(nameof(model.Gender));
             if (ModelState.IsValid)
             {
                 try
                 {
-                    var hasher = new PasswordHasher<User>();
-                    model.PassHash = string.IsNullOrEmpty(model.NewPassword)
-                        ? model.PassHash
-                        : hasher.HashPassword(model, model.NewPassword);
-
                     _context.Update(model as User);
                     await _context.SaveChangesAsync();
                 }
