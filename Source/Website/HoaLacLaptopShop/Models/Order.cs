@@ -28,7 +28,7 @@ public partial class Order
         Required(AllowEmptyStrings = false), 
         MaxLength(20), 
         RegularExpression("^[0-9]+$", ErrorMessage = "Phone number can only contain digits"),
-        DisplayName("Phone Number")
+        DisplayName("Recipient Phone Number")
     ]
     public string PhoneNumber { get; set; } = null!;
     [MaxLength(1024)]

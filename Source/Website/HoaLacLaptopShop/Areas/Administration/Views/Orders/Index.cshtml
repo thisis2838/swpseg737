@@ -1,0 +1,63 @@
+﻿@model List<Order>
+
+<div class="mb-3">
+    <h1 class="h3 d-inline align-middle">Responsive DataTables</h1>
+    <a class="badge bg-primary ms-2" href="https://adminkit.io/pricing/" target="_blank">Pro Component <i class="fas fa-fw fa-external-link-alt"></i></a>
+</div>
+
+<div class="row">
+    <div class="card">
+        @* <div class="card-header">
+            <h5 class="card-title">Responsive DataTables</h5>
+            <h6 class="card-subtitle text-muted">
+                Highly flexible tool that many advanced features to any HTML table. See official
+                documentation <a href="https://datatables.net/extensions/responsive/" target="_blank"
+                                 rel="noopener noreferrer nofollow">here</a>.
+            </h6>
+        </div> *@
+        <div class="card-body">
+            <table id="datatables-reponsive" class="table table-striped" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Created</th>
+                        <th>Customer Name</th>
+                        <th>Title</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach(var item in Model)
+                    {
+                        <tr>
+                            <td>@item.ID</td>
+                            <td>@item.OrderTime</td>
+                            <td>@item.Buyer.Name</td>
+                            <td>
+                                @foreach(var orderItem in item.OrderDetails)
+                                {
+                                    <span>@orderItem.Quantity @orderItem.Product.Name</span><br />
+                                }
+                            </td>
+                            <td>@string.Format("{0:N0}", item.TotalPrice)</td>
+                            <td>@item.Status</td>
+                            <td><a asp-action="Details" asp-controller="Orders" asp-route-id="@item.ID" class="btn btn-primary">View Details</a></td>
+                        </tr>                      
+                        
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // Datatables Responsive
+        $("#datatables-reponsive").DataTable({
+            responsive: true
+        });
+    });
+</script>

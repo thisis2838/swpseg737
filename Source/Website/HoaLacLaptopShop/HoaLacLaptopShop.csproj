@@ -7,30 +7,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Views\NewFolder1\**" />
-    <Compile Remove="Views\NewFolder2\**" />
-    <Compile Remove="Views\NewFolder\**" />
-    <Content Remove="Views\NewFolder1\**" />
-    <Content Remove="Views\NewFolder2\**" />
-    <Content Remove="Views\NewFolder\**" />
-    <EmbeddedResource Remove="Views\NewFolder1\**" />
-    <EmbeddedResource Remove="Views\NewFolder2\**" />
-    <EmbeddedResource Remove="Views\NewFolder\**" />
-    <None Remove="Views\NewFolder1\**" />
-    <None Remove="Views\NewFolder2\**" />
-    <None Remove="Views\NewFolder\**" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Remove="Views\Shared\403.cshtml" />
-    <Content Remove="Views\Shared\Error.cshtml" />
-    <Content Remove="Views\Shared\Index.cshtml" />
-    <Content Remove="Views\Shared\_Layout1.cshtml" />
+    <Content Remove="Areas\Public\Views\Shared\403.cshtml" />
+    <Content Remove="Areas\Public\Views\Shared\Error.cshtml" />
+    <Content Remove="Areas\Public\Views\Shared\Index.cshtml" />
+    <Content Remove="Areas\Public\Views\Shared\_Layout1.cshtml" />
     <Content Remove="wwwroot\css\Checkout.css" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Remove="ViewModels\CheckoutVM.css" />
   </ItemGroup>
 
   <ItemGroup>
@@ -59,11 +40,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <UpToDateCheckInput Remove="Views\Shared\_Layout1.cshtml" />
+    <UpToDateCheckInput Remove="Areas\Public\Views\Shared\_Layout1.cshtml" />
   </ItemGroup>
 
   <ItemGroup>
-    <_ContentIncludedByDefault Remove="Views\Shared\_Layout1.cshtml" />
+    <_ContentIncludedByDefault Remove="Areas\Public\Views\Shared\_Layout1.cshtml" />
   </ItemGroup>
 
 </Project>
