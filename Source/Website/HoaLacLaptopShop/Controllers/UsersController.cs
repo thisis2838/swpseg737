@@ -205,5 +205,8 @@ namespace HoaLacLaptopShop.Controllers
                 return RedirectToAction("Index", "Error", new { type = KnownErrorType.Forbidden });
             }
         }
+        // Get: Users/OrderHistory
+      
+        
     }
 }

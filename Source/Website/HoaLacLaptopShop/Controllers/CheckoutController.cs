@@ -48,7 +48,8 @@ public class CheckoutController : Controller
             return RedirectToAction("Index", "Cart");
         }
 
-        var order = _context.Orders.SingleOrDefault(o => o.BuyerID == user.ID && o.Status == OrderStatus.Created);
+        var order = _context.Orders.Include(o => o.OrderDetails).SingleOrDefault(o => o.BuyerID == user.ID && o.Status == OrderStatus.Created);
+                            
         order.Status = OrderStatus.Delivering; // Change status to delivering
         order.RecipientName = name;
         // Set the corresponding locations
@@ -56,7 +57,6 @@ public class CheckoutController : Controller
         order.District = district;
         order.Ward = ward;
         order.Street = address;
-
         order.PhoneNumber = phone;
         order.OrderTime = DateTime.Now;
         order.PaymentMethod = paymentMethod;
@@ -64,17 +64,17 @@ public class CheckoutController : Controller
         var voucher = _context.Vouchers.SingleOrDefault(v => v.Code == voucherCode);
         order.TotalPrice = order.OrderDetails.Sum(oi => oi.SubTotal);
         order.VoucherID = voucher != null ? voucher.ID : null;
-        
+        order.DiscountedPrice = voucher != null ? CalculateDiscount(voucher, order.OrderDetails.Sum(oi => oi.SubTotal)) : 0;
 
         foreach (var cartItem in cartItems)
         {
-            var product = _context.Products.SingleOrDefault(p => p.ID == cartItem.id);
+            var product = _context.Products.SingleOrDefault(p => p.ID == cartItem.Id);
             if (product == null)
             {
-                TempData["Message"] = $"Product with id {cartItem.id} not found!";
+                TempData["Message"] = $"Product with id {cartItem.Id} not found!";
                 return RedirectToAction("Index", "Cart");
             }
-            product.Stock -= cartItem.quantity;
+            product.Stock -= cartItem.Quantity;
             // Decrease the product quantity
         }
         _context.SaveChanges();

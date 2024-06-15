@@ -1,0 +1,81 @@
+﻿@model List<Order>
+@{
+    ViewData["Title"] = "Order History";
+}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+<div class="row" style="justify-content:space-around; margin-bottom: 30px;">
+    <div class="col-md-6 align-items-center" style="display: flex; gap: 16px">
+        <i class="fa-solid fa-filter"></i>
+        <span>YEAR</span>
+        <select id="filter-year" class="form-select">
+            <option value="">Any</option>
+            <!-- Add year options dynamically or manually -->
+        </select>
+        <span>Location</span>
+        <select id="filter-year" class="form-select">
+            <option value="value">Any</option>
+        </select>
+    </div>
+    
+</div>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Creation Time</th>
+            <th>Order Products</th>
+            @* <th>Location</th> *@
+            <th>Status</th>
+            <th>Total Price</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+       <tbody id="table-body">
+        @foreach (var item in Model.Take(10)) // initially show 10 rows
+        {
+            <tr>
+                <td>@item.ID</td>
+                <td>@item.OrderTime</td>
+                <td>
+                    @foreach (var orderItem in item.OrderDetails)
+                    {
+                        <span>@orderItem.Quantity @orderItem.Product.Name</span>
+                        <br />
+                    }
+                </td>
+                <td><span class="badge bg-@(item.Status)">@item.Status</span></td>
+                <td>@item.TotalPrice</td>               
+                <td>
+                     <a asp-route-id="@item.ID" asp-controller="Users" asp-action="OrderHistory" class="btn btn-primary" style="margin-top: 0; border-radius: 50%"><i class="fa-solid fa-chevron-right"></i></a>
+                </td>
+            </tr>
+        }
+        </tbody> 
+</table>
+<button id="load-more" class="btn btn-primary" style="display: none;">Load More</button>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function () {
+        const totalRows = @Model.Count(); // total number of rows in the model
+        const rowsToShow = 10;
+        let currentIndex = rowsToShow;
+
+        if (totalRows > rowsToShow) {
+            $('#load-more').show();
+        }
+
+        $('#load-more').click(function () {
+            $('#table-body').find('tr').slice(currentIndex, currentIndex + rowsToShow).show();
+            currentIndex += rowsToShow;
+
+            if (currentIndex >= totalRows) {
+                $('#load-more').hide();
+            }
+        });
+
+        // Initially hide rows beyond the first set
+        $('#table-body').find('tr').slice(rowsToShow).hide();
+    });
+</script>
