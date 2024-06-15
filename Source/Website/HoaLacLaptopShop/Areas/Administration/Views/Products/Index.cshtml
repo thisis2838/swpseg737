@@ -4,11 +4,11 @@
 
 <div class="mb-3" style="display:flex; justify-content:space-between">
     <h1 class="h3 d-inline align-middle">
-        <a href="@Url.Action("Product","Admin")">
+        <a href="@Url.Action("Index","Products")">
             Product list
         </a>
     </h1>
-    <a href="@Url.Action("AddProduct","Admin")" class="btn btn-success"><i class="fa-solid fa-plus"></i> Add</a>
+    <a href="@Url.Action("Create","Products")" class="btn btn-success"><i class="fa-solid fa-plus"></i> Add</a>
 </div>
 
 <div class="row">
@@ -62,7 +62,7 @@
             @for (int i = 1; i <= Model.TotalCount / 10 + 1; i++)
             {
                 <li class="page-item @(i == Model.PageIndex ? "active" : "")">
-                    <a class="page-link" asp-action="Product" asp-controller="Admin" asp-route-page="@i">@i</a>
+                    <a class="page-link" asp-action="Index" asp-controller="Products" asp-route-page="@i">@i</a>
                 </li>
             }
         </ul>

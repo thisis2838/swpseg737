@@ -74,30 +74,41 @@
                         Pages
                     </li>
                     <li class="sidebar-item">
-                        <a class="sidebar-link" href="@Url.Action("Index", "Users")">
-                            <i class="align-middle" data-feather="user"></i> <span class="align-middle">Users</span>
-                        </a>
-                    </li>
-                    <li class="sidebar-item">
                         <a class="sidebar-link" href="@Url.Action("Index", "Products")">
-                            <i class="align-middle" data-feather="product"></i> <span class="align-middle">Products</span>
+                            <i class="align-middle" data-feather="package"></i> <span class="align-middle">Products</span>
                         </a>
                     </li>
                     <li class="sidebar-item">
                         <a class="sidebar-link" href="@Url.Action("Index", "Brands")">
-                            <i class="align-middle" data-feather="brand"></i> <span class="align-middle">Brands</span>
+                            <i class="align-middle" data-feather="circle"></i> <span class="align-middle">Brands</span>
                         </a>
                     </li>
                     <li class="sidebar-item">
                         <a class="sidebar-link" href="@Url.Action("Index", "Orders")">
-                            <i class="align-middle" data-feather="order"></i> <span class="align-middle">Orders</span>
+                            <i class="align-middle" data-feather="shopping-cart"></i> <span class="align-middle">Orders</span>
                         </a>
                     </li>
-                    <li class="sidebar-item">
-                        <a class="sidebar-link" href="@Url.Action("Index", "News")">
-                            <i class="align-middle" data-feather="news"></i> <span class="align-middle">News</span>
-                        </a>
-                    </li>
+                    @if (user.IsSales)
+                    {
+                        <li class="sidebar-item">
+                            <a class="sidebar-link" href="@Url.Action("Index", "Users")">
+                                <i class="align-middle" data-feather="user"></i> <span class="align-middle">Users</span>
+                            </a>
+                        </li>
+                        <li class="sidebar-item">
+                            <a class="sidebar-link" href="@Url.Action("Index", "News")">
+                                <i class="align-middle" data-feather="mail"></i> <span class="align-middle">News</span>
+                            </a>
+                        </li>
+                    }
+                    @if (user.IsMarketing)
+                    {
+                        <li class="sidebar-item">
+                            <a class="sidebar-link" href="@Url.Action("Sales", "Statistics")">
+                                <i class="align-middle" data-feather="bar-chart"></i> <span class="align-middle">Sales</span>
+                            </a>
+                        </li>
+                    }
                 </ul>
             </div>
         </nav>
