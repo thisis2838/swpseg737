@@ -52,16 +52,11 @@ namespace HoaLacLaptopShop.Controllers
         {
             return Path.Combine(_env.WebRootPath, "html", "news", post.Token + ".html");
         }
-        private async Task<String> GetContent(NewsPost post)
+        private async Task<String?> GetContent(NewsPost post)
         {
-            try
-            {
-                return await System.IO.File.ReadAllTextAsync(GetContentPath(post));
-            }
-            catch (Exception ex)
-            {
-                return "Error while trying to retrieve news content. Please contact an administrator. \n" + ex.Message;
-            }
+            var contentPath = GetContentPath(post);
+            if (!Path.Exists(contentPath)) return null;
+            return await System.IO.File.ReadAllTextAsync(GetContentPath(post));
         }
         private void SaveContent(NewsPost post, string content)
         {
@@ -96,7 +91,9 @@ namespace HoaLacLaptopShop.Controllers
                 return NotFound();
             }
 
-            return View(new NewsPostDetailsViewModel(newsPost, await GetContent(newsPost)));
+            var content = await GetContent(newsPost);
+            if (content is null) { return NotFound(); }
+            return View(new NewsPostDetailsViewModel(newsPost, content));
         }
 
         [Authorize(Roles = "Sales")]
@@ -145,7 +142,9 @@ namespace HoaLacLaptopShop.Controllers
                 return Unauthorized();
             }
 
-            return View(new NewsPostDetailsViewModel(newsPost, await GetContent(newsPost)));
+            var content = await GetContent(newsPost);
+            if (content is null) { return NotFound(); }
+            return View(new NewsPostDetailsViewModel(newsPost, content));
         }
 
         [HttpPost]
