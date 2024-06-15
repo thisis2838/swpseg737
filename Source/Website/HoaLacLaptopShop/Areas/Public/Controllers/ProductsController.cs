@@ -94,6 +94,12 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
                 .Where(p => p.ID == id)
                 .FirstOrDefault();
 
+            if (product is null)
+            {
+                this.SetError("No product with that ID exists!");
+                return NotFound();
+            }
+
             return View(product);
         }
 

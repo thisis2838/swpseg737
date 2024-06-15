@@ -74,8 +74,13 @@ internal class Program
 
         app.MapAreaControllerRoute
         (
-            "admin", "Administration",
+            "adminArea", "Administration",
             pattern: "Admin/{controller=Home}/{action=Index}/{id?}"
+        );
+        app.MapAreaControllerRoute
+        (
+            "publicArea", "Public",
+            pattern: "Public/{controller=Home}/{action=Index}/{id?}"
         );
         app.MapControllerRoute
         (
