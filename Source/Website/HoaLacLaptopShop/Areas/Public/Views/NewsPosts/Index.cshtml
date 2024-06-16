@@ -1,0 +1,41 @@
+﻿@using HoaLacLaptopShop.Areas.Public.ViewModels
+@model NewsPostIndexViewModel
+
+@{
+    ViewData["Title"] = "News";
+}
+
+<h1>News Posts</h1>
+
+<div class="row">
+    <div class="col-md-8">
+        @if (Context.GetCurrentUser()?.IsSales ?? false)
+        {
+            <p>
+                <a asp-action="Create">Create New</a>
+            </p>
+        }
+    </div>
+    <div class="col-md-4">
+        <form asp-action="Index" asp-controller="NewsPosts" method="get">
+            <div class="search_box">
+                <input asp-for="SearchTerm" class="form-control" style="width: 100%" />
+            </div>
+        </form>
+    </div>
+</div>
+
+
+@{
+    if (Model.Posts.Count > 0)
+    {
+        foreach (var post in Model.Posts)
+        {
+            <partial name="_PostListEntry.cshtml" model="@post"></partial>
+        }
+    }
+    else
+    {
+        <p>Nothing to show!</p>
+    }
+}

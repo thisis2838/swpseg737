@@ -1,0 +1,10 @@
+﻿@using HoaLacLaptopShop.Areas.Public.ViewModels
+@model ErrorViewModel
+
+@{
+    ViewData["Title"] = "Forbidden";
+}
+
+<h1>Error</h1>
+<h2>@Model.ErrorCode - @Model.ErrorName</h2>
+<p>@Html.DisplayTextFor(x => Model.Message)</p>

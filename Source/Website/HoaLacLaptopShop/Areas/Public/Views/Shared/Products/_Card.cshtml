@@ -1,0 +1,29 @@
+﻿@using HoaLacLaptopShop.Areas.Public.ViewModels
+@model HoaLacLaptopShop.Models.Product
+
+<div class="product-image-wrapper">
+	<div class="single-products">
+		<a class="productinfo text-center" href="@Url.Action("Details", "Products", new {id = Model.ID})">
+			<div>
+				<img 
+					src="@Model.ProductImages.First().GetProductImageURL()" 
+					alt="" 
+					style="width: 200px; height: 200px; object-fit: contain" 
+				/>
+			</div>
+			<div>
+				<h2>@Model.Price.ToString("n0")đ</h2>
+				<p>@Model.Name</p>
+				@{
+					if (ViewData["User"] != null)
+					{
+						<a href="#" class="btn btn-default add-to-cart"><i class="fa fa-shopping-cart"></i>Add to cart</a>
+					}
+					else
+					{
+					}
+				}
+			</div>
+		</a>
+	</div>
+</div>

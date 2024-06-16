@@ -1,0 +1,130 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Responsive Admin &amp; Dashboard Template based on Bootstrap 5">
+
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link rel="shortcut icon" href="~/images/icons/icon-48x48.png" />
+
+    <link rel="canonical" href="tables-datatables-responsive.html" />
+    <link 
+        rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" 
+        integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+        crossorigin="anonymous" 
+        referrerpolicy="no-referrer" 
+    />
+    <title>Hoalac Laptops | @ViewData["Title"]</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&amp;display=swap" rel="stylesheet">
+
+    <!-- Choose your prefered color scheme -->
+    @* <link href="~/css/light.css" rel="stylesheet">  *@
+    <!-- <link href="css/dark.css" rel="stylesheet"> -->
+    <!-- BEGIN SETTINGS -->
+    <!-- Remove this after purchasing -->
+    <link href="~/css/light.css" rel="stylesheet">
+    <script src="~/js/settings.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <!-- END SETTINGS -->
+</head>
+<!--
+  HOW TO USE:
+  data-theme: default (default), dark, light, colored
+  data-layout: fluid (default), boxed
+  data-sidebar-position: left (default), right
+  data-sidebar-layout: default (default), compact
+-->
+
+<body data-theme="default" data-layout="fluid" data-sidebar-position="left" data-sidebar-layout="default">
+    <div class="wrapper">
+        <nav id="sidebar" class="sidebar js-sidebar">
+            <div class="sidebar-content js-simplebar">
+                <a class="sidebar-brand" href="@Url.Action("Index", "Home", new { area="Public"})">
+                    <img src="~/images/branding/logo/white_250.png" style="width: 100px;" />
+                    <span class="sidebar-brand-text align-middle">
+                        Hoalac Laptops<br />Administration
+                    </span>
+                    <svg class="sidebar-brand-icon align-middle" width="32px" height="32px" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="1.5"
+                         stroke-linecap="square" stroke-linejoin="miter" color="#FFFFFF" style="margin-left: -3px">
+                        <path d="M12 4L20 8.00004L12 12L4 8.00004L12 4Z"></path>
+                        <path d="M20 12L12 16L4 12"></path>
+                        <path d="M20 16L12 20L4 16"></path>
+                    </svg>
+                </a>
+
+                <div class="sidebar-user">
+                    <a href="@Url.Action("Index", "Account", new { area="Public" })">@Context.GetCurrentUser()!.Name</a>
+                    @{
+                        string perms = "";
+                        var user = Context.GetCurrentUser()!;
+                        if (user.IsAdmin) perms += "Admin, ";
+                        if (user.IsMarketing) perms += "Marketing, ";
+                        if (user.IsSales) perms += "Sales, ";
+                        perms = perms.Trim(' ', ',');
+                    }
+                    <div class="sidebar-user-subtitle">@perms</div>
+                </div>
+
+                <ul class="sidebar-nav">
+                    <li class="sidebar-header">
+                        Pages
+                    </li>
+                    <li class="sidebar-item">
+                        <a class="sidebar-link" href="@Url.Action("Index", "Products")">
+                            <i class="align-middle" data-feather="package"></i> <span class="align-middle">Products</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a class="sidebar-link" href="@Url.Action("Index", "Brands")">
+                            <i class="align-middle" data-feather="circle"></i> <span class="align-middle">Brands</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a class="sidebar-link" href="@Url.Action("Index", "Orders")">
+                            <i class="align-middle" data-feather="shopping-cart"></i> <span class="align-middle">Orders</span>
+                        </a>
+                    </li>
+                    @if (user.IsSales)
+                    {
+                        <li class="sidebar-item">
+                            <a class="sidebar-link" href="@Url.Action("Index", "Users")">
+                                <i class="align-middle" data-feather="user"></i> <span class="align-middle">Users</span>
+                            </a>
+                        </li>
+                        <li class="sidebar-item">
+                            <a class="sidebar-link" href="@Url.Action("Index", "News")">
+                                <i class="align-middle" data-feather="mail"></i> <span class="align-middle">News</span>
+                            </a>
+                        </li>
+                    }
+                    @if (user.IsMarketing)
+                    {
+                        <li class="sidebar-item">
+                            <a class="sidebar-link" href="@Url.Action("Sales", "Statistics")">
+                                <i class="align-middle" data-feather="bar-chart"></i> <span class="align-middle">Sales</span>
+                            </a>
+                        </li>
+                    }
+                </ul>
+            </div>
+        </nav>
+
+        <div class="main">
+            <main class="content">
+                <div class="container-fluid p-0">
+                    @RenderBody()
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="/js/app.js"></script>
+    <script src="~/js/datatables.js"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

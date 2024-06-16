@@ -9,15 +9,15 @@ namespace HoaLacLaptopShop.Models;
 public partial class User
 {
     public int ID { get; set; }
-    [Required(AllowEmptyStrings = false, ErrorMessage = "Require username"), MaxLength(256)]
+    [Required(AllowEmptyStrings = false, ErrorMessage = "Please enter a username"), MaxLength(256)]
     public string Name { get; set; } = null!;
-    [Required(AllowEmptyStrings = false, ErrorMessage = "Require email"), MaxLength(256)]
+    [Required(AllowEmptyStrings = false, ErrorMessage = "Please enter an email"), MaxLength(256)]
     public string Email { get; set; } = null!;
     [Display(Name = "Password"), MaxLength(256)]
     public string? PassHash { get; set; }
     public bool Gender { get; set; }
     [
-        Required(AllowEmptyStrings = false, ErrorMessage = "Require phone number"),
+        Required(AllowEmptyStrings = false, ErrorMessage = "Please enter a phone number"),
         MaxLength(20),
         RegularExpression("^[0-9]+$", ErrorMessage = "Phone number can only contain digits"),
         DisplayName("Phone Number")

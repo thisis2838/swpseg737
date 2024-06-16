@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.Extensions.Configuration;
 
 namespace HoaLacLaptopShop.Models;
@@ -210,7 +211,7 @@ public partial class HoaLacLaptopShopContext : DbContext
         modelBuilder.Entity<Voucher>(entity =>
         {
             entity.HasKey(e => e.ID);
-            entity.ToTable("Voucher");
+            entity.ToTable("Vouchers");
 
             entity.Property(e => e.ID).HasColumnName("id");
             entity.Property(e => e.IssuerId).HasColumnName("issuerID");
