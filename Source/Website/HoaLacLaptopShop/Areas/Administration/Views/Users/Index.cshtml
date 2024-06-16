@@ -1,8 +1,5 @@
 ﻿@model IEnumerable<HoaLacLaptopShop.Models.User>
 @{
-    Layout = "~/Views/Shared/_Layout2.cshtml";
-}
-@{
     ViewData["Title"] = "Index";
 }
 
@@ -27,6 +24,9 @@
                 @Html.DisplayNameFor(model => model.PhoneNumber)
             </th>
             <th>
+                @Html.DisplayNameFor(model => model.IsDeleted)
+            </th>
+            <th>
                 Role
             </th>
         </tr>
@@ -48,8 +48,11 @@
                     @Html.DisplayFor(modelItem => item.PhoneNumber)
                 </td>
                 <td>
-                    <span>@(item.IsAdmin ? "Admin | " : "")</span>
-                    <span>@(item.IsMarketing ? "Marketing | " : "")</span>
+                    @(item.IsDeleted ? "Disabled" : "Activate")
+                </td>
+                <td>
+                    <span>@(item.IsAdmin ? "Admin " : "")</span>
+                    <span>@(item.IsMarketing ? "Marketing " : "")</span>
                     <span>@(item.IsSales ? "Sales" : "")</span>
                 </td>
                 <td>

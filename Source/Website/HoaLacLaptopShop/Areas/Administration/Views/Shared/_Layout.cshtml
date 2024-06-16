@@ -43,7 +43,7 @@
     <div class="wrapper">
         <nav id="sidebar" class="sidebar js-sidebar">
             <div class="sidebar-content js-simplebar">
-                <a class="sidebar-brand" href="@Url.Action("Index", "Home", new { area="Public"})">
+                <a class="sidebar-brand" href="@Url.Action("Index", "Home", new {area=""})">
                     <img src="~/images/branding/logo/white_250.png" style="width: 100px;" />
                     <span class="sidebar-brand-text align-middle">
                         Hoalac Laptops<br />Administration
@@ -57,7 +57,7 @@
                 </a>
 
                 <div class="sidebar-user">
-                    <a href="@Url.Action("Index", "Account", new { area="Public" })">@Context.GetCurrentUser()!.Name</a>
+                    <a href="@Url.Action("Edit", "Account", new { area="" })">@Context.GetCurrentUser()!.Name</a>
                     @{
                         string perms = "";
                         var user = Context.GetCurrentUser()!;

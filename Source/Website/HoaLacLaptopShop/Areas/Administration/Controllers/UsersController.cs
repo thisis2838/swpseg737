@@ -73,6 +73,7 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
                 var user = model as User;
                 var hasher = new PasswordHasher<User>();
                 user.PassHash = hasher.HashPassword(user, model.Password);
+                user.Gender = gender.Equals("Male");
                 _context.Add(user);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -111,7 +112,8 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
                 nameof(UserEditViewModel.ID),
                 nameof(UserEditViewModel.Name),
                 nameof(UserEditViewModel.Email),
-                nameof(UserEditViewModel.NewPassword),
+                nameof(UserEditViewModel.PassHash),
+                nameof(UserEditViewModel.Gender),
                 nameof(UserEditViewModel.PhoneNumber),
                 nameof(UserEditViewModel.IsAdmin),
                 nameof(UserEditViewModel.IsMarketing),
@@ -121,8 +123,6 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
             {
                 try
                 {
-                    var hasher = new PasswordHasher<User>();
-                    model.PassHash = string.IsNullOrEmpty(model.NewPassword) ? model.PassHash : hasher.HashPassword(model, model.NewPassword);
                     _context.Update(model as User);
                     await _context.SaveChangesAsync();
                 }
@@ -167,7 +167,7 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
             var user = await _context.Users.FindAsync(id);
             if (user != null)
             {
-                _context.Users.Remove(user);
+                user.IsDeleted = true;
             }
             else
             {
