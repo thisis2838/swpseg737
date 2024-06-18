@@ -14,6 +14,8 @@ internal class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
+        builder.Services.AddTransient<IEmailSender, EmailSender>();
+
         // Add services to the container.
         builder.Services.AddControllersWithViews();
         builder.Services.AddDbContext<HoaLacLaptopShopContext>(options =>

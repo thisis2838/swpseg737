@@ -17,10 +17,12 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
     public class AccountController : Controller
     {
         private readonly HoaLacLaptopShopContext _context;
+        private readonly IEmailSender _emailSender;
 
-        public AccountController(HoaLacLaptopShopContext context)
+        public AccountController(HoaLacLaptopShopContext context, IEmailSender emailSender)
         {
             _context = context;
+            _emailSender = emailSender;
         }
 
         [HttpGet]
@@ -80,7 +82,7 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Register(RegisterViewModel model, string gender)
+        public async Task<IActionResult> Register(RegisterViewModel model, string gender)
         {
             var fields = new string[]
             {
@@ -97,15 +99,21 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
                     this.SetError("This email has already been used");
                     return View(model);
                 }
-                var user = model as User;
-                user.Gender = gender.Equals("Male");
-                var hasher = new PasswordHasher<User>();
-                user.PassHash = hasher.HashPassword(user, model.Password);
-                user.IsSales = user.IsMarketing = user.IsAdmin = false;
-                _context.Add(user);
-                await _context.SaveChangesAsync();
-                await HttpContext.SignOut();
-                await HttpContext.LoginAsUser(user);
+                Random rand = new Random();
+                int randNum = rand.Next(10000, 100000);
+                var receiver = model.Email;
+                var subject = "----- Activation code for register -----";
+                var message = randNum.ToString();
+                await _emailSender.SendEmailAsync(receiver, subject, message);
+                //var user = model as User;
+                //user.Gender = gender.Equals("Male");
+                //var hasher = new PasswordHasher<User>();
+                //user.PassHash = hasher.HashPassword(user, model.Password);
+                //user.IsSales = user.IsMarketing = user.IsAdmin = false;
+                //_context.Add(user);
+                //await _context.SaveChangesAsync();
+                //await HttpContext.SignOut();
+                //await HttpContext.LoginAsUser(user);
                 return RedirectToAction("Index", "Home");
             }
             return View(model);
@@ -155,7 +163,7 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
                     var hasher = new PasswordHasher<User>();
                     var user = HttpContext.GetCurrentUser()!;
 
-                    model.PassHash = string.IsNullOrEmpty(model.NewPassword) 
+                    model.PassHash = string.IsNullOrEmpty(model.NewPassword)
                         ? user.PassHash
                         : hasher.HashPassword(user, model.NewPassword);
                     if (hasher.VerifyHashedPassword(user, user.PassHash, model.CurrentPassword) == PasswordVerificationResult.Failed)
