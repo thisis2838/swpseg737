@@ -52,7 +52,7 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
                 if ((args.SelectedCPUIDs?.Count ?? 0) == 0)
                     args.SelectedCPUIDs = _context.LaptopCPUSeries.Select(x => x.ID).ToList();
                 else
-                    products = products.Where(x => !x.IsLaptop || args.SelectedCPUIDs!.Contains(x.Laptop!.CPUSeriesID));
+                    products = products.Where(x => !x.IsLaptop || args.SelectedCPUIDs!.Contains(x.Laptop!.CPUSeriesID!.Value));
 
                 // update selectable gpus and filter products accordingly
                 if (args.SelectedGPUIDs != null)

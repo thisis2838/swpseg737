@@ -6,6 +6,7 @@ using SixLabors.ImageSharp.Formats.Jpeg;
 using HoaLacLaptopShop.Helpers;
 using HoaLacLaptopShop.Areas.Administration.ViewModels;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace HoaLacLaptopShop.Areas.Administration.Controllers
 {
@@ -43,6 +44,7 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
         public IActionResult SearchProduct(string search)
         {
             var products = GetProducts(1);
+
             return View("Product", new ProductIndexViewModel
             {
                 Products = products.Where(p => p.Name.ToLower().Contains(search.ToLower())).ToList(),
@@ -54,54 +56,325 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
         public IActionResult Create()
         {
             var pro = new ProductDetailViewModel();
-            ViewData["Brands"] = _context.Brands.ToList();
-            ViewData["Cpus"] = _context.LaptopCPUSeries.ToList();
-            ViewData["Gpus"] = _context.LaptopGPUSeries.ToList();
+            var brandSelectList = _context.Brands.Select(b => new SelectListItem
+            {
+                Value = b.ID.ToString(),
+                Text = b.Name
+            }).ToList();
+            ViewData["Brands"] = brandSelectList;
+            /*ViewData["Brands"] = _context.Brands.ToList();*/
+            var cpuSelectList = _context.LaptopCPUSeries.Select(cpu => new SelectListItem
+            {
+                Value = cpu.ID.ToString(),
+                Text = cpu.Name
+            }).ToList();
+            ViewData["Cpus"] = cpuSelectList;
+
+            var gpuSelectList = _context.LaptopGPUSeries.Select(gpu => new SelectListItem
+            {
+                Value = gpu.ID.ToString(),
+                Text = gpu.Name
+            }).ToList();
+            ViewData["Gpus"] = gpuSelectList;
             return View(pro);
         }
 
-        [HttpPost, Authorize(Roles = "Sales")]
-        public async Task<IActionResult> Create(ProductDetailViewModel product, IFormFile image)
+        public IActionResult Update(int id)
         {
-            _context.FillForeignKeys((Product)product);
-            _context.FillForeignKeys(product.Laptop);
+            var pro = _context.Products.Where(p => p.ID == id).Include(p => p.ProductImages).FirstOrDefault();
+            var brandSelectList = _context.Brands.Select(b => new SelectListItem
+            {
+                Value = b.ID.ToString(),
+                Text = b.Name
+            }).ToList();
+            ViewData["Brands"] = brandSelectList;
+            /*ViewData["Brands"] = _context.Brands.ToList();*/
+            var cpuSelectList = _context.LaptopCPUSeries.Select(cpu => new SelectListItem
+            {
+                Value = cpu.ID.ToString(),
+                Text = cpu.Name
+            }).ToList();
+            ViewData["Cpus"] = cpuSelectList;
+
+            var gpuSelectList = _context.LaptopGPUSeries.Select(gpu => new SelectListItem
+            {
+                Value = gpu.ID.ToString(),
+                Text = gpu.Name
+            }).ToList();
+            ViewData["Gpus"] = gpuSelectList;
+            return View(pro);
+        }
+        [HttpPost]
+        public async Task<IActionResult> Update(Product product, IFormFile image1, IFormFile image2, IFormFile image3)
+        {
+            ModelState.Remove(nameof(image1));
+            ModelState.Remove(nameof(image2));
+            ModelState.Remove(nameof(image3));
+
+            if (product.IsLaptop)
+            {
+                _context.FillForeignKeys(product);
+                _context.FillForeignKeys(product.Laptop);
+            }
+            else
+            {
+                ModelState.Remove(nameof(product.Laptop.ScreenResolution));
+                ModelState.Remove(nameof(product.Laptop.ScreenAspectRatio));
+            }
 
             if (ModelState.IsValid)
             {
-                if (image != null && image.Length > 0)
-                {
-                    // Get the path to the wwwroot/images/products directory
-                    string uploadDirectory = Path.Combine(_environment.WebRootPath, "images", "products");
+                var existingProduct = await _context.Products
+                    .Include(p => p.ProductImages)
+                    .Include(p => p.Laptop)
+                    .FirstOrDefaultAsync(p => p.ID == product.ID);
 
-                    // Ensure the directory exists; create it if not
-                    if (!Directory.Exists(uploadDirectory))
+                if (existingProduct == null)
+                {
+                    return NotFound();
+                }
+
+                // Update product properties
+                existingProduct.Name = product.Name;
+                existingProduct.Price = product.Price;
+                existingProduct.Stock = product.Stock;
+                existingProduct.BrandId = product.BrandId;
+                existingProduct.Description = product.Description;
+
+                if (product.IsLaptop)
+                {
+                    if (existingProduct.Laptop == null)
                     {
-                        Directory.CreateDirectory(uploadDirectory);
+                        existingProduct.Laptop = new Laptop();
                     }
-                    // Generate a unique filename for the uploaded image
-                    string uniqueFileName = $"{DateTime.Now.Ticks:X}+{new Random().Next(0, 0xFFFF):X}";
-                    // Combine the upload directory path with the unique filename and ".jpeg" extension
-                    string filePath = Path.Combine(uploadDirectory, uniqueFileName + ".jpeg");
-                    // Save the uploaded image to the specified file path as JPEG
-                    using (var localImage = Image.Load(image.OpenReadStream()))
+
+                    existingProduct.Laptop.CPUSeriesID = product.Laptop.CPUSeriesID;
+                    existingProduct.Laptop.GPUSeriesID = product.Laptop.GPUSeriesID;
+                    existingProduct.Laptop.ScreenSize = product.Laptop.ScreenSize;
+                    existingProduct.Laptop.ScreenResolution = "16:9";
+                    existingProduct.Laptop.StorageType = product.Laptop.StorageType;
+                    existingProduct.Laptop.StorageSize = product.Laptop.StorageSize;
+                    existingProduct.Laptop.RefreshRate = product.Laptop.RefreshRate;
+                    existingProduct.Laptop.RAM = product.Laptop.RAM;
+                }
+                else
+                {
+                    existingProduct.Laptop = null;
+                }
+
+                // Remove and add images based on provided files
+                await RemoveAndAddImagesAsync(existingProduct, image1, image2, image3);
+
+                _context.Products.Update(existingProduct);
+                await _context.SaveChangesAsync();
+
+                return RedirectToAction(nameof(Index));
+            }
+            else
+            {
+                foreach (var modelStateEntry in ModelState.Values)
+                {
+                    foreach (var error in modelStateEntry.Errors)
                     {
-                        localImage.Save(filePath, new JpegEncoder());
+                        Console.WriteLine("Invalid: " + error.ErrorMessage);
                     }
-                    List<ProductImage> pi = new List<ProductImage>
-                    {
-                        new ProductImage()
-                        {
-                            DisplayIndex = 0,
-                            Token = uniqueFileName
-                        }
-                    };
-                    product.ProductImages = pi;
+                }
+            }
+
+            return View(product);
+        }
+
+        private async Task RemoveAndAddImagesAsync(Product product, IFormFile image1, IFormFile image2, IFormFile image3)
+        {
+            // Fetch existing product images
+            var existingImages = _context.ProductImages.Where(pi => pi.ProductId == product.ID).ToList();
+
+            // Remove images not replaced by new ones
+            if (image1 != null)
+            {
+                var existingImage1 = existingImages.FirstOrDefault(pi => pi.DisplayIndex == 0);
+                if (existingImage1 != null)
+                {
+                    _context.ProductImages.Remove(existingImage1);
+                    existingImages.Remove(existingImage1);
+
+                }
+                var image1Result = await SaveImageAsync(image1, 0);
+                product.ProductImages.Add(image1Result);
+            }
+
+            if (image2 != null)
+            {
+                var existingImage2 = existingImages.FirstOrDefault(pi => pi.DisplayIndex == 1);
+                if (existingImage2 != null)
+                {
+                    _context.ProductImages.Remove(existingImage2);
+                    existingImages.Remove(existingImage2);
+
+                }
+                var image2Result = await SaveImageAsync(image2, 1);
+                product.ProductImages.Add(image2Result);
+            }
+
+            if (image3 != null)
+            {
+                var existingImage3 = existingImages.FirstOrDefault(pi => pi.DisplayIndex == 2);
+                if (existingImage3 != null)
+                {
+                    _context.ProductImages.Remove(existingImage3);
+                    existingImages.Remove(existingImage3);
+
+                }
+                var image3Result = await SaveImageAsync(image3, 2);
+                product.ProductImages.Add(image3Result);
+            }
+
+            /*// Handle image1
+            if (image1 != null)
+            {
+                var image1Result = await SaveImageAsync(image1, 0);
+                if (image1Result != null)
+                {
+                    product.ProductImages.Add(image1Result);
+                }
+            }
+
+            // Handle image2
+            if (image2 != null)
+            {
+                var image2Result = await SaveImageAsync(image2, 1);
+                if (image2Result != null)
+                {
+                    product.ProductImages.Add(image2Result);
+                }
+            }
+
+            // Handle image3
+            if (image3 != null)
+            {
+                var image3Result = await SaveImageAsync(image3, 2);
+                if (image3Result != null)
+                {
+                    product.ProductImages.Add(image3Result);
+                }
+            }*/
+        }
+
+
+        [HttpPost]
+
+        public async Task<IActionResult> Create(ProductDetailViewModel product, IFormFile image1, IFormFile image2, IFormFile image3)
+        {
+            ModelState.Remove(nameof(image1));
+            ModelState.Remove(nameof(image2));
+            ModelState.Remove(nameof(image3));
+            if (product.IsLaptop)
+            {
+                _context.FillForeignKeys((Product)product);
+                _context.FillForeignKeys(product.Laptop);
+            }
+            else
+            {
+                ModelState.Remove(nameof(product.Laptop.ScreenResolution));
+                ModelState.Remove(nameof(product.Laptop.ScreenAspectRatio));
+            }
+
+            if (ModelState.IsValid)
+            {
+                var productImages = new List<ProductImage>();
+
+                // Handle image1
+                var image1Result = await SaveImageAsync(image1, 0);
+                if (image1Result != null)
+                {
+                    productImages.Add(image1Result);
+                }
+
+                // Handle image2
+                var image2Result = await SaveImageAsync(image2, 1);
+                if (image2Result != null)
+                {
+                    productImages.Add(image2Result);
+                }
+
+                // Handle image3
+                var image3Result = await SaveImageAsync(image3, 2);
+                if (image3Result != null)
+                {
+                    productImages.Add(image3Result);
+                }
+
+                product.ProductImages = productImages;
+
+                if (product.IsLaptop)
+                {
+                    product.Laptop!.ScreenResolution = "16:9";
                 }
 
                 product.Laptop = product.IsLaptop ? product.Laptop : null;
+
                 await _context.Products.AddAsync(product);
                 await _context.SaveChangesAsync();
+
+                return RedirectToAction(nameof(Index));
             }
+            else
+            {
+                foreach (var modelStateEntry in ModelState.Values)
+                {
+                    foreach (var error in modelStateEntry.Errors)
+                    {
+                        Console.WriteLine("Invalid: " + error.ErrorMessage);
+                    }
+                }
+            }
+
+            return View(product); // Ensure you return the view with the product model if the model state is invalid
+        }
+
+
+        private async Task<ProductImage?> SaveImageAsync(IFormFile image, int displayIndex)
+        {
+            if (image != null && image.Length > 0)
+            {
+                // Get the path to the wwwroot/images/products directory
+                string uploadDirectory = Path.Combine(_environment.WebRootPath, "images", "products");
+
+                // Ensure the directory exists; create it if not
+                if (!Directory.Exists(uploadDirectory))
+                {
+                    Directory.CreateDirectory(uploadDirectory);
+                }
+
+                // Generate a unique filename for the uploaded image
+                string uniqueFileName = $"{DateTime.Now.Ticks:X}+{new Random().Next(0, 0xFFFF):X}";
+
+                // Combine the upload directory path with the unique filename and ".jpeg" extension
+                string filePath = Path.Combine(uploadDirectory, uniqueFileName + ".jpeg");
+
+                // Save the uploaded image to the specified file path as JPEG
+                using (var localImage = Image.Load(image.OpenReadStream()))
+                {
+                    localImage.Save(filePath, new JpegEncoder());
+                }
+
+                // Create and return a new ProductImage object
+                return new ProductImage
+                {
+                    DisplayIndex = displayIndex,
+                    Token = uniqueFileName
+                };
+            }
+
+            return null;
+        }
+
+
+        public IActionResult DeleteProduct(int id)
+        {
+            Product product = _context.Products.Where(p => p.ID == id).FirstOrDefault()!;
+            product.IsDeleted = true;
+            _context.SaveChanges();
             return RedirectToAction(nameof(Index));
         }
     }
