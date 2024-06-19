@@ -3,6 +3,7 @@
     ViewData["Title"] = "Index";
 }
 <h2>Vouchers</h2>
+<<<<<<< Updated upstream
 <table class="table">
     <thead>
         <tr>
@@ -15,6 +16,40 @@
             <th>Actions</th>
         </tr>
     </thead>
+=======
+<form asp-action="Search" method="get">
+    <div class="form-group">
+        <input type="text" name="query" class="form-control" placeholder="Search by Code or Issuer ID" />
+    </div>
+    <button type="submit" class="btn btn-primary">Search</button>
+</form>
+
+<table class="table">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    <a asp-action="Index" asp-route-sortOrder="@ViewData["CodeSortParm"]">Code</a>
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.First().MinimumOrderPrice)
+                </th>
+                <th>
+                    <@Html.DisplayNameFor(model =>model.First().DiscountValue)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.First().IsPercentageDiscount)
+                </th>
+                <th>
+                    <@Html.DisplayNameFor(model => model.First().ExpiryDate)
+                </th>              
+                <th>
+                    @Html.DisplayNameFor(model => model.First().IssuerId)
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+>>>>>>> Stashed changes
     <tbody>
         @foreach (var voucher in Model)
         {
@@ -24,8 +59,14 @@
                 <td>@voucher.DiscountValue</td>
                 <td>@voucher.IsPercentageDiscount</td>
                 <td>@voucher.ExpiryDate.ToShortDateString()</td>
+<<<<<<< Updated upstream
                 <td>@voucher.IssuerId</td>
                 <td>
+=======
+                <td>@voucher.IssuerId</td>               
+                <td>
+                    <a asp-action="Detail" asp-route-id="@voucher.ID">Details</a>
+>>>>>>> Stashed changes
                     <a href="@Url.Action("Update", new { id = voucher.ID })">Update</a> |
                     <a href="@Url.Action("Delete", new { id = voucher.ID })">Delete</a>
                 </td>

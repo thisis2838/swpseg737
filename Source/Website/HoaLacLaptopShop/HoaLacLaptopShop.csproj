@@ -7,6 +7,44 @@
   </PropertyGroup>
 
   <ItemGroup>
+<<<<<<< Updated upstream
+=======
+    <Compile Remove="Views\NewFolder1\**" />
+    <Compile Remove="Views\NewFolder2\**" />
+    <Compile Remove="Views\NewFolder\**" />
+    <Content Remove="Views\NewFolder1\**" />
+    <Content Remove="Views\NewFolder2\**" />
+    <Content Remove="Views\NewFolder\**" />
+    <EmbeddedResource Remove="Views\NewFolder1\**" />
+    <EmbeddedResource Remove="Views\NewFolder2\**" />
+    <EmbeddedResource Remove="Views\NewFolder\**" />
+    <None Remove="Views\NewFolder1\**" />
+    <None Remove="Views\NewFolder2\**" />
+    <None Remove="Views\NewFolder\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Remove="Views\Shared\403.cshtml" />
+    <Content Remove="Views\Shared\Error.cshtml" />
+    <Content Remove="Views\Shared\Index.cshtml" />
+    <Content Remove="wwwroot\css\Checkout.css" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="ViewModels\CheckoutVM.css" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Views\Voucher\Create.cshtml" />
+    <None Include="Views\Voucher\Delete.cshtml" />
+    <None Include="Views\Voucher\Detail.cshtml" />
+    <None Include="Views\Voucher\Index.cshtml" />
+    <None Include="Views\Voucher\Update.cshtml" />
+    <None Include="wwwroot\js\site.js" />
+  </ItemGroup>
+
+  <ItemGroup>
+>>>>>>> Stashed changes
     <PackageReference Include="Azure.Identity" Version="1.10.3" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.5" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.5" />
