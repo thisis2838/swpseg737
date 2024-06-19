@@ -5,7 +5,7 @@ using System.Text;
 
 namespace HoaLacLaptopShop.Helpers
 {
-    public static class ControllerHelper
+    public static class ControllerHelpers
     {
         public static void SetError(this Controller controller, string error)
         {

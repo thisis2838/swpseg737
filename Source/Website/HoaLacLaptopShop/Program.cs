@@ -1,6 +1,7 @@
 using HoaLacLaptopShop.Helpers;
 using HoaLacLaptopShop.Middlewares;
 using HoaLacLaptopShop.Models;
+using HoaLacLaptopShop.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -14,7 +15,8 @@ internal class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
-        builder.Services.AddTransient<IEmailSender, EmailSender>();
+        builder.Services.AddTransient<IEmailSenderService, EmailSenderService>();
+        builder.Services.AddScoped<IViewRenderService, ViewRenderService>();
 
         // Add services to the container.
         builder.Services.AddControllersWithViews();

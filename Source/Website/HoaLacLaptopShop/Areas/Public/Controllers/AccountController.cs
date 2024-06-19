@@ -2,6 +2,7 @@
 using HoaLacLaptopShop.Areas.Shared.ViewModels;
 using HoaLacLaptopShop.Helpers;
 using HoaLacLaptopShop.Models;
+using HoaLacLaptopShop.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -9,6 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -17,12 +19,21 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
     public class AccountController : Controller
     {
         private readonly HoaLacLaptopShopContext _context;
-        private readonly IEmailSender _emailSender;
+        private readonly IEmailSenderService _emailSender;
+        private readonly IViewRenderService _viewRenderService;
 
-        public AccountController(HoaLacLaptopShopContext context, IEmailSender emailSender)
+        private const string CUR_VERIF_KEY = "AccountController:CurrentVerificationKey";
+
+        public AccountController
+        (
+            HoaLacLaptopShopContext context,
+            IEmailSenderService emailSender,
+            IViewRenderService viewRenderService
+        )
         {
             _context = context;
             _emailSender = emailSender;
+            _viewRenderService = viewRenderService;
         }
 
         [HttpGet]
@@ -39,19 +50,25 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
             var user = _context.Users.FirstOrDefault(x => x.Email == model.Email);
             if (user == null)
             {
-                this.SetError("Unknown email");
+                ModelState.AddModelError(nameof(LoginViewModel.Email), "Unknown email.");
                 return View("Login", model);
+            }
+
+            if (user.PassHash is null)
+            {
+                this.SetError("You haven't set up a password. Please log in via a 3rd party instead.");
+                return View(model);
             }
             var hash = new PasswordHasher<User>();
             if (hash.VerifyHashedPassword(user, user.PassHash!, model.Password) == PasswordVerificationResult.Failed)
             {
-                this.SetError("Incorrect password");
-                return View("Login", model);
+                ModelState.AddModelError(nameof(LoginViewModel.Password), "Incorrect password.");
+                return View(model);
             }
             if (user.IsDeleted)
             {
-                this.SetError("This account has been deleted");
-                return View("Login", model);
+                this.SetError("Your account has been deleted");
+                return View(model);
             }
             await HttpContext.SignOut();
             await HttpContext.LoginAsUser(user);
@@ -80,10 +97,79 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
             return View();
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Register(RegisterViewModel model, string gender)
+        [HttpPost, ValidateAntiForgeryToken]
+        public async Task<IActionResult> CompleteRegistration(string activationCode)
         {
+            if (HttpContext.IsLoggedIn())
+            {
+                this.SetError("You are logged in already. Please log out to register");
+                return RedirectToAction("Index", "Home");
+            }
+
+            var verif = HttpContext.Session.Get<RegisterChallenge>(CUR_VERIF_KEY);
+            if (verif is null)
+            {
+                this.SetError("Your session has expired! Please register again.");
+                return RedirectToAction("Register");
+            }
+
+            if (verif.TriesLeft <= 0)
+            {
+                this.SetError("You have entered the code wrong too many times! Please register again.");
+                HttpContext.Session.Remove(CUR_VERIF_KEY);
+                return RedirectToAction("Register");
+            }
+
+            if (!activationCode.Equals(verif.Code.ToString()))
+            {
+                this.SetError($"Invalid activation code. You have {verif.TriesLeft} tries left.");
+                verif.TriesLeft--;
+                HttpContext.Session.Set(CUR_VERIF_KEY, verif);
+                return View();
+            }
+            if (DateTime.Now - verif.RegistrationTime > TimeSpan.FromMinutes(5))
+            {
+                this.SetError("Your code has expired! Please enter the newly generated code.");
+                return RedirectToAction
+                (
+                    "ChallengeEmail",
+                    new { model = verif.RegisterViewModel }
+                );
+            }
+
+            var user = verif.RegisterViewModel as User;
+            _context.Add(user);
+            await _context.SaveChangesAsync();
+            await HttpContext.SignOut();
+            await HttpContext.LoginAsUser(user);
+            this.SetMessage("Registered and logged in as " + user.Name);
+            return RedirectToAction("Index", "Home");
+        }
+        [HttpGet]
+        public ActionResult CompleteRegistration()
+        {
+            if (HttpContext.IsLoggedIn())
+            {
+                this.SetError("You are logged in already. Please log out to register.");
+                return RedirectToAction("Index", "Home");
+            }
+
+            if (!HttpContext.Session.Keys.Contains(CUR_VERIF_KEY))
+            {
+                this.SetError("You don't have an ongoing registration!");
+                return RedirectToAction("Index", "Home");
+            }
+            return View();
+        }
+        [HttpPost, ValidateAntiForgeryToken]
+        public async Task<IActionResult> ChallengeEmail(RegisterViewModel model, string gender)
+        {
+            if (HttpContext.IsLoggedIn())
+            {
+                this.SetError("You are logged in already.");
+                return RedirectToAction("Index", "Home");
+            }
+
             var fields = new string[]
             {
                 nameof(RegisterViewModel.ID),
@@ -96,27 +182,28 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
             {
                 if (_context.Users.Any(x => x.Email == model.Email))
                 {
-                    this.SetError("This email has already been used");
-                    return View(model);
+                    this.SetError("This email has already been used.");
+                    return RedirectToAction("Register", new { model, gender });
                 }
-                Random rand = new Random();
-                int randNum = rand.Next(10000, 100000);
-                var receiver = model.Email;
-                var subject = "----- Activation code for register -----";
-                var message = randNum.ToString();
-                await _emailSender.SendEmailAsync(receiver, subject, message);
-                //var user = model as User;
-                //user.Gender = gender.Equals("Male");
-                //var hasher = new PasswordHasher<User>();
-                //user.PassHash = hasher.HashPassword(user, model.Password);
-                //user.IsSales = user.IsMarketing = user.IsAdmin = false;
-                //_context.Add(user);
-                //await _context.SaveChangesAsync();
-                //await HttpContext.SignOut();
-                //await HttpContext.LoginAsUser(user);
-                return RedirectToAction("Index", "Home");
+
+                int code = new Random().Next(100000, 1000000);
+                var subject = "Hoalac Laptops Regitration Verification Code";
+                var result = await _viewRenderService.RenderToStringAsync("Account/ConfirmEmail", code.ToString());
+                await _emailSender.SendEmailAsync(model.Email, subject, result);
+
+                var user = model as User;
+                user.Gender = gender.Equals("Male");
+                user.PassHash = new PasswordHasher<User>().HashPassword(user, model.Password);
+                user.IsSales = user.IsMarketing = user.IsAdmin = false;
+                HttpContext.Session.Set(CUR_VERIF_KEY, new RegisterChallenge()
+                {
+                    RegisterViewModel = model,
+                    Code = code,
+                    RegistrationTime = DateTime.Now
+                });
+                return RedirectToAction("CompleteRegistration", "Account");
             }
-            return View(model);
+            return RedirectToAction("Register", new { model, gender });
         }
 
         [Authorize]
@@ -136,9 +223,7 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
             });
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        [Authorize]
+        [HttpPost, ValidateAntiForgeryToken, Authorize]
         public async Task<ActionResult> Edit(AccountEditViewModel model)
         {
             if (model.ID != HttpContext.GetCurrentUserID())
@@ -194,6 +279,14 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
         private bool UserExists(int id)
         {
             return _context.Users.Any(x => x.ID == id);
+        }
+
+        public class RegisterChallenge
+        {
+            public required RegisterViewModel RegisterViewModel { get; set; }
+            public required DateTime RegistrationTime { get; set; }
+            public required int Code { get; set; }
+            public int TriesLeft { get; set; } = 5;
         }
     }
 }
