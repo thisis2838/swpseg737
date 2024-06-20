@@ -165,8 +165,14 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
             return RedirectToAction("CompletePasswordReset", "Account");
         }
 
-        [HttpPost]
+        [HttpGet]
         public ActionResult CompletePasswordReset()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CompletePasswordReset(string newpass, string confirmpass)
         {
             if (HttpContext.IsLoggedIn())
             {
@@ -179,7 +185,16 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
                 this.SetError("You are not trying to reset your password.");
                 return RedirectToAction("Index", "Home");
             }
-            return View();
+            if (!newpass.Equals(confirmpass))
+            {
+                this.SetError("Password not matching! Please try again");
+                return View();
+            }
+            var reset = HttpContext.Session.Get<ResetPasswordViewModel>(CUR_PASS_RESET_KEY);
+            string newHash = new PasswordHasher<User>().HashPassword(null!, newpass);
+            await _context.Users.ExecuteUpdateAsync(x => x.SetProperty(y => y.PassHash, newHash));
+            this.SetMessage("Reset password successfully");
+            return RedirectToAction("Login", "Account");
         }
 
         [HttpGet]
