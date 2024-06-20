@@ -23,6 +23,7 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
         private readonly IViewRenderService _viewRenderService;
 
         private const string CUR_VERIF_KEY = "AccountController:CurrentVerificationKey";
+        private const string CUR_PASS_RESET_KEY = "AccountController:CurrentPasswordResetKey";
 
         public AccountController
         (
@@ -96,7 +97,89 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
             var subject = "Hoalac Laptops Reset Password Code";
             var result = await _viewRenderService.RenderToStringAsync("Account/ResetPasswordEmail", code.ToString());
             await _emailSender.SendEmailAsync(resetEmail, subject, result);
-            return RedirectToAction("Index", "Home");
+            HttpContext.Session.Set(CUR_PASS_RESET_KEY, new PasswordResetChallenge()
+            {
+                ResetPasswordViewModel = new ResetPasswordViewModel()
+                {
+                    Email = user.Email,
+                },
+                Code = code,
+                SubmitTime = DateTime.Now
+            });
+            return RedirectToAction("ChallengePasswordReset", "Account");
+        }
+
+        [HttpGet]
+        public ActionResult ChallengePasswordReset()
+        {
+            if (HttpContext.IsLoggedIn())
+            {
+                this.SetError("You are logged in already. Please log out to register.");
+                return RedirectToAction("Index", "Home");
+            }
+
+            if (!HttpContext.Session.Keys.Contains(CUR_PASS_RESET_KEY))
+            {
+                this.SetError("You are not trying to reset your password.");
+                return RedirectToAction("Index", "Home");
+            }
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult ChallengePasswordReset(string resetCode)
+        {
+            if (HttpContext.IsLoggedIn())
+            {
+                this.SetError("You are logged in already.");
+                return RedirectToAction("Index", "Home");
+            }
+
+            var reset = HttpContext.Session.Get<PasswordResetChallenge>(CUR_PASS_RESET_KEY);
+            if (reset is null)
+            {
+                this.SetError("Your session has expired! Please try again.");
+                return RedirectToAction("Index", "Home");
+            }
+
+            if (reset.TriesLeft <= 0)
+            {
+                this.SetError("You have entered the code wrong too many times! Please try again.");
+                HttpContext.Session.Remove(CUR_PASS_RESET_KEY);
+                return RedirectToAction("Index", "Home");
+            }
+
+            if (!resetCode.Equals(reset.Code.ToString()))
+            {
+                this.SetError($"Invalid reset password code. You have {reset.TriesLeft} tries left.");
+                reset.TriesLeft--;
+                HttpContext.Session.Set(CUR_PASS_RESET_KEY, reset);
+                return View();
+            }
+            if (DateTime.Now - reset.SubmitTime > TimeSpan.FromMinutes(5))
+            {
+                this.SetError("Your code has expired! Please enter the newly generated code.");
+                return RedirectToAction("ChallengePasswordReset");
+            }
+            return RedirectToAction("CompletePasswordReset", "Account");
+        }
+
+        [HttpPost]
+        public ActionResult CompletePasswordReset()
+        {
+            if (HttpContext.IsLoggedIn())
+            {
+                this.SetError("You are logged in already. Please log out to register.");
+                return RedirectToAction("Index", "Home");
+            }
+
+            if (!HttpContext.Session.Keys.Contains(CUR_PASS_RESET_KEY))
+            {
+                this.SetError("You are not trying to reset your password.");
+                return RedirectToAction("Index", "Home");
+            }
+            return View();
         }
 
         [HttpGet]
@@ -185,7 +268,8 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
             }
             return View();
         }
-        [HttpPost, ValidateAntiForgeryToken]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> ChallengeEmail(RegisterViewModel model, string gender)
         {
             if (HttpContext.IsLoggedIn())
@@ -309,6 +393,14 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
         {
             public required RegisterViewModel RegisterViewModel { get; set; }
             public required DateTime RegistrationTime { get; set; }
+            public required int Code { get; set; }
+            public int TriesLeft { get; set; } = 5;
+        }
+
+        public class PasswordResetChallenge
+        {
+            public required ResetPasswordViewModel ResetPasswordViewModel { get; set; }
+            public required DateTime SubmitTime { get; set; }
             public required int Code { get; set; }
             public int TriesLeft { get; set; } = 5;
         }
