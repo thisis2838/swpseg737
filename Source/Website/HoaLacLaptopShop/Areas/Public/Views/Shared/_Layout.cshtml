@@ -127,16 +127,7 @@
 
     <div class="container" style="margin-bottom: 100px">
         <main role="main" class="pb-3">
-            @if (TempData.TryGetValue("Error", out var error) | TempData.TryGetValue("Message", out var message))
-            {
-                var isError = error is not null;
-                <div style="background: @(isError ? "red" : "gray"); color: white; padding: 10px; margin: 10px 0px 10px 0px" id="errorToast">
-                    @(error ?? message)
-                </div>
-                <script>
-                    setTimeout(function () { $('#errorToast').fadeOut('slow'); }, 3000);
-                </script>
-            }
+            <partial name="~/Areas/Shared/Views/Shared/_ErrorToast.cshtml" />
             @RenderBody()
         </main>
     </div>

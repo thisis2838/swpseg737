@@ -96,7 +96,7 @@
                             </a>
                         </li>
                         <li class="sidebar-item">
-                            <a class="sidebar-link" href="@Url.Action("Index", "News")">
+                            <a class="sidebar-link" href="@Url.Action("Index", "NewsPosts")">
                                 <i class="align-middle" data-feather="mail"></i> <span class="align-middle">News</span>
                             </a>
                         </li>
@@ -116,6 +116,7 @@
         <div class="main">
             <main class="content">
                 <div class="container-fluid p-0">
+                    <partial name="~/Areas/Shared/Views/Shared/_ErrorToast.cshtml" />
                     @RenderBody()
                 </div>
             </main>

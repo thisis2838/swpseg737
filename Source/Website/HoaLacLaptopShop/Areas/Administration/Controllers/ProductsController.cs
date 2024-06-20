@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Authorization;
 namespace HoaLacLaptopShop.Areas.Administration.Controllers
 {
     [Area("Administration")]
-    [Authorize(Roles = "Sales")]
+    [Authorize(Roles = "Admin,Sales")]
     public class ProductsController : Controller
     {
         private readonly HoaLacLaptopShopContext _context = null!;

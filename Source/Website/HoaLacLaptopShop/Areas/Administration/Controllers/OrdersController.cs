@@ -10,7 +10,7 @@ using System.Reflection;
 namespace HoaLacLaptopShop.Areas.Administration.Controllers
 {
     [Area("Administration")]
-    [Authorize(Roles = "Sales")]
+    [Authorize(Roles = "Admin,Sales")]
     public class OrdersController : Controller
     {
         private readonly HoaLacLaptopShopContext _context = null!;

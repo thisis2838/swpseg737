@@ -1,10 +1,12 @@
 ﻿using HoaLacLaptopShop.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace HoaLacLaptopShop.Areas.Administration.Controllers
 {
     [Area("Administration")]
+    [Authorize(Roles = "Admin,Marketing")]
     public class StatisticsController : Controller
     {
         private readonly HoaLacLaptopShopContext _context = null!;

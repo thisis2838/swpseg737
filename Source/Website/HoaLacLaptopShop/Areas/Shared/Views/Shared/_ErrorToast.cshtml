@@ -1,0 +1,28 @@
+﻿@if (TempData.TryGetValue("Error", out var error))
+{
+    <div class="top-toast top-toast-error">@error!</div>
+}
+@if (TempData.TryGetValue("Message", out var message))
+{
+    <div class="top-toast top-toast-message">@message!</div>
+}
+<script>
+    setTimeout(function () { $('.top-toast').fadeOut('slow'); }, 3000);
+</script>
+
+<style>
+    .top-toast
+    {
+        color: white;
+        padding: 10px;
+        margin: 10px 0px 10px 0px
+    }
+    .top-toast-error
+    {
+        background: red;
+    }
+    .top-toast-message
+    {
+        background: gray;
+    }
+</style>

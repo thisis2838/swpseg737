@@ -1,4 +1,4 @@
-﻿@using HoaLacLaptopShop.Areas.Public.ViewModels
+﻿@using HoaLacLaptopShop.Areas.Shared.ViewModels
 @model NewsPostIndexViewModel
 
 @{
@@ -7,23 +7,17 @@
 
 <h1>News Posts</h1>
 
-<div class="row">
-    <div class="col-md-8">
-        @if (Context.GetCurrentUser()?.IsSales ?? false)
-        {
-            <p>
-                <a asp-action="Create">Create New</a>
-            </p>
-        }
-    </div>
-    <div class="col-md-4">
+<div>
+    <div style="display: flex; align-content: center">
         <form asp-action="Index" asp-controller="NewsPosts" method="get">
-            <div class="search_box">
-                <input asp-for="SearchTerm" class="form-control" style="width: 100%" />
+            <div class="search_box" >
+                <input asp-for="SearchTerm" class="form-control" style="width: 250px" />
             </div>
         </form>
     </div>
 </div>
+
+<hr/>
 
 
 @{

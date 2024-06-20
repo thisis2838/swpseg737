@@ -4,9 +4,10 @@ namespace HoaLacLaptopShop.Helpers
 {
     public static class ResourceHelper
     {
-        public static string GenerateResourceToken()
+        public static string GenerateResourceToken(int? seed = null)
         {
-            return $"{DateTime.Now.Ticks:X}+{new Random().Next(1000, 10000):X}";
+            var rand = seed.HasValue ? new Random(seed.Value) : new Random();
+            return $"{DateTime.Now.Ticks:X}+{rand.Next(1000, 10000):X}";
         }
         public static string GetProductImageURL(this ProductImage image)
         {

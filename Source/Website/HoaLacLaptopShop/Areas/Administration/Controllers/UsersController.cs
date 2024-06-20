@@ -15,8 +15,8 @@ using HoaLacLaptopShop.Areas.Shared.ViewModels;
 
 namespace HoaLacLaptopShop.Areas.Administration.Controllers
 {
-    [Authorize(Roles = "Admin")]
     [Area("Administration")]
+    [Authorize("Admin,Sales,Marketing")]
     public class UsersController : Controller
     {
         private readonly HoaLacLaptopShopContext _context;
@@ -49,12 +49,14 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
             return View(user);
         }
 
+        [Authorize(Roles = "Admin")]
         public IActionResult Create()
         {
             return View();
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create(RegisterViewModel model, string gender)
         {
             var fields = new string[]
@@ -81,6 +83,7 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
             return View(model);
         }
 
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -100,6 +103,7 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int id, UserEditViewModel model)
         {
             if (id != model.ID)
@@ -142,6 +146,7 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
             return View(model);
         }
 
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -162,6 +167,7 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
 
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var user = await _context.Users.FindAsync(id);
@@ -184,6 +190,7 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
             return _context.Users.Any(e => e.ID == id);
         }
 
+        [Authorize(Roles = "Admin,Sales")]
         public async Task<IActionResult> OrderHistory(int id)
         {
             var user = _context.Users.Find(id);

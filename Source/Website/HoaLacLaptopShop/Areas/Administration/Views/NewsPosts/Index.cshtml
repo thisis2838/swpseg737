@@ -1,0 +1,43 @@
+﻿@using HoaLacLaptopShop.Areas.Shared.ViewModels
+@model NewsPostIndexViewModel
+
+@{
+    ViewData["Title"] = "News";
+}
+
+<h1>News Posts</h1>
+<div>
+    <a class="btn btn-primary" asp-action="Create">Create New</a>
+    <form asp-action="Index" asp-controller="NewsPosts" method="get" class="fa-pull-right">
+        <input asp-for="SearchTerm" class="form-control fa-search" style="width: 250px" />
+    </form>
+</div>
+<hr />
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Author</th>
+            <th>Post Date</th>
+            <th style="min-width: 50%">Title</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var post in Model.Posts)
+        {
+            <tr>
+                <td>@post.ID</td>
+                <td>@post.Author!.Name</td>
+                <td>@post.Time.ToShortDateString()</td>
+                <td>@post.Title</td>
+                <td>
+                    <a class="btn btn-primary" asp-action="Edit" asp-route-id="@post.ID">Edit</a>
+                    <a class="btn btn-primary" href="@Url.Action("Details", "NewsPosts", new {id = @post.ID, area=""})">View</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+

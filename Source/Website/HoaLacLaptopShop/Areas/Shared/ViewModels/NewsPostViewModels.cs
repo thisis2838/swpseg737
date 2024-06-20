@@ -1,6 +1,6 @@
 ﻿using HoaLacLaptopShop.Models;
 
-namespace HoaLacLaptopShop.Areas.Public.ViewModels
+namespace HoaLacLaptopShop.Areas.Shared.ViewModels
 {
     public class NewsPostIndexArgs
     {
