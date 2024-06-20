@@ -77,6 +77,29 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
         }
 
         [HttpGet]
+        public IActionResult ForgotPassword()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ForgotPassword(string resetEmail)
+        {
+            var user = _context.Users.FirstOrDefault(x => x.Email == resetEmail);
+            if (user == null)
+            {
+                this.SetError("There is no account created with this email.");
+                return View();
+            }
+            int code = new Random().Next(100000, 1000000);
+            var subject = "Hoalac Laptops Reset Password Code";
+            var result = await _viewRenderService.RenderToStringAsync("Account/ResetPasswordEmail", code.ToString());
+            await _emailSender.SendEmailAsync(resetEmail, subject, result);
+            return RedirectToAction("Index", "Home");
+        }
+
+        [HttpGet]
         [Route("Logout"), Route("Account/Logout")]
         public async Task<ActionResult> Logout()
         {
@@ -97,7 +120,8 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
             return View();
         }
 
-        [HttpPost, ValidateAntiForgeryToken]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> CompleteRegistration(string activationCode)
         {
             if (HttpContext.IsLoggedIn())
