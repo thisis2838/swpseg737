@@ -39,15 +39,27 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
 
         [HttpGet]
         [Route("Login"), Route("Account/Login")]
-        public ActionResult Login()
+        public ActionResult Login(string? returnUrl)
         {
+            ViewBag.ReturnUrl = returnUrl;
+            if (HttpContext.IsLoggedIn())
+            {
+                this.SetError("You are logged in already...");
+                return RedirectToAction("Index", "Home");
+            }
             return View();
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Route("Login"), Route("Account/Login")]
-        public async Task<ActionResult> Login(LoginViewModel model)
+        public async Task<ActionResult> Login(LoginViewModel model, string? returnUrl)
         {
+            ViewBag.returnUrl = returnUrl;
+            if (HttpContext.IsLoggedIn())
+            {
+                this.SetError("You are logged in already...");
+                return RedirectToAction("Index", "Home");
+            }
             var user = _context.Users.FirstOrDefault(x => x.Email == model.Email);
             if (user == null)
             {
@@ -74,6 +86,10 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
             await HttpContext.SignOut();
             await HttpContext.LoginAsUser(user);
             this.SetMessage($"Loggin in as {user.Name}");
+            if (Url.IsLocalUrl(returnUrl))
+            {
+                return Redirect(returnUrl);
+            }
             return RedirectToAction("Index", "Home");
         }
 
