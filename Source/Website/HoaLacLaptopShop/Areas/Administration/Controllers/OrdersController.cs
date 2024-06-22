@@ -50,12 +50,12 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
             var order = await _context.Orders.AsNoTracking().FirstOrDefaultAsync(x => x.ID == input.ID);
             if (order is null)
             {
-                this.SetError("Couldn't find order.");
+                this.AddError("Couldn't find order.");
                 return RedirectToAction("Index", "Orders");
             }
             if (order.Status != OrderStatus.Created)
             {
-                this.SetError("Cannot edit order as it has reached the delivering stage.");
+                this.AddError("Cannot edit order as it has reached the delivering stage.");
                 return RedirectToAction("Details", "Orders", new{ model = order });
             }
 

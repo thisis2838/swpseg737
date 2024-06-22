@@ -1,4 +1,5 @@
-﻿using Ganss.Xss;
+﻿using AngleSharp.Text;
+using Ganss.Xss;
 using HoaLacLaptopShop.Areas.Shared.ViewModels;
 using HoaLacLaptopShop.Data;
 using HoaLacLaptopShop.Helpers;
@@ -8,6 +9,7 @@ using HtmlAgilityPack;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Memory;
@@ -36,20 +38,26 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
         }
 
         [NonAction]
-        protected void SaveContent(NewsPost post, string content)
+        protected bool SaveContent(NewsPostDetailsViewModel post)
         {
             var sanitizer = new HtmlSanitizer();
             sanitizer.AllowDataAttributes = true;
+            sanitizer.AllowedTags.Remove("head");
+            sanitizer.AllowedTags.Remove("body");
+            sanitizer.AllowedTags.Remove("input");
+            sanitizer.AllowedTags.Remove("option");
+            sanitizer.AllowedTags.Remove("select");
             sanitizer.AllowedAttributes.Add("temp_res_id");
             sanitizer.AllowedSchemes.Add("data");
-            content = sanitizer.Sanitize(content);
+            post.Content = sanitizer.Sanitize(post.Content ?? "");
 
             var mediaPath = Local.GetRelativePath(ResourceType.Images, "news", post.Token);
             Local.DirectoryCreate(mediaPath);
             List<string> oldMedia = Local.DirectoryFiles(mediaPath).ToList();
 
             _temp.VerifyAll("news");
-            var document = new HtmlDocument(); document.LoadHtml(content);
+            var document = new HtmlDocument(); document.LoadHtml(post.Content);
+
             var images = document.DocumentNode.SelectNodes(".//img");
             if (images != null)
             {
@@ -58,7 +66,7 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
                     var source = image.GetAttributeValue("src", null);
                     if (source is null)
                     {
-                        _logger.Log(LogLevel.Warning, "<img> had no source");
+                        this.AddError("An image was removed as it had no source.");
                         goto erase;
                     }
 
@@ -73,7 +81,7 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
                             image.SetAttributeValue("src", newPath.Replace('\\', '/'));
                             continue;
                         }
-                        _logger.Log(LogLevel.Warning, "<img> had a temporary resource ID attribute that didn't exist.");
+                        this.AddError("An image was removed as it used an uploaded image which had been deleted.");
                         goto erase;
                     }
                     else if (Uri.TryCreate(source, UriKind.RelativeOrAbsolute, out var uri))
@@ -83,7 +91,7 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
                             var file = Local.GetRelativePath(uri.ToString());
                             if (!Local.FileExists(file))
                             {
-                                _logger.Log(LogLevel.Warning, "<img> pointed to a local file which didn't exist.");
+                                this.AddError("An image was removed as it had used a local file which had been deleted.");
                                 goto erase;
                             }
                             oldMedia.RemoveAll(x => x.Equals(file, StringComparison.InvariantCultureIgnoreCase));
@@ -92,22 +100,40 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
                         else
                         {
                             _logger.Log(LogLevel.Warning, "<img> tried to load an external location");
+                            continue;
                         }
                     }
                     else
                     {
-                        _logger.Log(LogLevel.Warning, "<img> had an invalid source");
+                        this.AddError("An image was removed as it had an invalid source.");
                     }
 
                     erase:
-                    this.SetError("One or more images have been removed due to internal server issues");
                     image.Remove();
                     continue;
                 }
             }
+            post.Content = document.DocumentNode.OuterHtml;
+            post.ImageCount = images?.Count ?? 0;
+            if (post.ImageCount > 20)
+            {
+                this.AddError("A news post must not have more than 20 images");
+                return false;
+            }
+            post.WordCount = document.DocumentNode.SelectNodes(".//text()")?
+                .SelectMany(x => Regex.Split(WebUtility.HtmlDecode(x.InnerText), @"[\s\W]+"))
+                .Count()
+                ?? 0;
+            if (post.WordCount <= 10)
+            {
+                this.AddError("A news post must have more than 10 words");
+                return false;
+            }
+            post.ReadingTime = (int)Math.Ceiling(post.WordCount / 265m + post.ImageCount * (1/6m));
 
             oldMedia.ForEach(Local.FileRemove);
             document.Save(Local.GetFullPath(ResourceType.Html, "news", post.Token + ".html"));
+            return true;
         }
         [NonAction]
         protected void DeleteContent(NewsPost post)
@@ -148,10 +174,6 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
             {
                 return bad("Image size must not be over 1 megabytes.");
             }
-            if (_temp.GetAll("news").Count() > 20)
-            {
-                return bad("A news post must not have more than 20 images.");
-            }
 
             try
             {
@@ -187,15 +209,19 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
         [RequestFormLimits(ValueLengthLimit = 100*1000*1000)]
         public async Task<IActionResult> Create([FromForm][Bind("ID,Title,Content")] NewsPostDetailsViewModel newsPost)
         {
-            ModelState.Remove(nameof(NewsPost.AuthorId));
-            ModelState.Remove(nameof(NewsPost.Token));
-
-            if (ModelState.IsValid)
+            var fields = new string[]
+            {
+                nameof(NewsPostDetailsViewModel.Title),
+            };
+            if (fields.All(x => !ModelState.TryGetValue(x, out var valid) || valid.ValidationState == ModelValidationState.Valid))
             {
                 newsPost.Time = DateTime.Now;
                 newsPost.AuthorId = HttpContext.GetCurrentUser()!.ID;
                 newsPost.Token = ResourceHelper.GenerateResourceToken();
-                SaveContent(newsPost, newsPost.Content ?? "");
+                if (!SaveContent(newsPost))
+                {
+                    return View(newsPost);
+                }
 
                 Context.Add(newsPost);
                 await Context.SaveChangesAsync();
@@ -221,10 +247,10 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
                 return Unauthorized();
             }
 
-            var content = GetContent(newsPost);
-
             _temp.RemoveAll("news");
-            return View(new NewsPostDetailsViewModel(newsPost, content));
+            var content = GetContent(newsPost);
+            var vm = new NewsPostDetailsViewModel() { Content = content }; vm.FillFromOther(newsPost);
+            return View(vm);
         }
 
         [HttpPost]
@@ -241,16 +267,22 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
                 return Unauthorized();
             }
 
-            ModelState.Remove(nameof(NewsPost.AuthorId));
-            ModelState.Remove(nameof(NewsPost.Token));
-
-            if (ModelState.IsValid)
+            var fields = new string[]
+            {
+                nameof(NewsPostDetailsViewModel.Title),
+            };
+            if (fields.All(x => !ModelState.TryGetValue(x, out var valid) || valid.ValidationState == ModelValidationState.Valid))
             {
                 try
                 {
                     targetPost.Title = newsPost.Title;
-                    SaveContent(targetPost, newsPost.Content ?? "");
                     targetPost.Time = DateTime.Now;
+                    newsPost.FillFromOther(targetPost);
+                    if (!SaveContent(newsPost))
+                    {
+                        return View(newsPost);
+                    }
+                    targetPost.FillFromOther(newsPost);
 
                     Context.Update(targetPost);
                     await Context.SaveChangesAsync();

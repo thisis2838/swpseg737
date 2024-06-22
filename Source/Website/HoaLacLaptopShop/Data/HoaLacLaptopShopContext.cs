@@ -102,9 +102,12 @@ public partial class HoaLacLaptopShopContext : DbContext
 
             entity.Property(e => e.ID).HasColumnName("id");
             entity.Property(e => e.AuthorId).HasColumnName("authorID");
+            entity.Property(e => e.Token).HasMaxLength(SHORT_TEXT_LENGTH).IsUnicode(false).HasColumnName("token");
             entity.Property(e => e.Time).HasColumnType("datetime").HasColumnName("postTime");
             entity.Property(e => e.Title).HasMaxLength(SHORT_TEXT_LENGTH).HasColumnName("title");
-            entity.Property(e => e.Token).HasMaxLength(SHORT_TEXT_LENGTH).IsUnicode(false).HasColumnName("token");
+            entity.Property(e => e.WordCount).HasColumnName("wordCount");
+            entity.Property(e => e.ImageCount).HasColumnName("imageCount");
+            entity.Property(e => e.ReadingTime).HasColumnName("readingTime");
 
             entity.HasOne(d => d.Author).WithMany(p => p.NewsPosts).HasForeignKey(d => d.AuthorId);
         });

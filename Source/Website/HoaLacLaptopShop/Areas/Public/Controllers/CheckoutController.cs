@@ -30,7 +30,7 @@ public class CheckoutController : Controller
 
         if (order is null)
         {
-            this.SetError("Please purchase some items first before checking out.");
+            this.AddError("Please purchase some items first before checking out.");
             return RedirectToAction("Index", "Cart");
         }
 
@@ -52,7 +52,7 @@ public class CheckoutController : Controller
             .SingleOrDefault(o => o.BuyerID == user.ID && o.Status == OrderStatus.Created);
         if (!cartItems.Any() || order is null)
         {
-            this.SetError("Please purchase some items first before checking out.");
+            this.AddError("Please purchase some items first before checking out.");
             return RedirectToAction("Index", "Cart");
         }
                             
@@ -77,7 +77,7 @@ public class CheckoutController : Controller
             var product = _context.Products.SingleOrDefault(p => p.ID == cartItem.ID);
             if (product == null)
             {
-                this.SetError("A product in your order could not be found.");
+                this.AddError("A product in your order could not be found.");
                 return RedirectToAction("Index", "Cart");
             }
             product.Stock -= cartItem.Quantity;
@@ -88,7 +88,7 @@ public class CheckoutController : Controller
         // Clear the cart after confirming the order
         HttpContext.Session.Remove(CartController.CART_KEY);
 
-        this.SetMessage("Order has been placed successfully!");
+        this.AddMessage("Order has been placed successfully!");
         return RedirectToAction("Index", "Home");
     }
 

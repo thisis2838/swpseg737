@@ -41,23 +41,23 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
             var user = _context.Users.FirstOrDefault(x => x.Email == model.Email);
             if (user == null)
             {
-                this.SetError("Unknown email");
+                this.AddError("Unknown email");
                 return View("Login", model);
             }
             var hash = new PasswordHasher<User>();
             if (hash.VerifyHashedPassword(user, user.PassHash!, model.Password) == PasswordVerificationResult.Failed)
             {
-                this.SetError("Incorrect password");
+                this.AddError("Incorrect password");
                 return View("Login", model);
             }
             if (user.IsDeleted)
             {
-                this.SetError("This account has been deleted");
+                this.AddError("This account has been deleted");
                 return View("Login", model);
             }
             await HttpContext.SignOut();
             await HttpContext.LoginAsUser(user);//.ContinueWith(x => _temp.RemoveAll());
-            this.SetMessage($"Loggin in as {user.Name}");
+            this.AddMessage($"Loggin in as {user.Name}");
             return RedirectToAction("Index", "Home");
         }
 
@@ -65,7 +65,7 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
         [Route("Logout"), Route("Account/Logout")]
         public async Task<ActionResult> Logout()
         {
-            this.SetMessage($"Logged out");
+            this.AddMessage($"Logged out");
             _temp.RemoveAll();
             await HttpContext.SignOut();
             return RedirectToAction("Index", "Home");
@@ -99,7 +99,7 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
             {
                 if (_context.Users.Any(x => x.Email == model.Email))
                 {
-                    this.SetError("This email has already been used");
+                    this.AddError("This email has already been used");
                     return View(model);
                 }
                 var user = model as User;
@@ -140,7 +140,7 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
         {
             if (model.ID != HttpContext.GetCurrentUserID())
             {
-                this.SetError("You are not allowed to edit this user.");
+                this.AddError("You are not allowed to edit this user.");
                 return Unauthorized();
             }
 
@@ -165,7 +165,7 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
                         : hasher.HashPassword(user, model.NewPassword);
                     if (hasher.VerifyHashedPassword(user, user.PassHash, model.CurrentPassword) == PasswordVerificationResult.Failed)
                     {
-                        this.SetError("Incorrect current password");
+                        this.AddError("Incorrect current password");
                         return View(model);
                     }
                     user.Email = model.Email;

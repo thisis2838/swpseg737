@@ -35,11 +35,17 @@
     }
 </script>
 
-@if (TempData.TryGetValue("Error", out var error))
+@if (TempData.TryGetValue("Error", out var errors))
 {
-    <script>showError('@error!')</script>
+    foreach (var error in (ICollection<string>)errors!)
+    {
+        <script>showError('@error')</script>
+    }
 }
-@if (TempData.TryGetValue("Message", out var message))
+@if (TempData.TryGetValue("Message", out var messages))
 {
-    <script>showMessage('@message!')</script>
+    foreach (var message in (ICollection<string>)messages!)
+    {
+        <script>showError('@message')</script>
+    }
 }

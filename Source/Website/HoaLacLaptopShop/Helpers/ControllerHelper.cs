@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using NuGet.Packaging;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -7,15 +8,19 @@ namespace HoaLacLaptopShop.Helpers
 {
     public static class ControllerHelper
     {
-        public static void SetError(this Controller controller, string error)
+        public static void AddError(this Controller controller, params string[] error)
         {
-            controller.TempData["Error"] = error;
+            var errors = controller.TempData["Error"] as ICollection<string> ?? new List<string>();
+            errors.AddRange(error);
+            controller.TempData["Error"] = errors;
+        }
+        public static void AddMessage(this Controller controller, params string[] message)
+        {
+            var messages = controller.TempData["Message"] as ICollection<string> ?? new List<string>();
+            messages.AddRange(message);
+            controller.TempData["Message"] = messages;
         }
 
-        public static void SetMessage(this Controller controller, string message)
-        {
-            controller.TempData["Message"] = message;
-        }
         public static string ToMd5Hash(string password)
         {
             using (var md5 = MD5.Create())

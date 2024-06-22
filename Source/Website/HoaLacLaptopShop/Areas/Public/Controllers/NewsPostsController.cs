@@ -89,7 +89,8 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
             }
 
             var content = GetContent(newsPost);
-            return View(new NewsPostDetailsViewModel(newsPost, content));
+            var vm = new NewsPostDetailsViewModel() { Content = content }; vm.FillFromOther(newsPost);
+            return View(vm);
         }
     }
 }

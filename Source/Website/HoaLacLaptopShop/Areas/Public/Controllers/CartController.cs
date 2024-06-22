@@ -39,7 +39,7 @@ public class CartController : Controller
             var product = _context.Products.Include(x => x.ProductImages).SingleOrDefault(p => p.ID == id);
             if (product == null)
             {
-                this.SetError("Product could not be found to add to cart!");
+                this.AddError("Product could not be found to add to cart!");
                 return NotFound();
             }
 

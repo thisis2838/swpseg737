@@ -36,14 +36,14 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
         {
             if (id == null)
             {
-                this.SetError("User could not be found");
+                this.AddError("User could not be found");
                 return NotFound();
             }
 
             var user = await _context.Users.FirstOrDefaultAsync(m => m.ID == id);
             if (user == null)
             {
-                this.SetError("User could not be found");
+                this.AddError("User could not be found");
                 return NotFound();
             }
 
@@ -89,14 +89,14 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
         {
             if (id == null)
             {
-                this.SetError("User could not be found");
+                this.AddError("User could not be found");
                 return NotFound();
             }
 
             var user = await _context.Users.FindAsync(id);
             if (user == null)
             {
-                this.SetError("User could not be found");
+                this.AddError("User could not be found");
                 return NotFound();
             }
             return View(user);
@@ -152,14 +152,14 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
         {
             if (id == null)
             {
-                this.SetError("User could not be found");
+                this.AddError("User could not be found");
                 return NotFound();
             }
 
             var user = await _context.Users.FirstOrDefaultAsync(m => m.ID == id);
             if (user == null)
             {
-                this.SetError("User could not be found");
+                this.AddError("User could not be found");
                 return NotFound();
             }
 
@@ -178,7 +178,7 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
             }
             else
             {
-                this.SetError("User could not be found");
+                this.AddError("User could not be found");
                 return NotFound();
             }
 
@@ -206,7 +206,7 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
             }
             else
             {
-                this.SetError("User could not be found");
+                this.AddError("User could not be found");
                 return NotFound();
             }
         }

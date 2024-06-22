@@ -97,7 +97,7 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
 
             if (product is null)
             {
-                this.SetError("No product with that ID exists!");
+                this.AddError("No product with that ID exists!");
                 return NotFound();
             }
 
@@ -111,20 +111,20 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
             var product = _context.Products.Find(pId);
             if (product is null)
             {
-                this.SetError("Product doesn't exist!");
+                this.AddError("Product doesn't exist!");
                 return RedirectToAction("Index", "Home");
             }
 
             var hasBought = _context.OrderDetails.Include(x => x.Order).Any(x => x.ProductId == pId && x.Order.BuyerID == uId);
             if (!hasBought)
             {
-                this.SetError("You must buy this product before you can review it.");
+                this.AddError("You must buy this product before you can review it.");
                 goto end;
             }
             var previousReview = _context.ProductReviews.Find(pId, uId);
             if (previousReview != null)
             {
-                this.SetError("You have already reviewed this product!");
+                this.AddError("You have already reviewed this product!");
                 goto end;
             }
 
