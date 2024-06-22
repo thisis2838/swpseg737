@@ -108,8 +108,7 @@ internal class Program
         using (services.CreateScope())
         {
             var local = services.GetRequiredService<ILocalResourceService>();
-            var files = local.DirectoryFiles("");
-            local.DirectoryRemove(local.GetFullPath(ResourceType.Temp));
+            local.DirectoryRemove(local.GetRelativePath(ResourceType.Temp));
         }
     }
 }

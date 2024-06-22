@@ -194,7 +194,7 @@ namespace HoaLacLaptopShop.Services
 
         public FileStream FileOpen(string path)
         {
-            DirectoryCreate(path);
+            DirectoryCreate(GetParentDirectory(path));
             return File.Create(GetFullPath(path));
         }
         public void FileWriteAll(string path, string text)
@@ -240,12 +240,13 @@ namespace HoaLacLaptopShop.Services
         }
         public void DirectoryRemove(string path)
         {
-            Directory.Delete(GetFullPath(path), true);
+            path = GetFullPath(path);
+            if (Directory.Exists(path)) Directory.Delete(path, true);
         }
         public string[] DirectoryFiles(string path, string? searchPattern = null, SearchOption? option = null)
         {
             var full = GetFullPath(path);
-            return Directory.Exists(full)
+            return !Directory.Exists(full)
                 ? []
                 : Directory
                     .EnumerateFiles(full, searchPattern ?? "*.*", option ?? SearchOption.AllDirectories)
@@ -261,7 +262,7 @@ namespace HoaLacLaptopShop.Services
     }
     public enum ResourceType
     {
-        Image,
+        Images,
         Html,
         Temp
     }

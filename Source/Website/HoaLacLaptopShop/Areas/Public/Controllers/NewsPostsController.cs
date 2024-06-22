@@ -46,7 +46,7 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
         [NonAction]
         protected string GetImagesFolder(NewsPost post)
         {
-            return Local.GetRelativePath(ResourceType.Image, "news", post.Token);
+            return Local.GetRelativePath(ResourceType.Images, "news", post.Token);
         }
         [NonAction]
         protected string GetContent(NewsPost post)

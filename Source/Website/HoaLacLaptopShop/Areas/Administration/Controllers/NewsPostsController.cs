@@ -44,7 +44,7 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
             sanitizer.AllowedSchemes.Add("data");
             content = sanitizer.Sanitize(content);
 
-            var mediaPath = Local.GetFullPath(ResourceType.Image, "news", post.Token);
+            var mediaPath = Local.GetRelativePath(ResourceType.Images, "news", post.Token);
             Local.DirectoryCreate(mediaPath);
             List<string> oldMedia = Local.DirectoryFiles(mediaPath).ToList();
 
@@ -70,7 +70,7 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
                         if (_temp.Verify(tempID))
                         {
                             var newPath = _temp.Move(tempID, mediaPath);
-                            image.SetAttributeValue("src", '/' + newPath.Replace('\\', '/'));
+                            image.SetAttributeValue("src", newPath.Replace('\\', '/'));
                             continue;
                         }
                         _logger.Log(LogLevel.Warning, "<img> had a temporary resource ID attribute that didn't exist.");
@@ -167,7 +167,7 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
                         image.SaveAsJpeg(memory);
                         memory.Seek(0, SeekOrigin.Begin);
                         var temp = _temp.Add(memory, "news", ".jpeg");
-                        return good(temp.ID, '/' + _temp.GetRelativePath(temp).Replace('\\', '/'));
+                        return good(temp.ID, _temp.GetRelativePath(temp).Replace('\\', '/'));
                     }
                 }
             }
