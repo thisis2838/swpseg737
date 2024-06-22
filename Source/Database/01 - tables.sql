@@ -149,9 +149,23 @@ CREATE TABLE NewsPosts
 (
     id                      INTEGER         IDENTITY(1,1) PRIMARY KEY,
     authorID                INTEGER         NOT NULL FOREIGN KEY REFERENCES Users(id),
+    token                   VARCHAR(256)    NOT NULL,
     
     postTime                DATETIME        NOT NULL,
     title                   NVARCHAR(256)   NOT NULL,
-    token                   VARCHAR(256)    NOT NULL
+    wordCount               INTEGER         NOT NULL,    
+    imageCount              INTEGER         NOT NULL,    
+    readingTime             INTEGER         NOT NULL
+);
+GO
+
+CREATE TABLE TempResources
+(
+    id                      VARCHAR(256)    PRIMARY KEY,        
+    uploaderID              INTEGER         NOT NULL,
+    
+    bag                     VARCHAR(256)    NOT NULL,
+    extension               VARCHAR(256)    NOT NULL,
+    length                  BIGINT          NOT NULL
 );
 GO
