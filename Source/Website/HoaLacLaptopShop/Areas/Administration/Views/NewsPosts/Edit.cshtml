@@ -8,11 +8,12 @@
 <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote.min.css" rel="stylesheet">
 
 <h1>Edit</h1>
+<form asp-action="Edit">
 <div>
+    <input type="submit" value="Save" class="btn btn-primary" />
     <a class="btn btn-primary" asp-action="Index">Back to List</a>
 </div>
 <hr />
-<form asp-action="Edit">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
     <input type="hidden" asp-for="ID" />
     <div class="row">
@@ -29,9 +30,6 @@
             <div>
                 <label asp-for="Content" class="control-label"></label>
                 <textarea id="summernote" asp-for="Content">@Html.Raw(Model.Content)</textarea>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
             </div>
         </div>
     </div>

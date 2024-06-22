@@ -9,11 +9,28 @@
             showHideTransition: 'fade',
             allowToastClose: true,
             hideAfter: 5000, 
-            stack: 5,
+            stack: 15,
             position: 'bottom-left',
             textAlign: 'left',
             loader: true,
             loaderBg: '#fcba03'
+        });
+    }
+    function showWarning(warning)
+    {
+        $.toast
+        ({
+            text: warning, 
+            heading: 'Warning',
+            icon: 'warning', 
+            showHideTransition: 'fade',
+            allowToastClose: true,
+            hideAfter: 7000, 
+            stack: 15,
+            position: 'bottom-left',
+            textAlign: 'left',
+            loader: true,
+            loaderBg: '#000000'
         });
     }
     function showError(error)
@@ -25,8 +42,8 @@
             icon: 'error', 
             showHideTransition: 'fade',
             allowToastClose: true,
-            hideAfter: 5000, 
-            stack: 5,
+            hideAfter: 10000, 
+            stack: 15,
             position: 'bottom-left',
             textAlign: 'left',
             loader: true,
@@ -35,17 +52,24 @@
     }
 </script>
 
-@if (TempData.TryGetValue("Error", out var errors))
-{
-    foreach (var error in (ICollection<string>)errors!)
-    {
-        <script>showError('@error')</script>
-    }
-}
 @if (TempData.TryGetValue("Message", out var messages))
 {
     foreach (var message in (ICollection<string>)messages!)
     {
         <script>showError('@message')</script>
+    }
+}
+@if (TempData.TryGetValue("Warning", out var warnings))
+{
+    foreach (var warning in (ICollection<string>)warnings!)
+    {
+        <script>showWarning('@warning')</script>
+    }
+}
+@if (TempData.TryGetValue("Error", out var errors))
+{
+    foreach (var error in (ICollection<string>)errors!)
+    {
+        <script>showError('@error')</script>
     }
 }

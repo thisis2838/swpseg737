@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
+using PreMailer.Net;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Memory;
 using System.Net;
@@ -40,6 +41,8 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
         [NonAction]
         protected bool SaveContent(NewsPostDetailsViewModel post)
         {
+            post.Content = PreMailer.Net.PreMailer.MoveCssInline(post.Content).Html;
+
             var sanitizer = new HtmlSanitizer();
             sanitizer.AllowDataAttributes = true;
             sanitizer.AllowedTags.Remove("head");
@@ -47,6 +50,7 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
             sanitizer.AllowedTags.Remove("input");
             sanitizer.AllowedTags.Remove("option");
             sanitizer.AllowedTags.Remove("select");
+            sanitizer.AllowedTags.Remove("button");
             sanitizer.AllowedAttributes.Add("temp_res_id");
             sanitizer.AllowedSchemes.Add("data");
             post.Content = sanitizer.Sanitize(post.Content ?? "");
@@ -99,7 +103,7 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
                         }
                         else
                         {
-                            _logger.Log(LogLevel.Warning, "<img> tried to load an external location");
+                            this.AddWarning("An image is taking its source from somewhere external. Consider importing manually.");
                             continue;
                         }
                     }

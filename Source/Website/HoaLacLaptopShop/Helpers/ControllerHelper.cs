@@ -14,6 +14,12 @@ namespace HoaLacLaptopShop.Helpers
             errors.AddRange(error);
             controller.TempData["Error"] = errors;
         }
+        public static void AddWarning(this Controller controller, params string[] warning)
+        {
+            var warnings = controller.TempData["Warning"] as ICollection<string> ?? new List<string>();
+            warnings.AddRange(warning);
+            controller.TempData["Warning"] = warnings;
+        }
         public static void AddMessage(this Controller controller, params string[] message)
         {
             var messages = controller.TempData["Message"] as ICollection<string> ?? new List<string>();

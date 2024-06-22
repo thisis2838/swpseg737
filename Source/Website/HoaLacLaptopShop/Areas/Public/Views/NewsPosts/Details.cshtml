@@ -7,6 +7,7 @@
 
 <h1>@Model.Title</h1>
 <h4><span>Posted at <b>@Model.Time.ToString("hh:mm:ss tt")</b> at <b>@Model.Time.ToString("yyyy-MM-dd")</b> by <b>@Model.Author!.Name</b></span></h4>
+<p>@Model.Length post &bull; @Model.WordCount word(s) &bull; @Model.ImageCount image(s) &bull; @Model.ReadingTime minute(s) to consume.</p>
 <div>
     <a class="btn btn-primary" asp-action="Index">Back to List</a>
     @{
