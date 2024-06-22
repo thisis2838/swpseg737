@@ -6,6 +6,7 @@ using SixLabors.ImageSharp.Formats.Jpeg;
 using HoaLacLaptopShop.Helpers;
 using HoaLacLaptopShop.Areas.Administration.ViewModels;
 using Microsoft.AspNetCore.Authorization;
+using HoaLacLaptopShop.Data;
 
 namespace HoaLacLaptopShop.Areas.Administration.Controllers
 {

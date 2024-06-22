@@ -1,4 +1,5 @@
 ﻿using HoaLacLaptopShop.Areas.Public.ViewModels;
+using HoaLacLaptopShop.Data;
 using HoaLacLaptopShop.Helpers;
 using HoaLacLaptopShop.Models;
 using Humanizer;

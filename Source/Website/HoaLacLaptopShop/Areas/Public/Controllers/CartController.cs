@@ -1,5 +1,6 @@
 ﻿using HoaLacLaptopShop.Areas.Public.Controllers;
 using HoaLacLaptopShop.Areas.Public.ViewModels;
+using HoaLacLaptopShop.Data;
 using HoaLacLaptopShop.Helpers;
 using HoaLacLaptopShop.Models;
 using Microsoft.AspNetCore.Authorization;

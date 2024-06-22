@@ -1,6 +1,8 @@
+using HoaLacLaptopShop.Data;
 using HoaLacLaptopShop.Helpers;
 using HoaLacLaptopShop.Middlewares;
 using HoaLacLaptopShop.Models;
+using HoaLacLaptopShop.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
@@ -17,21 +19,28 @@ internal class Program
         var builder = WebApplication.CreateBuilder(args);
 
         // Add services to the container.
-        builder.Services.AddControllersWithViews();
         builder.Services.AddDbContext<HoaLacLaptopShopContext>(options =>
+        {
+            options.UseSqlServer(builder.Configuration.GetConnectionString("HoaLacLaptopShop"));
+        });
+        builder.Services.AddDbContext<TemporaryResourceContext>(options =>
         {
             options.UseSqlServer(builder.Configuration.GetConnectionString("HoaLacLaptopShop"));
         });
 
         builder.Services.AddDistributedMemoryCache();
-        builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie
-        (
-            options =>
-            {
-                options.LoginPath = "/Account/Login";
-                options.AccessDeniedPath = "/Error/403";
-            }
-        );
+        builder.Services.AddSession(options =>
+        {
+            options.IdleTimeout = TimeSpan.FromSeconds(10);
+            options.Cookie.HttpOnly = true;
+            options.Cookie.IsEssential = true;
+        });
+
+        builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(options =>
+        {
+            options.LoginPath = "/Account/Login";
+            options.AccessDeniedPath = "/Error/403";
+        });
         builder.Services.AddAuthorization(options =>
         {
             options.AddPolicy("RequireAdmin", policy => policy.RequireRole("Admin"));
@@ -39,13 +48,9 @@ internal class Program
             options.AddPolicy("RequireSales", policy => policy.RequireRole("Sales"));
         });
 
-        builder.Services.AddSession(options =>
-        {
-            options.IdleTimeout = TimeSpan.FromMinutes(20);
-            options.Cookie.HttpOnly = true;
-            options.Cookie.IsEssential = true;
-        });
         builder.Services.AddHttpContextAccessor();
+        builder.Services.AddSingleton<ILocalResourceService, LocalResourceService>();
+        builder.Services.AddScoped<ITemporaryResourceService, TemporaryResourceService>();
         builder.Services
             .AddControllersWithViews()
             .AddRazorOptions(options =>
@@ -54,6 +59,7 @@ internal class Program
             });
 
         var app = builder.Build();
+        CleanUpTemporaryFiles(app.Services);
 
         // Configure the HTTP request pipeline.
         if (!app.Environment.IsDevelopment())
@@ -66,8 +72,6 @@ internal class Program
         app.UseStaticFiles();
         app.UseStatusCodePagesWithRedirects("/Error/{0}");
         app.UseRouting();
-
-        // Enable session middleware
         app.UseSession();
 
         app.UseAuthentication();
@@ -94,30 +98,18 @@ internal class Program
         app.Run();
     }
 
-    private class CustomViewLocationExpander : IViewLocationExpander
+    private static void CleanUpTemporaryFiles(IServiceProvider services)
     {
-        public void PopulateValues(ViewLocationExpanderContext context)
+        using (var scope = services.CreateScope()) 
         {
-            // No need to populate any values here
+            using var db = scope.ServiceProvider.GetRequiredService<TemporaryResourceContext>();
+            db.Resources.ExecuteDelete();
         }
-
-        public IEnumerable<string> ExpandViewLocations(ViewLocationExpanderContext context, IEnumerable<string> viewLocations)
+        using (services.CreateScope())
         {
-            var areaName = context.ActionContext.RouteData.Values["area"]?.ToString();
-            areaName = string.IsNullOrEmpty(areaName) ? "Public" : areaName;
-
-            if (!string.IsNullOrEmpty(areaName))
-            {
-                var areaViewLocations = new[]
-                {
-                    $"/Areas/{areaName}/Views/{{1}}/{{0}}.cshtml",
-                    $"/Areas/{areaName}/Views/Shared/{{0}}.cshtml"
-                };
-
-                viewLocations = areaViewLocations.Concat(viewLocations);
-            }
-
-            return viewLocations;
+            var local = services.GetRequiredService<ILocalResourceService>();
+            var files = local.DirectoryFiles("");
+            local.DirectoryRemove(local.GetFullPath(ResourceType.Temp));
         }
     }
 }

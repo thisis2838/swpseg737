@@ -1,61 +1,62 @@
 ﻿using HoaLacLaptopShop.Areas.Public.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
+using System.Net;
 
 namespace HoaLacLaptopShop.Areas.Public.Controllers
 {
     public class ErrorController : Controller
     {
-        [HttpGet("/Error/{type}")]
-        public IActionResult Index(KnownErrorType type)
+        private static readonly Dictionary<HttpStatusCode, ErrorViewModel> _viewModels = new()
         {
-            switch (type)
             {
-                case KnownErrorType.NotFound:
-                    return Index(new ErrorViewModel()
-                    {
-                        ErrorCode = 404,
-                        ErrorName = "Not Found",
-                        Message = "The page you've just tried to access could not be found."
-                    });
-                case KnownErrorType.Forbidden:
-                    return Index(new ErrorViewModel()
-                    {
-                        ErrorCode = 403,
-                        ErrorName = "Forbidden",
-                        Message = "The page you've just tried to access is barred from you."
-                    });
-                case KnownErrorType.Unauthorized:
-                    return Index(new ErrorViewModel()
-                    {
-                        ErrorCode = 401,
-                        ErrorName = "Unauthorized",
-                        Message = "The page you've just tried to access is not within your authority."
-                    });
-                case KnownErrorType.Unknown:
-                default:
-                    return Index(new ErrorViewModel()
-                    {
-                        ErrorCode = 0,
-                        ErrorName = "Unknown",
-                        Message = "An unknown error occurred. Please conatct the system administrator for further details."
-                    });
+                HttpStatusCode.NotFound, new ErrorViewModel()
+                {
+                    ErrorCode = 404,
+                    ErrorName = "Not Found",
+                    Message = "The page you've just tried to access could not be found."
+                }
+            },
+            {
+                HttpStatusCode.Forbidden, new ErrorViewModel()
+                {
+                    ErrorCode = 403,
+                    ErrorName = "Forbidden",
+                    Message = "The page you've just tried to access is barred from you."
+                }
+            },
+            {
+                HttpStatusCode.Unauthorized, new ErrorViewModel()
+                {
+                    ErrorCode = 401,
+                    ErrorName = "Unauthorized",
+                    Message = "The page you've just tried to access is not within your authority."
+                }
             }
+        };
+
+        [Route("/Error/{code}")]
+        public IActionResult Code(HttpStatusCode code)
+        {
+            ErrorViewModel model = null!;
+            if (!_viewModels.TryGetValue(code, out model!))
+            {
+                model = new ErrorViewModel()
+                {
+                    ErrorCode = (int)code,
+                    ErrorName = (code == 0) ? "Unknown Error" : code.ToString(),
+                    Message = "An error occured. Please conatct the system administrator for further details."
+                };
+            }
+            return View(nameof(Index), model);
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        [NonAction]
         public IActionResult Index(ErrorViewModel? model = null)
         {
-            if (model == null) return Index(KnownErrorType.Unknown);
+            if (model == null) return Code(0);
             return View(model);
         }
-    }
-
-    public enum KnownErrorType : int
-    {
-        Unknown = 0,
-        NotFound = 404,
-        Forbidden = 403,
-        Unauthorized = 401
     }
 }

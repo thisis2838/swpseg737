@@ -17,8 +17,8 @@ namespace HoaLacLaptopShop.Helpers
                     new Claim(ClaimTypes.NameIdentifier, user.ID.ToString()),
                 },
                 "Login"
-            )))
-            .ContinueWith(x => context.Items["CurrentUser"] = user);
+            )));
+            context.Items["CurrentUser"] = user;
             return;
         }
 

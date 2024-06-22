@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
+using HoaLacLaptopShop.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.Extensions.Configuration;
 
-namespace HoaLacLaptopShop.Models;
+namespace HoaLacLaptopShop.Data;
 
 public partial class HoaLacLaptopShopContext : DbContext
 {

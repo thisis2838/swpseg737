@@ -1,7 +1,9 @@
 ﻿using HoaLacLaptopShop.Areas.Public.ViewModels;
 using HoaLacLaptopShop.Areas.Shared.ViewModels;
+using HoaLacLaptopShop.Data;
 using HoaLacLaptopShop.Helpers;
 using HoaLacLaptopShop.Models;
+using HoaLacLaptopShop.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -17,10 +19,12 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
     public class AccountController : Controller
     {
         private readonly HoaLacLaptopShopContext _context;
+        private readonly ITemporaryResourceService _temp;
 
-        public AccountController(HoaLacLaptopShopContext context)
+        public AccountController(HoaLacLaptopShopContext context, ITemporaryResourceService temp)
         {
             _context = context;
+            _temp = temp;
         }
 
         [HttpGet]
@@ -52,7 +56,7 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
                 return View("Login", model);
             }
             await HttpContext.SignOut();
-            await HttpContext.LoginAsUser(user);
+            await HttpContext.LoginAsUser(user);//.ContinueWith(x => _temp.RemoveAll());
             this.SetMessage($"Loggin in as {user.Name}");
             return RedirectToAction("Index", "Home");
         }
@@ -62,6 +66,7 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
         public async Task<ActionResult> Logout()
         {
             this.SetMessage($"Logged out");
+            _temp.RemoveAll();
             await HttpContext.SignOut();
             return RedirectToAction("Index", "Home");
         }

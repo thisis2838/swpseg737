@@ -1,5 +1,5 @@
 using HoaLacLaptopShop.Areas.Public.ViewModels;
-using HoaLacLaptopShop.Models;
+using HoaLacLaptopShop.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;

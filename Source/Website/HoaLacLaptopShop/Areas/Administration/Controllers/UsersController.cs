@@ -12,11 +12,12 @@ using HoaLacLaptopShop.Helpers;
 using HoaLacLaptopShop.Areas.Public.Controllers;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using HoaLacLaptopShop.Areas.Shared.ViewModels;
+using HoaLacLaptopShop.Data;
 
 namespace HoaLacLaptopShop.Areas.Administration.Controllers
 {
     [Area("Administration")]
-    [Authorize("Admin,Sales,Marketing")]
+    [Authorize(Roles = "Admin,Sales,Marketing")]
     public class UsersController : Controller
     {
         private readonly HoaLacLaptopShopContext _context;

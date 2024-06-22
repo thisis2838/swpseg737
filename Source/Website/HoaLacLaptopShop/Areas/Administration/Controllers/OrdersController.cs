@@ -1,4 +1,5 @@
 ﻿using HoaLacLaptopShop.Areas.Public.Controllers;
+using HoaLacLaptopShop.Data;
 using HoaLacLaptopShop.Helpers;
 using HoaLacLaptopShop.Models;
 using Microsoft.AspNetCore.Authorization;
