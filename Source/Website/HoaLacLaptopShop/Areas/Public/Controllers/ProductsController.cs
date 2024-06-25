@@ -28,7 +28,7 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
                 .Include(x => x.Brand);
         }
 
-        public IActionResult Index(ProductIndexQuery args)
+        public IActionResult Index(ProductIndexQuery args, int? page)
         {
             var products = GetProducts();
             var min = products.Min(x => x.Price);
@@ -74,12 +74,14 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
 
             return View(new ProductIndexViewModel
             {
-                Products = list,
+                Products = list.Skip(page == null ? 0 : page.Value-1).Take(10).ToList(),
                 MinPossiblePrice = min,
                 MaxPossiblePrice = max,
                 Brands = brands,
                 CPUs = cpus,
                 GPUs = gpus,
+                PageIndex = page == null ? 1 : page.Value,
+                Total = list.Count,
                 CurrentQuery = args
             });
         }
