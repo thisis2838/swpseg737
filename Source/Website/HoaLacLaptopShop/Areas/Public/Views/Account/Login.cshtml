@@ -20,8 +20,10 @@
                 <span asp-validation-for="Password" class="text-danger"></span>
             </div>
             <br />
-            <div>
-                <input type="checkbox" value="remember" /> Keep me signed in
+            <div class="form-group form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="RememberMe" /> Keep me signed in
+                </label>
             </div>
             <br />
             <div>

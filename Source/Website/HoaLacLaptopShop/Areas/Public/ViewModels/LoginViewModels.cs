@@ -10,5 +10,6 @@ namespace HoaLacLaptopShop.Areas.Public.ViewModels
         [Required(ErrorMessage = "*")]
         [DataType(DataType.Password)]
         public string Password { get; set; }
+        public bool RememberMe { get; set; }
     }
 }

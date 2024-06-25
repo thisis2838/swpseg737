@@ -8,8 +8,13 @@ namespace HoaLacLaptopShop.Helpers
 {
     public static class HttpContextHelpers
     {
-        public static async Task LoginAsUser(this HttpContext context, User user)
+        public static async Task LoginAsUser(this HttpContext context, User user, bool rememberMe)
         {
+            var authProperties = new AuthenticationProperties
+            {
+                IsPersistent = rememberMe,
+                ExpiresUtc = rememberMe ? DateTime.UtcNow.AddDays(7) : (DateTime?)null
+            };
             await context.SignInAsync
             (
                 new ClaimsPrincipal(new ClaimsIdentity(new List<Claim>
@@ -17,7 +22,7 @@ namespace HoaLacLaptopShop.Helpers
                     new Claim(ClaimTypes.NameIdentifier, user.ID.ToString()),
                 },
                 "Login"
-            )))
+            )), authProperties)
             .ContinueWith(x => context.Items["CurrentUser"] = user);
             return;
         }

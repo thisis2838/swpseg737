@@ -84,7 +84,7 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
                 return View(model);
             }
             await HttpContext.SignOut();
-            await HttpContext.LoginAsUser(user);
+            await HttpContext.LoginAsUser(user, model.RememberMe);
             this.SetMessage($"Loggin in as {user.Name}");
             if (Url.IsLocalUrl(returnUrl))
             {
@@ -279,7 +279,7 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
             _context.Add(user);
             await _context.SaveChangesAsync();
             await HttpContext.SignOut();
-            await HttpContext.LoginAsUser(user);
+            await HttpContext.LoginAsUser(user, false);
             this.SetMessage("Registered and logged in as " + user.Name);
             return RedirectToAction("Index", "Home");
         }
