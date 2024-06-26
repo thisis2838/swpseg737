@@ -25,22 +25,27 @@
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="mb-3">
+                                        <span asp-validation-for="Name"></span>
                                         <label class="form-label" asp-for="Name">Name</label>
                                         <input asp-for="Name" type="text" name="name" class="form-control" placeholder="Name">
                                     </div>
                                     <div class="mb-3">
+                                        <span asp-validation-for="Price"></span>
                                         <label class="form-label" asp-for="Price">Price</label>
                                         <input type="number" asp-for="Price" name="price" class="form-control" placeholder="Price">
                                     </div>
                                     <div class="mb-3">
+                                        <span asp-validation-for="Stock"></span>
                                         <label class="form-label" asp-for="Stock">Stock</label>
                                         <input type="number" asp-for="Stock" name="stock" class="form-control" placeholder="Stock">
                                     </div>
                                     <div class="mb-3">
+                                        <span asp-validation-for="BrandId"></span>
                                         <label class="form-label">Brand</label><br />
                                         <select class="form-control form-select" asp-for="BrandId" asp-items="@brands"></select>
                                     </div>
                                     <div class="mb-3">
+                                        <span asp-validation-for="Description"></span>
                                         <label class="form-label" asp-for="Description">Description</label>
                                         <textarea name="description" asp-for="Description" class="form-control" cols="10" rows="10" placeholder="Description"></textarea>
                                     </div>
@@ -50,23 +55,26 @@
                                     <div class="mb-3">
                                         <label class="form-label">Product Type</label><br />
                                         <label class="form-check-label">
-                                            <input type="radio" asp-for="IsLaptop" value="1" name="productType" checked> Laptop
+                                            <input type="radio" value="0" name="productType" checked> Laptop
                                         </label>
                                         <label class="form-check-label">
-                                            <input type="radio" asp-for="IsLaptop" value="0" name="productType"> Accessories
-                                        </label>
+                                            <input type="radio" value="1" name="productType"> Accessories
+                                        </label> 
                                     </div>
 
                                     <div class="mb-3 laptop" id="cpuContainer">
+                                        <span asp-validation-for="Laptop!.CPUSeriesID"></span>
                                         <label class="form-label">CPU</label><br />
                                         <select class="form-control form-select" asp-for="Laptop!.CPUSeriesID" asp-items="@cpus"></select>
                                     </div>
 
                                     <div class="mb-3 laptop" id="gpuContainer">
+                                        <span asp-validation-for="Laptop!.GPUSeriesID"></span>
                                         <label class="form-label">GPU</label><br />
                                         <select class="form-control form-select" asp-for="Laptop!.GPUSeriesID" asp-items="@gpus"></select>
                                     </div>
                                     <div class="mb-3 laptop">
+                                        <span asp-validation-for="Laptop!.ScreenSize"></span>
                                         <label class="form-label">Screensize</label>
                                         <select class="form-control form-select" asp-for="Laptop!.ScreenSize">
                                             @{
@@ -81,8 +89,9 @@
                                     </div>
 
                                     <div class="mb-3 laptop">
+                                        <span asp-validation-for="Laptop.ScreenResolution"></span>
                                         <label class="form-label">Screen resolution</label>
-                                        <select class="form-control form-select" asp-for="Laptop!.ScreenResolution">
+                                        <select class="form-control form-select" asp-for="Laptop.ScreenResolution">
                                             <option selected disabled>Resolution</option>
                                             @{
                                                 var screenresolution = new[] { "1920×1080", "1366×768", "1280×1024", "1024×768" };
@@ -95,16 +104,18 @@
                                     </div>
 
                                     <div class="mb-3 laptop">
+                                        <span asp-validation-for="Laptop.StorageType"></span>
                                         <label class="form-label">Storage type</label>
-                                        <select class="form-control form-select" asp-for="Laptop!.StorageType">
+                                        <select class="form-control form-select" asp-for="Laptop.StorageType">
                                             <option selected disabled>Type</option>
                                             <option value="@HoaLacLaptopShop.Models.LaptopStorageType.SSD">SSD</option>
                                             <option value="@HoaLacLaptopShop.Models.LaptopStorageType.HDD">HDD</option>
                                         </select>
                                     </div>
                                     <div class="mb-3 laptop">
+                                        <span asp-validation-for="Laptop.StorageSize"></span>
                                         <label class="form-label">Storage Size</label>
-                                        <select class="form-control form-select" asp-for="Laptop!.StorageSize">
+                                        <select class="form-control form-select" asp-for="Laptop.StorageSize">
                                             <option selected disabled>Size</option>
                                             @{
                                                 var storagesize = new[] { 256, 512, 1024 };
@@ -117,8 +128,9 @@
                                     </div>
 
                                     <div class="mb-3 laptop">
+                                        <span asp-validation-for="Laptop.RefreshRate"></span>
                                         <label class="form-label">Refesh rate</label>
-                                        <select class="form-control form-select" asp-for="Laptop!.RefreshRate">
+                                        <select class="form-control form-select" asp-for="Laptop.RefreshRate">
                                             <option selected disabled>Rate</option>
                                             @{
                                                 var refreshrate = new[] { 60, 144, 165 };
@@ -131,8 +143,9 @@
                                     </div>
 
                                     <div class="mb-3 laptop">
+                                        <span asp-validation-for="Laptop.RAM"></span>
                                         <label class="form-label">Ram</label>
-                                        <select class="form-control form-select" asp-for="Laptop!.RAM">
+                                        <select class="form-control form-select" asp-for="Laptop.RAM">
                                             <option selected disabled>Ram</option>
                                             @{
                                                 var ram = new[] { 8, 16, 32, 64 };
@@ -145,14 +158,15 @@
                                     </div>
 
                                     <div class="text-center">
+                                        @Html.ValidationMessage("Images")
                                         <div class="mt-2">
-                                            <input type="file" name="image1" id="upload-input" />
+                                            <input type="file" name="image1" id="image1" />
                                         </div>
                                         <div class="mt-2">
-                                            <input type="file" name="image2" id="upload-input" />
+                                            <input type="file" name="image2" id="image2" />
                                         </div>
                                         <div class="mt-2">
-                                            <input type="file" name="image3" id="upload-input" />
+                                            <input type="file" name="image3" id="image3" />
                                         </div>
                                     </div>
                                 </div>
@@ -176,7 +190,7 @@
         var radioButtons = document.querySelectorAll('input[name="productType"]');
         radioButtons.forEach(function (radio) {
             radio.addEventListener('change', function () {
-                if (radio.value === '1') {
+                if (radio.value === '0') {
                     laptops.forEach(function (lap) {
                         lap.style.display = 'block';
                     });

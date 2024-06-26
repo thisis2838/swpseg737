@@ -52,7 +52,7 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
                 if ((args.SelectedCPUIDs?.Count ?? 0) == 0)
                     args.SelectedCPUIDs = _context.LaptopCPUSeries.Select(x => x.ID).ToList();
                 else
-                    products = products.Where(x => !x.IsLaptop || args.SelectedCPUIDs!.Contains(x.Laptop!.CPUSeriesID!.Value));
+                    products = products.Where(x => !x.IsLaptop || args.SelectedCPUIDs!.Contains(x.Laptop!.CPUSeriesID));
 
                 // update selectable gpus and filter products accordingly
                 if (args.SelectedGPUIDs != null)
@@ -60,7 +60,7 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
                 if ((args.SelectedGPUIDs?.Count ?? 0) == 0)
                     args.SelectedGPUIDs = _context.LaptopGPUSeries.Select(x => x.ID).ToList();
                 else
-                    products = products.Where(x => !x.IsLaptop || args.SelectedGPUIDs!.Contains(x.Laptop!.GPUSeriesID!.Value));
+                    products = products.Where(x => !x.IsLaptop || args.SelectedGPUIDs!.Contains(x.Laptop!.GPUSeriesID));
             }
 
             var list = products.ToList();

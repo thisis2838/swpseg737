@@ -14,7 +14,11 @@ namespace HoaLacLaptopShop.Areas.Administration.ViewModels
         public ProductDetailViewModel()
         {
             Laptop = new Laptop();
-            IsLaptop = false;
+            IsLaptop = true;
+        }
+
+        public ProductDetailViewModel(Product product) : base()
+        {
         }
     }
 }

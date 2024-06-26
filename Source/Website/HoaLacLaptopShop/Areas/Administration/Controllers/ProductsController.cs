@@ -81,7 +81,7 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
 
         public IActionResult Update(int id)
         {
-            var pro = _context.Products.Where(p => p.ID == id).Include(p => p.ProductImages).FirstOrDefault();
+            var pro = _context.Products.Where(p => p.ID == id).Include(p => p.ProductImages).Include(p => p.Laptop).FirstOrDefault();
             var brandSelectList = _context.Brands.Select(b => new SelectListItem
             {
                 Value = b.ID.ToString(),
@@ -118,8 +118,14 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
             }
             else
             {
-                ModelState.Remove(nameof(product.Laptop.ScreenResolution));
-                ModelState.Remove(nameof(product.Laptop.ScreenAspectRatio));
+                ModelState.Remove("Laptop.ScreenResolution");
+                ModelState.Remove("Laptop.CPUSeriesID");
+                ModelState.Remove("Laptop.GPUSeriesID");
+                ModelState.Remove("Laptop.ScreenSize");
+                ModelState.Remove("Laptop.StorageType");
+                ModelState.Remove("Laptop.StorageSize");
+                ModelState.Remove("Laptop.RefreshRate");
+                ModelState.Remove("Laptop.RAM");
             }
 
             if (ModelState.IsValid)
@@ -179,9 +185,28 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
                         Console.WriteLine("Invalid: " + error.ErrorMessage);
                     }
                 }
-            }
+                var brandSelectList = _context.Brands.Select(b => new SelectListItem
+                {
+                    Value = b.ID.ToString(),
+                    Text = b.Name
+                }).ToList();
+                ViewData["Brands"] = brandSelectList;
+                /*ViewData["Brands"] = _context.Brands.ToList();*/
+                var cpuSelectList = _context.LaptopCPUSeries.Select(cpu => new SelectListItem
+                {
+                    Value = cpu.ID.ToString(),
+                    Text = cpu.Name
+                }).ToList();
+                ViewData["Cpus"] = cpuSelectList;
 
-            return View(product);
+                var gpuSelectList = _context.LaptopGPUSeries.Select(gpu => new SelectListItem
+                {
+                    Value = gpu.ID.ToString(),
+                    Text = gpu.Name
+                }).ToList();
+                ViewData["Gpus"] = gpuSelectList;
+                return View(product);
+            }
         }
 
         private async Task RemoveAndAddImagesAsync(Product product, IFormFile image1, IFormFile image2, IFormFile image3)
@@ -228,60 +253,76 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
                 var image3Result = await SaveImageAsync(image3, 2);
                 product.ProductImages.Add(image3Result);
             }
-
-            /*// Handle image1
-            if (image1 != null)
-            {
-                var image1Result = await SaveImageAsync(image1, 0);
-                if (image1Result != null)
-                {
-                    product.ProductImages.Add(image1Result);
-                }
-            }
-
-            // Handle image2
-            if (image2 != null)
-            {
-                var image2Result = await SaveImageAsync(image2, 1);
-                if (image2Result != null)
-                {
-                    product.ProductImages.Add(image2Result);
-                }
-            }
-
-            // Handle image3
-            if (image3 != null)
-            {
-                var image3Result = await SaveImageAsync(image3, 2);
-                if (image3Result != null)
-                {
-                    product.ProductImages.Add(image3Result);
-                }
-            }*/
         }
 
 
         [HttpPost]
-
-        public async Task<IActionResult> Create(ProductDetailViewModel product, IFormFile image1, IFormFile image2, IFormFile image3)
+        public async Task<IActionResult> Create(ProductDetailViewModel product, string productType, IFormFile image1, IFormFile image2, IFormFile image3)
         {
             ModelState.Remove(nameof(image1));
             ModelState.Remove(nameof(image2));
             ModelState.Remove(nameof(image3));
+            if (productType == "0")
+            {
+                product.IsLaptop = true;
+            }
+            else if (productType == "1")
+            {
+                product.IsLaptop = false;
+            }
+            else
+            {
+                // Nếu productType không phải "0" hoặc "1", xử lý lỗi hoặc cảnh báo
+                ModelState.AddModelError("productType", "Product type must be '0' (Laptop) or '1' (Accessories).");
+                // Hoặc có thể thiết lập mặc định cho IsLaptop hoặc làm gì đó khác tùy vào logic ứng dụng của bạn
+            }
             if (product.IsLaptop)
             {
                 _context.FillForeignKeys((Product)product);
                 _context.FillForeignKeys(product.Laptop);
+
             }
             else
             {
-                ModelState.Remove(nameof(product.Laptop.ScreenResolution));
-                ModelState.Remove(nameof(product.Laptop.ScreenAspectRatio));
+                ModelState.Remove("Laptop.ScreenResolution");
+                ModelState.Remove("Laptop.CPUSeriesID");
+                ModelState.Remove("Laptop.GPUSeriesID");
+                ModelState.Remove("Laptop.ScreenSize");
+                ModelState.Remove("Laptop.StorageType");
+                ModelState.Remove("Laptop.StorageSize");
+                ModelState.Remove("Laptop.RefreshRate");
+                ModelState.Remove("Laptop.RAM");
             }
+            var brandSelectList = _context.Brands.Select(b => new SelectListItem
+            {
+                Value = b.ID.ToString(),
+                Text = b.Name
+            }).ToList();
+            ViewData["Brands"] = brandSelectList;
+            /*ViewData["Brands"] = _context.Brands.ToList();*/
+            var cpuSelectList = _context.LaptopCPUSeries.Select(cpu => new SelectListItem
+            {
+                Value = cpu.ID.ToString(),
+                Text = cpu.Name
+            }).ToList();
+            ViewData["Cpus"] = cpuSelectList;
 
+            var gpuSelectList = _context.LaptopGPUSeries.Select(gpu => new SelectListItem
+            {
+                Value = gpu.ID.ToString(),
+                Text = gpu.Name
+            }).ToList();
+            ViewData["Gpus"] = gpuSelectList;
             if (ModelState.IsValid)
             {
                 var productImages = new List<ProductImage>();
+
+                if (image1 == null && image2 == null && image3 == null)
+                {
+
+                    ModelState.AddModelError("Images", "Must contain at least 1 picture");
+                    return View(product);
+                }
 
                 // Handle image1
                 var image1Result = await SaveImageAsync(image1, 0);
@@ -308,7 +349,7 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
 
                 if (product.IsLaptop)
                 {
-                    product.Laptop!.ScreenResolution = "16:9";
+                    product.Laptop!.ScreenAspectRatio = "16:9";
                 }
 
                 product.Laptop = product.IsLaptop ? product.Laptop : null;
@@ -327,9 +368,10 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
                         Console.WriteLine("Invalid: " + error.ErrorMessage);
                     }
                 }
+                
+                return View(product); // Ensure you return the view with the product model if the model state is invalid
             }
 
-            return View(product); // Ensure you return the view with the product model if the model state is invalid
         }
 
 

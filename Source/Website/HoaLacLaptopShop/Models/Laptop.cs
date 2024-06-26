@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using HoaLacLaptopShop.Attribute;
+using HoaLacLaptopShop.Attributes;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -11,35 +13,29 @@ public partial class Laptop
 {
     public int ProductID { get; set; }
     public virtual Product? Product { get; set; } = null!;
-    public int? CPUSeriesID { get; set; }
+    [Range(29,35,ErrorMessage = "Invalid CPU")]
+    public int CPUSeriesID { get; set; }
     public virtual LaptopCPUSeries? CPUSeries { get; set; } = null!;
-    public int? GPUSeriesID { get; set; }
+    [Range(24, 27, ErrorMessage = "Invalid GPU")]
+    public int GPUSeriesID { get; set; }
     public virtual LaptopGPUSeries? GPUSeries { get; set; }
 
     [Range(0, float.MaxValue), DisplayName("Screen Size")]
-    public float? ScreenSize { get; set; }
-    [
-        /*Required(AllowEmptyStrings = false),*/
-        /*MaxLength(20),
-        RegularExpression("^[ -~]+$", ErrorMessage = "Screen resolution can only be an ASCII string."),*/
-        DisplayName("Screen size")
-    ]
-    public string? ScreenResolution { get; set; }
-    [
-        /*Required(AllowEmptyStrings = false),*/
-        /*MaxLength(20),
-        RegularExpression("^[ -~]+$", ErrorMessage = "Screen resolution can only be an ASCII string."),*/
-        DisplayName("Screen Resolution")
-    ]
+    [ValidScreenSize]
+    public float ScreenSize { get; set; }
+    [DisplayName("Screen Resolution")]
+    [ValidScreenResolution]
+    public string ScreenResolution { get; set; }
+    [DisplayName("Screen Aspect Ratio")]
     public string? ScreenAspectRatio { get; set; }
 
 
     public LaptopStorageType StorageType { get; set; }
-    [Range(0, int.MaxValue)]
+    [ValidStorageSize]
     public int StorageSize { get; set; }
-    [Range(0, int.MaxValue)]
+    [ValidRefreshRate]
     public int RefreshRate { get; set; }
-    [Range(0, int.MaxValue)]
+    [ValidRam]
     public int RAM { get; set; }
 }
 
