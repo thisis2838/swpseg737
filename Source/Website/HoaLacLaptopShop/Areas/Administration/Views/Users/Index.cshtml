@@ -13,7 +13,7 @@
     <form class="col-sm-6">
         <div class="search_box">
             <label class="control-label">Search</label>
-            <input class="form-control" style="width: 50%" />
+            <input class="form-control" style="width: 50%" name="searchTerm" value="@Model.SearchTerm"/>
         </div>
     </form>
 </div>
@@ -76,7 +76,7 @@
         @for (int i = 1; i <= Math.Ceiling(Model.TotalCount / 12f); i++)
         {
             <li class="page-item @(i == Model.PageIndex ? "active" : "")">
-                <a class="page-link" asp-action="Index" asp-controller="Users" asp-route-page="@i">@i</a>
+                <a class="page-link" href="@Url.Action("Index", new { page = i, searchTerm = Model.SearchTerm })">@i</a>
             </li>
         }
     </ul>

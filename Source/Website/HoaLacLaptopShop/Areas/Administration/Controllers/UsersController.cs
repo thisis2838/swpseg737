@@ -26,20 +26,25 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
             _context = context;
         }
 
-        private IQueryable<User> GetUsers(int page)
+        private IQueryable<User> GetUsers(int page, string searchTerm)
         {
-            return _context.Users
-                .Skip((page - 1) * 12).Take(12);
+            var query = _context.Users.AsQueryable();
+            if (!string.IsNullOrEmpty(searchTerm))
+            {
+                query = query.Where(u => u.Name.Contains(searchTerm) || u.Email.Contains(searchTerm) || u.PhoneNumber.Contains(searchTerm));
+            }
+            return query.Skip((page - 1) * 12).Take(12);
         }
 
-        public ActionResult Index(int? page)
+        public ActionResult Index(int? page, string searchTerm)
         {
-            var users = GetUsers(page != null ? page.Value : 1);
+            var users = GetUsers(page != null ? page.Value : 1, searchTerm);
             return View(new UserIndexViewModel
             {
                 Users = users.ToList(),
                 TotalCount = _context.Users.Count(),
-                PageIndex = page != null ? Convert.ToInt32(page) : 1
+                PageIndex = page != null ? Convert.ToInt32(page) : 1,
+                SearchTerm = searchTerm
             });
         }
 
