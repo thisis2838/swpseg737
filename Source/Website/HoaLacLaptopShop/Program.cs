@@ -1,6 +1,7 @@
 using HoaLacLaptopShop.Helpers;
 using HoaLacLaptopShop.Middlewares;
 using HoaLacLaptopShop.Models;
+using HoaLacLaptopShop.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -50,7 +51,7 @@ internal class Program
             {
                 options.ViewLocationExpanders.Add(new CustomViewLocationExpander());
             });
-
+        builder.Services.AddSingleton<IVnPayService, VnPayService>();
         var app = builder.Build();
 
         // Configure the HTTP request pipeline.

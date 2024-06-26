@@ -4,7 +4,12 @@
     ViewData["Title"] = "Cart";
 }
 <link href="~/css/StyleSheet.css" rel="stylesheet" />
-
+<style>
+    .blurred-row {
+        filter: blur(2px);
+        opacity: 0.5;
+    }
+</style>
 <section id="cart_items">
     <div class="container">
         <div class="breadcrumbs">
@@ -28,7 +33,8 @@
                 <tbody>
                     @foreach (var item in Model)
                     {
-                        <tr class="row" style="align-items:center">
+                        var rowClass = item.Quantity == 0 ? "blurred-row" : "";
+                        <tr class="row @rowClass" style="align-items:center">
                             <td class="cart_product">
                                 <a href="#"><img src="@item.ThumbnailLink" alt="@item.ProductName" class="img-fluid" style="width: 120px; height: 120px;"></a>
                             </td>
