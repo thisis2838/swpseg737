@@ -29,12 +29,14 @@
                             <span asp-validation-for="Name" class="text-danger"></span>
                         </div>
                         <div class="form-group">
-                            <label class="control-label">Old password (leave empty if you don't want to change)</label>
-                            <input class="form-control" type="password" name="oldpass" value="" />
+                            <label asp-for="CurrentPassword" class="control-label"></label>
+                            <input asp-for="CurrentPassword" class="form-control" />
+                            <span asp-validation-for="CurrentPassword" class="text-danger"></span>
                         </div>
                         <div class="form-group">
-                            <label class="control-label">New password (leave empty if you don't want to change)</label>
-                            <input class="form-control" type="password" name="newpass" value="" />
+                            <label asp-for="NewPassword" class="control-label"></label> (leave empty if you don't want to change)
+                            <input asp-for="NewPassword" class="form-control"/>
+                            <span asp-validation-for="NewPassword" class="text-danger"></span>
                         </div>
                         <div class="form-group form-check">
                             <label asp-for="Gender" class="control-label"></label>

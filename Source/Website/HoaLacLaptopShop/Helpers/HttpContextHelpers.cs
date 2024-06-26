@@ -13,7 +13,7 @@ namespace HoaLacLaptopShop.Helpers
             var authProperties = new AuthenticationProperties
             {
                 IsPersistent = rememberMe,
-                ExpiresUtc = rememberMe ? DateTime.UtcNow.AddDays(7) : (DateTime?)null
+                ExpiresUtc = rememberMe ? DateTime.UtcNow.AddMinutes(30) : (DateTime?)null
             };
             await context.SignInAsync
             (

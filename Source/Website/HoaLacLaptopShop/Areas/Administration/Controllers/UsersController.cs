@@ -9,9 +9,9 @@ using HoaLacLaptopShop.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using HoaLacLaptopShop.Helpers;
-using HoaLacLaptopShop.Areas.Public.Controllers;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using HoaLacLaptopShop.Areas.Shared.ViewModels;
+using HoaLacLaptopShop.Areas.Administration.ViewModels;
 
 namespace HoaLacLaptopShop.Areas.Administration.Controllers
 {
@@ -26,9 +26,21 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
             _context = context;
         }
 
-        public async Task<IActionResult> Index()
+        private IQueryable<User> GetUsers(int page)
         {
-            return View(await _context.Users.ToListAsync());
+            return _context.Users
+                .Skip((page - 1) * 12).Take(12);
+        }
+
+        public ActionResult Index(int? page)
+        {
+            var users = GetUsers(page != null ? page.Value : 1);
+            return View(new UserIndexViewModel
+            {
+                Users = users.ToList(),
+                TotalCount = _context.Users.Count(),
+                PageIndex = page != null ? Convert.ToInt32(page) : 1
+            });
         }
 
         public async Task<IActionResult> Details(int? id)

@@ -1,30 +1,39 @@
-﻿@model IEnumerable<HoaLacLaptopShop.Models.User>
+﻿@using HoaLacLaptopShop.Areas.Administration.ViewModels
+@model UserIndexViewModel
 @{
     ViewData["Title"] = "Index";
 }
 
-<h1>Account List</h1>
 
-<p>
-    <a asp-action="Create">Create New Account</a>
-</p>
+<div class="row ">
+    <div class="col-sm-6">
+        <h1>Account List</h1>
+        <p><a asp-action="Create">Create New Account</a></p>
+    </div>
+    <form class="col-sm-6">
+        <div class="search_box">
+            <label class="control-label">Search</label>
+            <input class="form-control" style="width: 50%" />
+        </div>
+    </form>
+</div>
 <table class="table">
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.Name)
+                Name
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Email)
+                Email
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Gender)
+                Gender
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.PhoneNumber)
+                Phone Number
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.IsDeleted)
+                Status
             </th>
             <th>
                 Role
@@ -32,7 +41,7 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (var item in Model)
+        @foreach (var item in Model.Users)
         {
             <tr>
                 <td>
@@ -62,3 +71,13 @@
         }
     </tbody>
 </table>
+<nav aria-label="Page navigation example">
+    <ul class="pagination">
+        @for (int i = 1; i <= Math.Ceiling(Model.TotalCount / 12f); i++)
+        {
+            <li class="page-item @(i == Model.PageIndex ? "active" : "")">
+                <a class="page-link" asp-action="Index" asp-controller="Users" asp-route-page="@i">@i</a>
+            </li>
+        }
+    </ul>
+</nav>
