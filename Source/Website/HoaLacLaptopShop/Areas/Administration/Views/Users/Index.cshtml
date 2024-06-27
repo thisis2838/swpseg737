@@ -13,7 +13,7 @@
     <form class="col-sm-6">
         <div class="search_box">
             <label class="control-label">Search</label>
-            <input class="form-control" style="width: 50%" name="searchTerm" value="@Model.SearchTerm"/>
+            <input class="form-control" style="width: 50%" name="searchTerm" value="@(Model.SearchTerm?? "")" />
         </div>
     </form>
 </div>
