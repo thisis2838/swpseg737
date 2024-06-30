@@ -6,19 +6,11 @@
 }
 
 <h1>News Posts</h1>
-
-<div>
-    <div style="display: flex; align-content: center">
-        <form asp-action="Index" asp-controller="NewsPosts" method="get">
-            <div class="search_box" >
-                <input asp-for="SearchTerm" class="form-control" style="width: 250px" />
-            </div>
-        </form>
-    </div>
-</div>
-
 <hr/>
 
+<h2>Search & Filters</h2>
+<partial name="~/Areas/Shared/Views/NewsPosts/_SearchFilter.cshtml" model="@Model"></partial>
+<hr />
 
 @{
     if (Model.Posts.Count > 0)

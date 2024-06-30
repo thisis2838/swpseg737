@@ -6,12 +6,11 @@
 }
 
 <h1>News Posts</h1>
-<div>
-    <a class="btn btn-primary" asp-action="Create">Create New</a>
-    <form asp-action="Index" asp-controller="NewsPosts" method="get" class="fa-pull-right">
-        <input asp-for="SearchTerm" class="form-control fa-search" style="width: 250px" />
-    </form>
-</div>
+<a class="btn btn-primary" asp-action="Create">Create New</a>
+<hr />
+
+<h2>Search & Filters</h2>
+<partial name="~/Areas/Shared/Views/NewsPosts/_SearchFilter.cshtml" model="@Model"></partial>
 <hr />
 
 <table class="table">

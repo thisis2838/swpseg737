@@ -2,6 +2,7 @@
 using Ganss.Xss;
 using HoaLacLaptopShop.Areas.Shared.ViewModels;
 using HoaLacLaptopShop.Data;
+using HoaLacLaptopShop.Filters;
 using HoaLacLaptopShop.Helpers;
 using HoaLacLaptopShop.Models;
 using HoaLacLaptopShop.Services;
@@ -63,6 +64,7 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
             var document = new HtmlDocument(); document.LoadHtml(post.Content);
 
             var images = document.DocumentNode.SelectNodes(".//img");
+            bool imagesBad = false;
             if (images != null)
             {
                 foreach (var image in images)
@@ -70,64 +72,74 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
                     var source = image.GetAttributeValue("src", null);
                     if (source is null)
                     {
-                        this.AddError("An image was removed as it had no source.");
-                        goto erase;
-                    }
-
-                    var tempID = image.GetAttributeValue("temp_res_id", null);
-                    if (tempID != null)
-                    {
-                        image.Attributes.Remove("temp_res_id");
-                        var resource = _temp.Get(tempID);
-                        if (_temp.Verify(tempID))
-                        {
-                            var newPath = _temp.Move(tempID, mediaPath);
-                            image.SetAttributeValue("src", newPath.Replace('\\', '/'));
-                            continue;
-                        }
-                        this.AddError("An image was removed as it used an uploaded image which had been deleted.");
-                        goto erase;
-                    }
-                    else if (Uri.TryCreate(source, UriKind.RelativeOrAbsolute, out var uri))
-                    {
-                        if (!uri.IsAbsoluteUri)
-                        {
-                            var file = Local.GetRelativePath(uri.ToString());
-                            if (!Local.FileExists(file))
-                            {
-                                this.AddError("An image was removed as it had used a local file which had been deleted.");
-                                goto erase;
-                            }
-                            oldMedia.RemoveAll(x => x.Equals(file, StringComparison.InvariantCultureIgnoreCase));
-                            continue;
-                        }
-                        else
-                        {
-                            this.AddWarning("An image is taking its source from somewhere external. Consider importing manually.");
-                            continue;
-                        }
+                        this.AddWarning("An image was removed as it had no source. Please reupload that image.");
                     }
                     else
                     {
-                        this.AddError("An image was removed as it had an invalid source.");
+                        var tempID = image.GetAttributeValue("temp_res_id", null);
+                        if (tempID != null)
+                        {
+                            image.Attributes.Remove("temp_res_id");
+                            var resource = _temp.Get(tempID);
+                            if (_temp.Verify(tempID))
+                            {
+                                var newPath = _temp.Move(tempID, mediaPath);
+                                image.SetAttributeValue("src", newPath.Replace('\\', '/'));
+                                continue;
+                            }
+                            this.AddError("An image was removed as it used an uploaded image which was not found. Please reupload that image.");
+                        }
+                        else if (Uri.TryCreate(source, UriKind.RelativeOrAbsolute, out var uri))
+                        {
+                            if (!uri.IsAbsoluteUri)
+                            {
+                                var file = Local.GetRelativePath(uri.ToString());
+                                if (!Local.FileExists(file))
+                                {
+                                    this.AddError("An image was removed as it used a local file which was not found. Please reupload that image.");
+                                }
+                                else
+                                {
+                                    oldMedia.RemoveAll(x => x.Equals(file, StringComparison.InvariantCultureIgnoreCase));
+                                    continue;
+                                }
+                            }
+                            else
+                            {
+                                this.AddError("Images from external sources are not allowed. Please upload them manually.");
+                            }
+                        }
+                        else
+                        {
+                            this.AddWarning("An image was removed as it had an invalid source. Please reupload that image.");
+                        }
                     }
-
-                    erase:
+                    
+                    imagesBad = true;
                     image.Remove();
                     continue;
                 }
             }
             post.Content = document.DocumentNode.OuterHtml;
+            if (imagesBad == true) return false;
+
             post.ImageCount = images?.Count ?? 0;
             if (post.ImageCount > 20)
             {
                 this.AddError("A news post must not have more than 20 images");
                 return false;
             }
-            post.WordCount = document.DocumentNode.SelectNodes(".//text()")?
-                .SelectMany(x => Regex.Split(WebUtility.HtmlDecode(x.InnerText), @"[\s\W]+"))
-                .Count()
-                ?? 0;
+
+            var text = document.DocumentNode.SelectNodes(".//text()")?.
+                Select(x => WebUtility.HtmlDecode(x.InnerText)) 
+                ?? Enumerable.Empty<string>();
+            var charCount = text.Sum(x => x.Length);
+            if (charCount > 50000)
+            {
+                this.AddError("A news post cannot have more than 50000 characters");
+                return false;
+            }
+            post.WordCount = text.SelectMany(x => Regex.Split(x, @"[\s\W]+")).Count();
             if (post.WordCount <= 10)
             {
                 this.AddError("A news post must have more than 10 words");
@@ -146,7 +158,7 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
             Local.DirectoryRemove(GetImagesFolder(post));
         }
 
-        [HttpPost, RequestFormLimits(ValueLengthLimit = 50 * 1000 * 1000)]
+        [HttpPost, RequestFormLimits(ValueLengthLimit = 2 * 1000 * 1000)]
         public IActionResult UploadImage(IFormFile file)
         {
             JsonResult bad(string issue)
@@ -210,14 +222,11 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [RequestFormLimits(ValueLengthLimit = 100*1000*1000)]
+        [RequestFormLimits(ValueLengthLimit = 2 * 1000 * 1000)]
+        [ToastedModelErrors, ModelStateInclude(nameof(NewsPostDetailsViewModel.Title))]
         public async Task<IActionResult> Create([FromForm][Bind("ID,Title,Content")] NewsPostDetailsViewModel newsPost)
         {
-            var fields = new string[]
-            {
-                nameof(NewsPostDetailsViewModel.Title),
-            };
-            if (fields.All(x => !ModelState.TryGetValue(x, out var valid) || valid.ValidationState == ModelValidationState.Valid))
+            if (ModelState.IsValid)
             {
                 newsPost.Time = DateTime.Now;
                 newsPost.AuthorId = HttpContext.GetCurrentUser()!.ID;
@@ -225,7 +234,7 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
                 if (!SaveContent(newsPost))
                 {
                     return View(newsPost);
-                }
+                } 
 
                 Context.Add(newsPost);
                 await Context.SaveChangesAsync();
@@ -260,6 +269,7 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [RequestFormLimits(ValueLengthLimit = 100 * 1000 * 1000)]
+        [ToastedModelErrors, ModelStateInclude(nameof(NewsPostDetailsViewModel.Title))]
         public async Task<IActionResult> Edit(int? id, [FromForm][Bind("ID,Title,Content")] NewsPostDetailsViewModel newsPost)
         {
             if (id != newsPost.ID) return NotFound();
@@ -271,11 +281,7 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
                 return Unauthorized();
             }
 
-            var fields = new string[]
-            {
-                nameof(NewsPostDetailsViewModel.Title),
-            };
-            if (fields.All(x => !ModelState.TryGetValue(x, out var valid) || valid.ValidationState == ModelValidationState.Valid))
+            if (ModelState.IsValid)
             {
                 try
                 {

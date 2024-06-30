@@ -18,6 +18,7 @@ using HoaLacLaptopShop.Areas.Shared.ViewModels;
 using HoaLacLaptopShop.Areas.Shared.Controllers;
 using HoaLacLaptopShop.Data;
 using HoaLacLaptopShop.Services;
+using HoaLacLaptopShop.Filters;
 
 namespace HoaLacLaptopShop.Areas.Public.Controllers
 {
@@ -57,22 +58,67 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
                 : Local.FileReadAll(contentPath);
         }
 
+        [ToastedModelErrors]
         public async Task<IActionResult> Index(NewsPostIndexArgs? args = null)
         {
             var news = Context.NewsPosts.Include(n => n.Author).OrderByDescending(x => x.Time).AsQueryable();
-            if (!string.IsNullOrWhiteSpace(args?.SearchTerm))
+            IEnumerable<NewsPost> newsConv = null!;
+
+            begin:;
+            if (ModelState.IsValid && args != null)
             {
-                var terms = args.SearchTerm;
-                var titleMatch = news.Where(x => x.Title.Contains(terms));
-                /* TODO var descMatch = news.Where(x => !x.Title.Contains(terms) && x.Content.Contains(terms));
-                news = titleMatch.Concat(descMatch);*/
-                news = titleMatch;
+                if (!string.IsNullOrWhiteSpace(args.SearchTerm))
+                {
+                    var terms = args.SearchTerm;
+                    news = news.Where(x => x.Title.Contains(terms));
+                }
+                if (!string.IsNullOrWhiteSpace(args.PostedBy))
+                {
+                    news = news.Where(x => x.Author!.Name.ToLower().Contains(args.PostedBy.ToLower()));
+                }
+
+                newsConv = await news.ToListAsync();
+
+                if (args.PostedBefore.HasValue && args.PostedAfter.HasValue)
+                {
+                    if (args.PostedBefore.Value < args.PostedAfter.Value)
+                    {
+                        ModelState.AddModelError
+                        (
+                            nameof(NewsPostIndexArgs.PostedBefore),
+                            "'Posted before' date must not be before 'Posted after' date."
+                        );
+                        goto begin;
+                    }
+                }
+                if (args.PostedBefore.HasValue)
+                {
+                    newsConv = newsConv.Where(x => x.Time.Date.Ticks <= args.PostedBefore.Value.Ticks);
+                }
+                if (args.PostedAfter.HasValue)
+                {
+                    if (DateTime.Now < args.PostedAfter.Value)
+                    {
+                        this.AddWarning("Posted after date was put into the future! Resetting it to be today.");
+                        args.PostedAfter = DateTime.Now;
+                    }
+                    newsConv = newsConv.Where(x => x.Time.Date.Ticks >= args.PostedAfter.Value.Ticks);
+                }
+
+                if (!args.ShowLong && !args.ShowShort && !args.ShowMedium)
+                {
+                    this.AddWarning("Reset length showing preferences as all of them were disabled.");
+                    args.ShowLong = args.ShowShort = args.ShowMedium = true;
+                }
+
+                if (!args.ShowShort) newsConv = newsConv.Where(x => x.Length != NewsPostLength.Short);
+                if (!args.ShowMedium) newsConv = newsConv.Where(x => x.Length != NewsPostLength.Medium);
+                if (!args.ShowLong) newsConv = newsConv.Where(x => x.Length != NewsPostLength.Long);
             }
-            return View(new NewsPostIndexViewModel()
-            {
-                Posts = await news.ToListAsync(),
-                SearchTerm = args?.SearchTerm ?? null!,
-            });
+
+            var vm = new NewsPostIndexViewModel() { Posts = newsConv?.ToList() ?? await news.ToListAsync() };
+            if (args != null) vm.FillFromOther(args);
+            return View(vm);
         }
 
         public async Task<IActionResult> Details(int? id)

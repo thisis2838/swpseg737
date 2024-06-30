@@ -56,7 +56,7 @@
 {
     foreach (var message in (ICollection<string>)messages!)
     {
-        <script>showError('@message')</script>
+        <script>showMessage('@message')</script>
     }
 }
 @if (TempData.TryGetValue("Warning", out var warnings))

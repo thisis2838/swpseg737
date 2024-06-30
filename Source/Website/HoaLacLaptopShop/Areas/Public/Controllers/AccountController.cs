@@ -57,7 +57,7 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
             }
             await HttpContext.SignOut();
             await HttpContext.LoginAsUser(user);//.ContinueWith(x => _temp.RemoveAll());
-            this.AddMessage($"Loggin in as {user.Name}");
+            this.AddMessage($"Logged in as {user.Name}");
             return RedirectToAction("Index", "Home");
         }
 
