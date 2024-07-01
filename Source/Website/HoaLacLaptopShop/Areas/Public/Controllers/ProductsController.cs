@@ -74,14 +74,14 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
 
             return View(new ProductIndexViewModel
             {
-                Products = list.Skip(page == null ? 0 : page.Value-1).Take(10).ToList(),
+                Total = list.Count,
+                Products = list.Skip(page == null ? 0 : (page.Value-1)*12).Take(12).ToList(),
                 MinPossiblePrice = min,
                 MaxPossiblePrice = max,
                 Brands = brands,
                 CPUs = cpus,
                 GPUs = gpus,
                 PageIndex = page == null ? 1 : page.Value,
-                Total = list.Count,
                 CurrentQuery = args
             });
         }

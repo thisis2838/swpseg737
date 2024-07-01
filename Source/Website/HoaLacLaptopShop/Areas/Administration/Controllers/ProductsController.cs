@@ -313,9 +313,15 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
                 Text = gpu.Name
             }).ToList();
             ViewData["Gpus"] = gpuSelectList;
+            if (!_context.Brands.Any(b => b.ID == product.BrandId))
+            {
+                ModelState.AddModelError("BrandId", "Invalid brand");
+                return View(product);
+            }
             if (ModelState.IsValid)
             {
                 var productImages = new List<ProductImage>();
+                
 
                 if (image1 == null && image2 == null && image3 == null)
                 {
@@ -357,7 +363,9 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
                 await _context.Products.AddAsync(product);
                 await _context.SaveChangesAsync();
 
-                return RedirectToAction(nameof(Index));
+                TempData["SuccessMessage"] = "Product added successfully.";
+
+                return RedirectToAction(nameof(Create));
             }
             else
             {

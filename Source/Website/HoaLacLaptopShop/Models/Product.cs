@@ -9,14 +9,14 @@ namespace HoaLacLaptopShop.Models;
 public partial class Product
 {
     public int ID { get; set; }
-    [Required(), Range(87,118, ErrorMessage ="Invalid brand")]
+    [Required()]
     public int BrandId { get; set; }
     public virtual Brand? Brand { get; set; } = null!;
 
 
-    [Required(AllowEmptyStrings = false), MaxLength(256)]
+    [Required(AllowEmptyStrings = false), MinLength(5), MaxLength(256)]
     public string Name { get; set; } = null!;
-    [Required(), Range(1000, int.MaxValue, ErrorMessage = "Must higher than 1,000")]
+    [Required(), Range(1000, 100000000, ErrorMessage = "Must higher than 1,000")]
     public int Price { get; set; }
     [Required(), Range(1, 5000, ErrorMessage = "Value must between 1 to 5,000")]
     public int Stock { get; set; }
