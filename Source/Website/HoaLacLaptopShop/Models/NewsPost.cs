@@ -8,8 +8,8 @@ namespace HoaLacLaptopShop.Models;
 public partial class NewsPost
 {
     public int ID { get; set; }
-    public int? AuthorId { get; set; }
-    public virtual User? Author { get; set; }
+    public int AuthorId { get; set; }
+    public virtual User Author { get; set; } = null!;
     public string Token { get; set; } = null!;
 
     public DateTime Time { get; set; }

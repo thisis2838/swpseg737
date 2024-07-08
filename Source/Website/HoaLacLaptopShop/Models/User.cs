@@ -31,8 +31,8 @@ public partial class User
     public bool IsMarketing { get; set; }
     [DisplayName("Is Sales Staff?")]
     public bool IsSales { get; set; }
-    [DisplayName("Is Deleted?")]
-    public bool IsDeleted { get; set; }
+    [DisplayName("Is Disabled?")]
+    public bool IsDisabled { get; set; }
 
     public virtual ICollection<NewsPost> NewsPosts { get; set; } = new List<NewsPost>();
     public virtual ICollection<Order> Orders { get; set; } = new List<Order>();

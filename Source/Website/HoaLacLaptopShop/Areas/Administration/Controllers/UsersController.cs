@@ -174,7 +174,7 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
             var user = await _context.Users.FindAsync(id);
             if (user != null)
             {
-                user.IsDeleted = true;
+                user.IsDisabled = true;
             }
             else
             {

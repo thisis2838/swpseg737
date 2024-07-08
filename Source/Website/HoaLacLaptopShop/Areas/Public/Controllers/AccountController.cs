@@ -50,7 +50,7 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
                 this.AddError("Incorrect password");
                 return View("Login", model);
             }
-            if (user.IsDeleted)
+            if (user.IsDisabled)
             {
                 this.AddError("This account has been deleted");
                 return View("Login", model);

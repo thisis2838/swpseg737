@@ -162,8 +162,9 @@ public partial class HoaLacLaptopShopContext : DbContext
             entity.Property(e => e.Price).HasColumnName("price");
             entity.Property(e => e.Stock).HasColumnName("stock");
             entity.Property(e => e.Description).HasMaxLength(LONG_TEXT_LENGTH).HasColumnName("description");
-            entity.Property(e => e.IsDeleted).HasColumnName("isDeleted");
+            entity.Property(e => e.IsDisabled).HasColumnName("isDisabled");
             entity.Property(e => e.IsLaptop).HasColumnName("isLaptop");
+            entity.Property(e => e.RowVersion).HasColumnName("rowVersion").IsRowVersion();
 
             entity.HasOne(d => d.Brand).WithMany(p => p.Products).HasForeignKey(d => d.BrandId);
         });
@@ -209,7 +210,7 @@ public partial class HoaLacLaptopShopContext : DbContext
             entity.Property(e => e.IsSales).HasColumnName("isSales");
             entity.Property(e => e.IsMarketing).HasColumnName("isMarketing");
             entity.Property(e => e.IsAdmin).HasColumnName("isAdmin");
-            entity.Property(e => e.IsDeleted).HasColumnName("isDeleted");
+            entity.Property(e => e.IsDisabled).HasColumnName("isDisabled");
         });
 
         modelBuilder.Entity<Voucher>(entity =>
@@ -224,7 +225,7 @@ public partial class HoaLacLaptopShopContext : DbContext
             entity.Property(e => e.DiscountValue).HasColumnType("money").HasColumnName("discountValue");
             entity.Property(e => e.IsPercentageDiscount).HasColumnName("isPercentageDiscount");
             entity.Property(e => e.ExpiryDate).HasColumnName("expiryDate");
-            entity.Property(e => e.IsDeleted).HasColumnName("isDeleted");
+            entity.Property(e => e.IsDisabled).HasColumnName("isDisabled");
 
             entity.HasOne(d => d.Issuer).WithMany(p => p.Vouchers).HasForeignKey(d => d.IssuerId);
         });

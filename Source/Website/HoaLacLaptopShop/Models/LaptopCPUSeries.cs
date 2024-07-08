@@ -8,7 +8,7 @@ public partial class LaptopCPUSeries
 {
     public int ID { get; set; }
 
-    [Required(AllowEmptyStrings = false), MaxLength(256)]
+    [Required, MaxLength(256)]
     public string Name { get; set; } = null!;
     public int ManufacturerID { get; set; }
     public virtual Brand Manufacturer { get; set; } = null!;

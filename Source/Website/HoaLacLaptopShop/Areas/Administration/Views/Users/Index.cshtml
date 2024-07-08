@@ -24,7 +24,7 @@
                 @Html.DisplayNameFor(model => model.PhoneNumber)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.IsDeleted)
+                @Html.DisplayNameFor(model => model.IsDisabled)
             </th>
             <th>
                 Role
@@ -48,7 +48,7 @@
                     @Html.DisplayFor(modelItem => item.PhoneNumber)
                 </td>
                 <td>
-                    @(item.IsDeleted ? "Disabled" : "Activate")
+                    @(item.IsDisabled ? "Disabled" : "Activate")
                 </td>
                 <td>
                     <span>@(item.IsAdmin ? "Admin " : "")</span>

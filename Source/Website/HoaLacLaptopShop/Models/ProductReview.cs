@@ -14,7 +14,7 @@ public partial class ProductReview
 
     [Range(0, 5)]
     public int Rating { get; set; }
-    [Required(AllowEmptyStrings = false), MaxLength(1024)]
+    [Required, MaxLength(1024)]
     public string Content { get; set; } = null!;
     public DateTime ReviewTime { get; set; }
 }

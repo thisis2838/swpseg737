@@ -9,7 +9,7 @@ public partial class Brand
 {
     public int ID { get; set; }
 
-    [Required(AllowEmptyStrings = false), MaxLength(256)]
+    [Required, MaxLength(256)]
     public string Name { get; set; } = null!;
     [MaxLength(1024)]
     public string? Description { get; set; }
