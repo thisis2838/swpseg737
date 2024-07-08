@@ -223,7 +223,7 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [RequestFormLimits(ValueLengthLimit = 2 * 1000 * 1000)]
-        [ToastedModelErrors, ModelStateInclude(nameof(NewsPostDetailsViewModel.Title))]
+        [ModelStateInclude(nameof(NewsPostDetailsViewModel.Title))]
         public async Task<IActionResult> Create([FromForm][Bind("ID,Title,Content")] NewsPostDetailsViewModel newsPost)
         {
             if (ModelState.IsValid)
@@ -269,7 +269,7 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [RequestFormLimits(ValueLengthLimit = 100 * 1000 * 1000)]
-        [ToastedModelErrors, ModelStateInclude(nameof(NewsPostDetailsViewModel.Title))]
+        [ModelStateInclude(nameof(NewsPostDetailsViewModel.Title))]
         public async Task<IActionResult> Edit(int? id, [FromForm][Bind("ID,Title,Content")] NewsPostDetailsViewModel newsPost)
         {
             if (id != newsPost.ID) return NotFound();

@@ -1,5 +1,5 @@
 ﻿@using HoaLacLaptopShop.Areas.Shared.ViewModels
-@model NewsPostIndexViewModel
+@model NewsPostIndexArgs
 
 <form asp-action="Index" asp-controller="NewsPosts" method="get" id="search-form">
     <div class="row">
@@ -25,13 +25,13 @@
             <label>Show: </label><br />
             <div style="display: flex; flex-direction: row; justify-content: space-between">
                 <label class="form-check-label">
-                    <input class="form-check-input" asp-for="ShowShort" /> Short Posts
+                    @Html.CheckBoxFor(m => m.ShowShort) Short Posts
                 </label>
                 <label class="form-check-label">
-                    <input class="form-check-input" asp-for="ShowMedium" /> Medium Posts
+                    @Html.CheckBoxFor(m => m.ShowMedium) Medium Posts
                 </label>
                 <label class="form-check-label">
-                    <input class="form-check-input" asp-for="ShowLong" /> Long Posts
+                    @Html.CheckBoxFor(m => m.ShowLong) Long Posts
                 </label>
             </div>
         </div>
