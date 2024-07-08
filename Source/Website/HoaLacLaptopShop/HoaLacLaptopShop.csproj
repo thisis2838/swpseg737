@@ -33,6 +33,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="Views\Voucher\Create.cshtml" />
+    <None Include="Views\Voucher\Delete.cshtml" />
+    <None Include="Views\Voucher\Detail.cshtml" />
+    <None Include="Views\Voucher\Index.cshtml" />
+    <None Include="Views\Voucher\Update.cshtml" />
     <None Include="wwwroot\js\site.js" />
   </ItemGroup>
 

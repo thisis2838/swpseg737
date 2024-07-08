@@ -1,0 +1,68 @@
+﻿@model IEnumerable<HoaLacLaptopShop.Models.Voucher>
+@{
+    ViewData["Title"] = "Index";
+}
+<h2>Vouchers</h2>
+<form asp-action="Search" method="get">
+    <div class="form-group">
+        <input type="text" name="query" class="form-control" placeholder="Search by Code or Issuer ID" />
+    </div>
+    <button type="submit" class="btn btn-primary">Search</button>
+</form>
+<form asp-action="Index" method="get">
+    <div class="form-group">
+        <label for="filter">Filter</label>
+        <select id="filter" name="filter" class="form-control" onchange="this.form.submit()">
+            <option value="">All</option>
+            <!option value="Expired" @(ViewData["CurrentFilter"]?.ToString() == "Expired" ? "selected" : "")>Expired</!option>
+            <!option value="Available" @(ViewData["CurrentFilter"]?.ToString() == "Available" ? "selected" : "")>Available</!option>
+        </select>
+    </div>
+</form>
+
+<table class="table">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model =>model.First().Code)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.First().MinimumOrderPrice)
+                </th>
+                <th>
+                    <@Html.DisplayNameFor(model =>model.First().DiscountValue)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.First().IsPercentageDiscount)
+                </th>
+                <th>
+                    <@Html.DisplayNameFor(model => model.First().ExpiryDate)
+                </th>              
+                <th>
+                    @Html.DisplayNameFor(model => model.First().IssuerId)
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+    <tbody>
+        @foreach (var voucher in Model)
+        {
+            <tr>
+                <td>@voucher.Code</td>
+                <td>@voucher.MinimumOrderPrice</td>
+                <td>@voucher.DiscountValue</td>
+                <td>@voucher.IsPercentageDiscount</td>
+                <td>@voucher.ExpiryDate.ToShortDateString()</td>
+                <td>@voucher.IssuerId</td>               
+                <td>
+                    <a asp-action="Detail" asp-route-id="@voucher.ID">Details</a>
+                    <a href="@Url.Action("Update", new { id = voucher.ID })">Update</a> |
+                    <a href="@Url.Action("Delete", new { id = voucher.ID })">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<a href="@Url.Action("Create")" class="btn btn-primary">Create New Voucher</a>
+

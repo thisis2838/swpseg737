@@ -6,7 +6,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace HoaLacLaptopShop.Models;
 
-public partial class User : IdentityUser
+public partial class User
 {
     public int ID { get; set; }
     public string Name { get; set; } = null!;
