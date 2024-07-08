@@ -1,30 +1,39 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using NuGet.Packaging;
 using System.Security.Cryptography;
 using System.Text;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace HoaLacLaptopShop.Helpers
 {
+    public enum NotificationType
+    {
+        Message,
+        Warning,
+        Error
+    }
+
     public static class ControllerHelper
     {
-        public static void AddError(this Controller controller, params string[] error)
+        public static void AddNotifications(this ITempDataDictionary temp, NotificationType type, params string[] newNotifs)
         {
-            var errors = controller.TempData["Error"] as ICollection<string> ?? new List<string>();
-            errors.AddRange(error);
-            controller.TempData["Error"] = errors;
+            var notifs = temp[type.ToString()] as ICollection<string> ?? new List<string>();
+            notifs.AddRange(newNotifs);
+            temp[type.ToString()] = notifs;
         }
-        public static void AddWarning(this Controller controller, params string[] warning)
+        public static void AddError(this Controller controller, params string[] errors)
         {
-            var warnings = controller.TempData["Warning"] as ICollection<string> ?? new List<string>();
-            warnings.AddRange(warning);
-            controller.TempData["Warning"] = warnings;
+            controller.TempData.AddNotifications(NotificationType.Error, errors);
         }
-        public static void AddMessage(this Controller controller, params string[] message)
+        public static void AddWarning(this Controller controller, params string[] warnings)
         {
-            var messages = controller.TempData["Message"] as ICollection<string> ?? new List<string>();
-            messages.AddRange(message);
-            controller.TempData["Message"] = messages;
+            controller.TempData.AddNotifications(NotificationType.Warning, warnings);
+        }
+        public static void AddMessage(this Controller controller, params string[] messages)
+        {
+            controller.TempData.AddNotifications(NotificationType.Message, messages);
         }
 
         public static string ToMd5Hash(string password)
