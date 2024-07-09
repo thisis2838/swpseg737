@@ -33,7 +33,7 @@
                 Phone Number
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.IsDisabled)
+               Is Disabled
             </th>
             <th>
                 Role
@@ -57,7 +57,7 @@
                     @Html.DisplayFor(modelItem => item.PhoneNumber)
                 </td>
                 <td>
-                    @(item.IsDisabled ? "Disabled" : "Activate")
+                    @(item.IsDisabled ? "Disabled" : "Enabled")
                 </td>
                 <td>
                     <span>@(item.IsAdmin ? "Admin " : "")</span>

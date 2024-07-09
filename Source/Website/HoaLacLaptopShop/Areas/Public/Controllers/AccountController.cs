@@ -1,6 +1,7 @@
 ﻿using HoaLacLaptopShop.Areas.Public.ViewModels;
 using HoaLacLaptopShop.Areas.Shared.ViewModels;
 using HoaLacLaptopShop.Data;
+using HoaLacLaptopShop.Filters;
 using HoaLacLaptopShop.Helpers;
 using HoaLacLaptopShop.Models;
 using HoaLacLaptopShop.Services;
@@ -22,6 +23,7 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
         private readonly HoaLacLaptopShopContext _context;
         private readonly IEmailSenderService _emailSender;
         private readonly IViewRenderService _viewRenderService;
+        private readonly ITemporaryResourceService _temp;
 
         private const string CUR_VERIF_KEY = "AccountController:CurrentVerificationKey";
         private const string CUR_PASS_RESET_KEY = "AccountController:CurrentPasswordResetKey";
@@ -30,12 +32,14 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
         (
             HoaLacLaptopShopContext context,
             IEmailSenderService emailSender,
-            IViewRenderService viewRenderService
+            IViewRenderService viewRenderService,
+            ITemporaryResourceService temp
         )
         {
             _context = context;
             _emailSender = emailSender;
             _viewRenderService = viewRenderService;
+            _temp = temp;
         }
 
         [HttpGet]
@@ -45,7 +49,7 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
             ViewBag.ReturnUrl = returnUrl;
             if (HttpContext.IsLoggedIn())
             {
-                this.SetError("You are logged in already...");
+                this.AddError("You are logged in already...");
                 return RedirectToAction("Index", "Home");
             }
             return View();
@@ -58,7 +62,7 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
             ViewBag.returnUrl = returnUrl;
             if (HttpContext.IsLoggedIn())
             {
-                this.SetError("You are logged in already...");
+                this.AddError("You are logged in already...");
                 return RedirectToAction("Index", "Home");
             }
             var user = _context.Users.FirstOrDefault(x => x.Email == model.Email);
@@ -70,7 +74,7 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
 
             if (user.PassHash is null)
             {
-                this.SetError("You haven't set up a password. Please log in via a 3rd party instead.");
+                this.AddError("You haven't set up a password. Please log in via a 3rd party instead.");
                 return View(model);
             }
             var hash = new PasswordHasher<User>();
@@ -81,12 +85,12 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
             }
             if (user.IsDisabled)
             {
-                this.SetError("Your account has been deleted");
+                this.AddError("Your account has been deleted");
                 return View(model);
             }
             await HttpContext.SignOut();
             await HttpContext.LoginAsUser(user, model.RememberMe);
-            this.SetMessage($"Logged in as {user.Name}");
+            this.AddMessage($"Logged in as {user.Name}");
             if (Url.IsLocalUrl(returnUrl))
             {
                 return Redirect(returnUrl);
@@ -107,7 +111,7 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
             var user = _context.Users.FirstOrDefault(x => x.Email == resetEmail);
             if (user == null)
             {
-                this.SetError("There is no account created with this email.");
+                this.AddError("There is no account created with this email.");
                 return View();
             }
             int code = new Random().Next(100000, 1000000);
@@ -137,24 +141,24 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
         {
             if (HttpContext.IsLoggedIn())
             {
-                this.SetError("You are logged in already. Please log out to register.");
+                this.AddError("You are logged in already. Please log out to register.");
                 return RedirectToAction("Index", "Home");
             }
 
             if (!HttpContext.Session.Keys.Contains(CUR_PASS_RESET_KEY))
             {
-                this.SetError("You are not trying to reset your password.");
+                this.AddError("You are not trying to reset your password.");
                 return RedirectToAction("Index", "Home");
             }
             if (!newpass.Equals(confirmpass))
             {
-                this.SetError("Password not matching! Please try again");
+                this.AddError("Password not matching! Please try again");
                 return View();
             }
             var reset = HttpContext.Session.Get<ResetPasswordViewModel>(CUR_PASS_RESET_KEY);
             string newHash = new PasswordHasher<User>().HashPassword(null!, newpass);
             await _context.Users.ExecuteUpdateAsync(x => x.SetProperty(y => y.PassHash, newHash));
-            this.SetMessage("Reset password successfully");
+            this.AddMessage("Reset password successfully");
             return RedirectToAction("Login", "Account");
         }
 
@@ -187,34 +191,34 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
         {
             if (HttpContext.IsLoggedIn())
             {
-                this.SetError("You are logged in already. Please log out to register");
+                this.AddError("You are logged in already. Please log out to register");
                 return RedirectToAction("Index", "Home");
             }
 
             var verif = HttpContext.Session.Get<RegisterChallenge>(CUR_VERIF_KEY);
             if (verif is null)
             {
-                this.SetError("Your session has expired! Please register again.");
+                this.AddError("Your session has expired! Please register again.");
                 return RedirectToAction("Register");
             }
 
             if (verif.TriesLeft <= 0)
             {
-                this.SetError("You have entered the code wrong too many times! Please register again.");
+                this.AddError("You have entered the code wrong too many times! Please register again.");
                 HttpContext.Session.Remove(CUR_VERIF_KEY);
                 return RedirectToAction("Register");
             }
 
             if (!activationCode.Equals(verif.Code.ToString()))
             {
-                this.SetError($"Invalid activation code. You have {verif.TriesLeft} tries left.");
+                this.AddError($"Invalid activation code. You have {verif.TriesLeft} tries left.");
                 verif.TriesLeft--;
                 HttpContext.Session.Set(CUR_VERIF_KEY, verif);
                 return View();
             }
             if (DateTime.Now - verif.RegistrationTime > TimeSpan.FromMinutes(5))
             {
-                this.SetError("Your code has expired! Please enter the newly generated code.");
+                this.AddError("Your code has expired! Please enter the newly generated code.");
                 return RedirectToAction
                 (
                     "ChallengeEmail",
@@ -227,7 +231,7 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
             await _context.SaveChangesAsync();
             await HttpContext.SignOut();
             await HttpContext.LoginAsUser(user, false);
-            this.SetMessage("Registered and logged in as " + user.Name);
+            this.AddMessage("Registered and logged in as " + user.Name);
             return RedirectToAction("Index", "Home");
         }
         [HttpGet]
@@ -236,13 +240,13 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
         {
             if (HttpContext.IsLoggedIn())
             {
-                this.SetError("You are logged in already. Please log out to register.");
+                this.AddError("You are logged in already. Please log out to register.");
                 return RedirectToAction("Index", "Home");
             }
 
             if (!HttpContext.Session.Keys.Contains(CUR_VERIF_KEY))
             {
-                this.SetError("You don't have an ongoing registration!");
+                this.AddError("You don't have an ongoing registration!");
                 return RedirectToAction("Index", "Home");
             }
             return View(model: email);
@@ -267,6 +271,15 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
         }
 
         [HttpPost, ValidateAntiForgeryToken, Authorize]
+        [ModelStateInclude
+        (
+            nameof(AccountEditViewModel.ID),
+            nameof(AccountEditViewModel.Name),
+            nameof(AccountEditViewModel.Email),
+            nameof(AccountEditViewModel.CurrentPassword),
+            nameof(AccountEditViewModel.NewPassword),
+            nameof(AccountEditViewModel.PhoneNumber)
+        )]
         public async Task<ActionResult> Edit(AccountEditViewModel model, string gender)
         {
             if (model.ID != HttpContext.GetCurrentUserID())
@@ -275,16 +288,7 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
                 return Unauthorized();
             }
 
-            var fields = new string[]
-            {
-                nameof(AccountEditViewModel.ID),
-                nameof(AccountEditViewModel.Name),
-                nameof(AccountEditViewModel.Email),
-                nameof(AccountEditViewModel.CurrentPassword),
-                nameof(AccountEditViewModel.NewPassword),
-                nameof(AccountEditViewModel.PhoneNumber)
-            };
-            if (fields.All(x => !ModelState.TryGetValue(x, out var valid) || valid.ValidationState == ModelValidationState.Valid))
+            if (ModelState.IsValid)
             {
                 try
                 {

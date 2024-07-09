@@ -45,16 +45,16 @@
 </div>
 <div>
     <a class="btn btn-primary" "Edit" asp-route-id="@Model?.ID">Edit</a>
-    @if (Model?.IsDeleted == true)
+    @if (Model?.IsDisabled == true)
     {
-        <form id="enableForm" asp-action="Activate" hidden>
+        <form id="enableForm" asp-action="Reenable" hidden>
             <input type="hidden" asp-for="ID" />
         </form>
         <div class="btn btn-primary" onclick="confirmEnable()">Enable</div>
     }
     else
     {
-        <form id="disableForm" asp-action="Delete" hidden>
+        <form id="disableForm" asp-action="Disable" hidden>
             <input type="hidden" asp-for="ID" />
         </form>
         <div class="btn btn-danger" onclick="confirmDisable()">Disable</div>

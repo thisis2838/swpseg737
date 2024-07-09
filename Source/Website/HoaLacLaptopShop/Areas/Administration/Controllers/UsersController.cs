@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 using HoaLacLaptopShop.Areas.Shared.ViewModels;
 using HoaLacLaptopShop.Data;
 using HoaLacLaptopShop.Areas.Administration.ViewModels;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace HoaLacLaptopShop.Areas.Administration.Controllers
 {
@@ -27,23 +28,25 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
             _context = context;
         }
 
-        private IQueryable<User> GetUsers(int page, string? searchTerm)
-        {
-            var query = _context.Users.AsQueryable();
-            if (!string.IsNullOrEmpty(searchTerm))
-            {
-                query = query.Where(u => u.Name.Contains(searchTerm) || u.Email.Contains(searchTerm) || u.PhoneNumber.Contains(searchTerm));
-            }
-            return query.Skip((page - 1) * 12).Take(12);
-        }
 
         public ActionResult Index(int? page, string? searchTerm)
         {
-            var users = GetUsers(page != null ? page.Value : 1, searchTerm);
+            var users = _context.Users.AsQueryable();
+            if (!string.IsNullOrEmpty(searchTerm))
+            {
+                users = 
+                    users.Where
+                    (u => 
+                        u.Name.Contains(searchTerm) 
+                        || u.Email.Contains(searchTerm) 
+                        || u.PhoneNumber.Contains(searchTerm)
+                    );
+            }
+            var curPage = users.Skip(((page ?? 1) - 1) * 12).Take(12);
             return View(new UserIndexViewModel
             {
-                Users = users.ToList(),
-                TotalCount = _context.Users.Count(),
+                Users = curPage.ToList(),
+                TotalCount = users.Count(),
                 PageIndex = page != null ? Convert.ToInt32(page) : 1,
                 SearchTerm = searchTerm!
             });
@@ -164,10 +167,10 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
             return View(model);
         }
 
-        [HttpPost, ActionName("Delete")]
+        [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> Disable(int id)
         {
             var user = await _context.Users.FindAsync(id);
             if (user != null)
@@ -184,18 +187,18 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        [HttpPost, ActionName("Activate")]
+        [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ActivateConfirmed(int id)
+        public async Task<IActionResult> Reenable(int id)
         {
             var user = await _context.Users.FindAsync(id);
             if (user != null)
             {
-                user.IsDeleted = false;
+                user.IsDisabled = false;
             }
             else
             {
-                this.SetError("User could not be found");
+                this.AddError("User could not be found");
                 return NotFound();
             }
 

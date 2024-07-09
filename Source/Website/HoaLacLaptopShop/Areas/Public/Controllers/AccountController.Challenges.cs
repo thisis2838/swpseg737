@@ -15,7 +15,7 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
         {
             if (HttpContext.IsLoggedIn())
             {
-                this.SetError("You are logged in already.");
+                this.AddError("You are logged in already.");
                 return RedirectToAction("Index", "Home");
             }
 
@@ -31,7 +31,7 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
             {
                 if (_context.Users.Any(x => x.Email == model.Email))
                 {
-                    this.SetError("This email has already been used.");
+                    this.AddError("This email has already been used.");
                     return RedirectToAction("Register", new { model, gender });
                 }
 
@@ -61,13 +61,13 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
         {
             if (HttpContext.IsLoggedIn())
             {
-                this.SetError("You are logged in already. Please log out to register.");
+                this.AddError("You are logged in already. Please log out to register.");
                 return RedirectToAction("Index", "Home");
             }
 
             if (!HttpContext.Session.Keys.Contains(CUR_PASS_RESET_KEY))
             {
-                this.SetError("You are not trying to reset your password.");
+                this.AddError("You are not trying to reset your password.");
                 return RedirectToAction("Index", "Home");
             }
             return View(model: email);
@@ -80,34 +80,34 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
         {
             if (HttpContext.IsLoggedIn())
             {
-                this.SetError("You are logged in already.");
+                this.AddError("You are logged in already.");
                 return RedirectToAction("Index", "Home");
             }
 
             var reset = HttpContext.Session.Get<PasswordResetChallenge>(CUR_PASS_RESET_KEY);
             if (reset is null)
             {
-                this.SetError("Your session has expired! Please try again.");
+                this.AddError("Your session has expired! Please try again.");
                 return RedirectToAction("Index", "Home");
             }
 
             if (reset.TriesLeft <= 0)
             {
-                this.SetError("You have entered the code wrong too many times! Please try again.");
+                this.AddError("You have entered the code wrong too many times! Please try again.");
                 HttpContext.Session.Remove(CUR_PASS_RESET_KEY);
                 return RedirectToAction("Index", "Home");
             }
 
             if (!resetCode.Equals(reset.Code.ToString()))
             {
-                this.SetError($"Invalid reset password code. You have {reset.TriesLeft} tries left.");
+                this.AddError($"Invalid reset password code. You have {reset.TriesLeft} tries left.");
                 reset.TriesLeft--;
                 HttpContext.Session.Set(CUR_PASS_RESET_KEY, reset);
                 return View();
             }
             if (DateTime.Now - reset.SubmitTime > TimeSpan.FromMinutes(5))
             {
-                this.SetError("Your code has expired! Please enter the newly generated code.");
+                this.AddError("Your code has expired! Please enter the newly generated code.");
                 return RedirectToAction("ChallengePasswordReset");
             }
             return RedirectToAction("CompletePasswordReset", "Account");
