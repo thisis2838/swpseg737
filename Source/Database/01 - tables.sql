@@ -43,7 +43,7 @@ CREATE TABLE Products
     stock                   INTEGER         NOT NULL,
     description             NVARCHAR(4000)  NULL,
     isDisabled              BIT             NOT NULL,
-    isLaptop                BIT             NOT NULL 
+    isLaptop                BIT             NOT NULL,
  
     rowVersion              ROWVERSION      NOT NULL 
 );

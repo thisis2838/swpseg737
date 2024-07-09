@@ -61,7 +61,7 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
                 if ((args.SelectedGPUIDs?.Count ?? 0) == 0)
                     args.SelectedGPUIDs = _context.LaptopGPUSeries.Select(x => x.ID).ToList();
                 else
-                    products = products.Where(x => !x.IsLaptop || args.SelectedGPUIDs!.Contains(x.Laptop!.GPUSeriesID!.Value));
+                    products = products.Where(x => !x.IsLaptop || args.SelectedGPUIDs!.Contains(x.Laptop!.GPUSeriesID));
             }
 
             var list = products.ToList();
