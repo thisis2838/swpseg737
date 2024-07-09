@@ -18,8 +18,7 @@ public partial class User
     public bool Gender { get; set; }
     [
         Required(AllowEmptyStrings = false, ErrorMessage = "Please enter a phone number"),
-        MaxLength(20),
-        RegularExpression("^[0-9]+$", ErrorMessage = "Phone number can only contain digits"),
+        RegularExpression("^0[98753][0-9]{8,9}$", ErrorMessage = "Phone number must be between 10-11 digits."),
         DisplayName("Phone Number")
     ]
     public string PhoneNumber { get; set; } = null!;

@@ -38,7 +38,7 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
                 Products = products.ToList(),
                 TotalCount = _context.Products.Count(),
                 PageIndex = page != null ? Convert.ToInt32(page) : 1
-            }); ;
+            });
         }
 
         public IActionResult SearchProduct(string search)

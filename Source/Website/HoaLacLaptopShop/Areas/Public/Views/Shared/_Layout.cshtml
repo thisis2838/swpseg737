@@ -112,7 +112,8 @@
                                 <ul class="nav navbar-nav collapse navbar-collapse">
                                     <li>
                                         @{
-                                            if (Context.GetCurrentUser()?.IsAdmin ?? false)
+                                            var currUser = Context.GetCurrentUser();
+                                            if (currUser?.IsAdmin == true || currUser?.IsSales == true || currUser?.IsMarketing == true)
                                             {
                                                 <a href="@Url.Action("Sales", "Statistics", new {area = "Administration"})">Admin Page</a>
                                             }

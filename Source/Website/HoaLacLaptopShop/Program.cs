@@ -18,6 +18,9 @@ internal class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
+        builder.Services.AddTransient<IEmailSenderService, EmailSenderService>();
+        builder.Services.AddScoped<IViewRenderService, ViewRenderService>();
+
         // Add services to the container.
         builder.Services.AddDbContext<HoaLacLaptopShopContext>(options =>
         {
@@ -29,18 +32,15 @@ internal class Program
         });
 
         builder.Services.AddDistributedMemoryCache();
-        builder.Services.AddSession(options =>
-        {
-            options.IdleTimeout = TimeSpan.FromSeconds(10);
-            options.Cookie.HttpOnly = true;
-            options.Cookie.IsEssential = true;
-        });
-
-        builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(options =>
-        {
-            options.LoginPath = "/Account/Login";
-            options.AccessDeniedPath = "/Error/403";
-        });
+        builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie
+        (
+            options =>
+            {
+                options.LoginPath = "/Account/Login";
+                options.AccessDeniedPath = "/Error/403";
+                options.SlidingExpiration = false;
+            }
+        );
         builder.Services.AddAuthorization(options =>
         {
             options.AddPolicy("RequireAdmin", policy => policy.RequireRole("Admin"));
@@ -48,6 +48,12 @@ internal class Program
             options.AddPolicy("RequireSales", policy => policy.RequireRole("Sales"));
         });
 
+        builder.Services.AddSession(options =>
+        {
+            options.IdleTimeout = TimeSpan.FromMinutes(30);
+            options.Cookie.HttpOnly = true;
+            options.Cookie.IsEssential = true;
+        });
         builder.Services.AddHttpContextAccessor();
         builder.Services.AddSingleton<ILocalResourceService, LocalResourceService>();
         builder.Services.AddScoped<ITemporaryResourceService, TemporaryResourceService>();
