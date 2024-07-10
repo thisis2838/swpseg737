@@ -14,15 +14,15 @@ public partial class Order
     public DateTime OrderTime { get; set; }
     public OrderStatus Status { get; set; }
 
-    [Required(AllowEmptyStrings = false), MaxLength(256)]
-    public string District { get; set; } = null!;
-    [Required(AllowEmptyStrings = false), MaxLength(256)]
+    [Required(AllowEmptyStrings = false), MinLength(5), MaxLength(256)]
     public string Province { get; set; } = null!;
-    [Required(AllowEmptyStrings = false), MaxLength(256)]
+    [Required(AllowEmptyStrings = false), MinLength(5), MaxLength(256)]
+    public string District { get; set; } = null!;
+    [Required(AllowEmptyStrings = false), MinLength(5), MaxLength(256)]
     public string Ward { get; set; } = null!;
-    [Required(AllowEmptyStrings = false), MaxLength(256)]
+    [Required(AllowEmptyStrings = false),MinLength(8), MaxLength(256)]
     public string Street { get; set; } = null!;
-    [Required(AllowEmptyStrings = false), MaxLength(256), DisplayName("Recipient Name")]
+    [Required(AllowEmptyStrings = false), MinLength(2), MaxLength(256), DisplayName("Recipient Name")]
     public string RecipientName { get; set; } = null!;
     [
         Required(AllowEmptyStrings = false), 
@@ -38,7 +38,7 @@ public partial class Order
     public decimal TotalPrice { get; set; }
     [DisplayName("Discounted Price")]
     public decimal DiscountedPrice { get; set; }
-    [DisplayName("Payment Method")]
+    [DisplayName("Payment Method"), Required]
     public PaymentMethod PaymentMethod { get; set; }
     public int? VoucherID { get; set; }
     public virtual Voucher? Voucher { get; set; }

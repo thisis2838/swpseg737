@@ -22,6 +22,8 @@ public partial class Product
     public bool IsDeleted { get; set; }
     [DisplayName("Is a Laptop?")]
     public bool IsLaptop { get; set; }
+    [Timestamp]
+    public byte[] RowVersion { get; set; }
     public virtual Laptop? Laptop { get; set; }
 
     public virtual ICollection<OrderDetail> OrderDetails { get; set; } = new List<OrderDetail>();

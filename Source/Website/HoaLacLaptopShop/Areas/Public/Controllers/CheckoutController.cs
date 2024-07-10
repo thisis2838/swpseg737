@@ -61,14 +61,21 @@ public class CheckoutController : Controller
             this.SetError("Please purchase some items first before checking out.");
             return RedirectToAction("Index", "Cart");
         }
-
         try
         {
             if (paymentMethod == PaymentMethod.Online)
             {
+                // Update order with address and contact information
+                order.RecipientName = name;
+                order.PhoneNumber = phone;
+                order.Province = city;
+                order.District = district;
+                order.Ward = ward;
+                order.Street = address;
+                _context.SaveChanges();
                 var VnPayModel = new VnPayRequestModel
                 {
-                    OrderId = new Random().Next(1000, 10000),
+                    OrderId = order.ID,
                     Amount = order.OrderDetails.Sum(oi => oi.SubTotal),
                     CreatedDate = DateTime.Now,
                     Description = $"{order.Buyer.Name} {order.Buyer.PhoneNumber}"
@@ -85,10 +92,17 @@ public class CheckoutController : Controller
             this.SetMessage("Order has been placed successfully!");
             return RedirectToAction("Index", "Home");
         }
+        catch (DbUpdateConcurrencyException ex)
+        {
+            _context.Database.RollbackTransaction();
+            this.SetError("Concurrency conflict: Your order could not be processed as another user updated one of the products.");
+            return RedirectToAction("Index", "Cart");
+        }
         catch (Exception ex)
         {
             return RedirectToAction("Index", "Home");
         }
+        
     }
 
     private void ProcessOrder(string name, string phone, string address, string city, string district, string ward, PaymentMethod paymentMethod, string voucherCode, List<CartItem> cartItems, Order? order)
@@ -117,10 +131,41 @@ public class CheckoutController : Controller
                 this.SetError("A product in your order could not be found.");
                 //return RedirectToAction("Index", "Cart");
             }
-            product.Stock -= cartItem.Quantity;
             // Decrease the product quantity
+            product.Stock -= cartItem.Quantity;
+            try
+            {
+                _context.SaveChanges();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                var entry = _context.Entry(product);
+                var databaseValues = entry.GetDatabaseValues();
+
+                if (databaseValues == null)
+                {
+                    // The product was deleted by another user
+                    this.SetError("This product in order was out of stock, ordered by another user.");
+                    // You might want to handle this differently
+                    continue;
+                }
+
+                var dbQuantity = (int)databaseValues[nameof(Product.Stock)];
+                var dbRowVersion = (byte[])databaseValues[nameof(Product.RowVersion)];
+
+                // Print out the error with RowVersion values
+                var errorMessage = $"Concurrency conflict: Product was updated by another user. " +
+                                   $"Current stock is {dbQuantity}. " +
+                                   $"Database RowVersion: {BitConverter.ToString(dbRowVersion)}. " +
+                                   $"Attempted RowVersion: {BitConverter.ToString(product.RowVersion)}.";
+
+                // Log the error
+                Console.WriteLine(errorMessage);
+
+                throw new DbUpdateConcurrencyException(errorMessage);
+            }
         }
-        _context.SaveChanges();
+
     }
 
     [HttpPost]
@@ -178,26 +223,13 @@ public class CheckoutController : Controller
             return voucher.DiscountValue;
         }
     }
-    public IActionResult OrderConfirmation(int orderId)
-    {
-        var order = _context.Orders
-            .Include(o => o.OrderDetails)
-            .ThenInclude(od => od.Product)
-            .FirstOrDefault(o => o.ID == orderId);
-
-        if (order == null)
-        {
-            return Redirect("/404");
-        }
-
-        return View(order);
-    }
 
     [Authorize]
     public IActionResult PaymentSuccess()
     {
-        return View("Success");
+        return View();
     }
+
     [Authorize]
     public IActionResult PaymentFail()
     {
@@ -214,9 +246,29 @@ public class CheckoutController : Controller
             TempData["Message"] = $"Lỗi thanh toán VN Pay: {response.VnPayResponseCode}";
             return RedirectToAction("PaymentFail");
         }
+        // Extract OrderId from the OrderInfo
+        var orderInfo = response.OrderDescription; // "Thanh toan don hang: OrderId"
+        var orderIdString = orderInfo.Split(':').Last().Trim();
+        if (!int.TryParse(orderIdString, out int orderId))
+        {
+            TempData["Message"] = "Lỗi thanh toán VN Pay: Order ID không hợp lệ";
+            return RedirectToAction("PaymentFail");
+        }
 
-        TempData["Message"] = $"Thanh toán VNPay thành công";
-        return RedirectToAction("PaymentSuccess");
+        var order = _context.Orders.FirstOrDefault(o => o.ID == orderId);
+
+        if (order != null)
+        {
+            order.PaymentMethod = PaymentMethod.Online;
+            order.OrderTime = DateTime.Now;
+            //order.Status = OrderStatus.Completed; // Mark order as completed
+            _context.SaveChanges();
+
+            TempData["Message"] = "Thanh toán VNPay thành công";
+            return RedirectToAction("PaymentSuccess");
+        }
+
+        return RedirectToAction("PaymentFail");
 
     }
 

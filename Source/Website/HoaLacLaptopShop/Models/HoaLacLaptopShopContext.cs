@@ -160,7 +160,7 @@ public partial class HoaLacLaptopShopContext : DbContext
             entity.Property(e => e.Description).HasMaxLength(LONG_TEXT_LENGTH).HasColumnName("description");
             entity.Property(e => e.IsDeleted).HasColumnName("isDeleted");
             entity.Property(e => e.IsLaptop).HasColumnName("isLaptop");
-
+            entity.Property(p => p.RowVersion).IsRowVersion();
             entity.HasOne(d => d.Brand).WithMany(p => p.Products).HasForeignKey(d => d.BrandId);
         });
 
