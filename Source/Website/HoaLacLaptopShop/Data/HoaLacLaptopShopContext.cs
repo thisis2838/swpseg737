@@ -226,6 +226,7 @@ public partial class HoaLacLaptopShopContext : DbContext
         {
             entity.HasKey(e => e.ID);
             entity.ToTable("Vouchers");
+            entity.HasIndex(e => e.Code).IsUnique();
 
             entity.Property(e => e.ID).HasColumnName("id");
             entity.Property(e => e.IssuerId).HasColumnName("issuerID");
