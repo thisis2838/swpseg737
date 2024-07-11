@@ -9,7 +9,7 @@
 <hr />
 <div class="row">
     <div class="col-md-6">
-        <form asp-action="ChallengeEmail">
+        <form asp-action="Register">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
                 <label asp-for="Name" class="control-label"></label>
@@ -30,9 +30,8 @@
             <div class="form-group">
                 <label asp-for="Gender" class="control-label"></label>
                 <br />
-                <input class="form-check-input" type="radio" value="Male" name="gender" /> Male
-
-                <input class="form-check-input" type="radio" value="Female" name="gender" /> Female
+                <input asp-for="Gender" class="form-check-input" type="radio" value="True" /> Male
+                <input asp-for="Gender" class="form-check-input" type="radio" value="False" /> Female
             </div>
             <div class="form-group">
                 <label asp-for="PhoneNumber" class="control-label"></label>

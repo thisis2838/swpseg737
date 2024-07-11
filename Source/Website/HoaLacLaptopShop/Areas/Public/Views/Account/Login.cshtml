@@ -26,19 +26,9 @@
                 </label>
             </div>
             <br />
-            <div>
-                <a class="link-danger" asp-controller="Account" asp-action="ForgotPassword">Forgot your password?</a>
-            </div>
-            <br />
-            @if (ViewBag.Error != null)
-            {
-                <p class="text-danger">
-                    @ViewBag.Error
-                </p>
-            }
             <div class="form-group">
-                <div></div>
                 <input type="submit" value="Login" class="btn btn-primary" />
+                <a class="btn btn-danger" asp-controller="Account" asp-action="PasswordReset">Forgot your password?</a>
             </div>
         </form>
     </div>
