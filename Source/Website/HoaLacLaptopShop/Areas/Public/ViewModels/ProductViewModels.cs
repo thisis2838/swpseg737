@@ -24,6 +24,7 @@ namespace HoaLacLaptopShop.Areas.Public.ViewModels
         public string? Search { get; set; } = null;
         public int? MinPrice { get; init; } = null;
         public int? MaxPrice { get; init; } = null;
+        public int? PageIndex { get; init; } = 1;
 
         public List<int>? SelectedBrandIDs { get; set; } = null;
 
@@ -39,6 +40,8 @@ namespace HoaLacLaptopShop.Areas.Public.ViewModels
         public required List<LaptopGPUSeries> GPUs;
         public required int MinPossiblePrice;
         public required int MaxPossiblePrice;
+        public required int PageIndex;
+        public required int Total;
 
         public required ProductIndexQuery CurrentQuery = new ProductIndexQuery();
     }

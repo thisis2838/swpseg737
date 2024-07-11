@@ -31,9 +31,20 @@
                         </div>
                     }
                 </div><!--features_items-->
+                <nav aria-label="Page navigation example" style="display:flex;align-items:center; justify-content:center;">
+                    <ul class="pagination">
+                        @for (int i = 1; i <= Math.Ceiling(Model.Total / 12f); i++)
+                        {
+                            <li class="page-item @(i == Model.PageIndex ? "active" : "")">
+                                <a class="page-link" onclick="clickPage(@i)">@i</a>
+                            </li>
+                        }
+                    </ul>
+                </nav>
             </div>
         </div>
     </div>
+    
 </section>
 
 @section Scripts
@@ -62,5 +73,9 @@
                 });
             $("#price").val(numberWithThousandthSeparators(curMin + " - " + curMax));
         });
+        function clickPage(i) {
+            document.getElementsByName("page")[0].value = i;
+            document.getElementById("priceForm").submit();
+        }
     </script>
 }
