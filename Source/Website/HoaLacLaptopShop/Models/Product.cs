@@ -24,9 +24,9 @@ public partial class Product
     public bool IsLaptop { get; set; }
     public virtual Laptop? Laptop { get; set; }
 
-    [ReadOnly(true), HiddenInput]
+    [HiddenInput]
     public int ReviewCount { get; set; }
-    [ReadOnly(true), HiddenInput]
+    [HiddenInput]
     public int ReviewTotal { get; set; }
 
     [Timestamp]

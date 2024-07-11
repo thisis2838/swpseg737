@@ -187,12 +187,7 @@ public partial class HoaLacLaptopShopContext : DbContext
         modelBuilder.Entity<ProductReview>(entity =>
         {
             entity.HasKey(e => new { e.ProductId, e.ReviewerId });
-            entity.ToTable("ProductReviews", tb =>
-            {
-                tb.HasTrigger("trg_InsertReview");
-                tb.HasTrigger("trg_DeleteReview");
-                tb.HasTrigger("trg_UpdateReview");
-            });
+            entity.ToTable("ProductReviews");
 
             entity.Property(e => e.ProductId).HasColumnName("productID");
             entity.Property(e => e.ReviewerId).HasColumnName("reviewerID");

@@ -89,8 +89,8 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
         {
             var product = GetProducts()
                 .Include(x => x.ProductReviews.OrderByDescending(r => r.ReviewTime)).ThenInclude(x => x.Reviewer)
-                .Include(x => x.Laptop).ThenInclude(x => x.CPUSeries)
-                .Include(x => x.Laptop).ThenInclude(x => x.GPUSeries)
+                .Include(x => x.Laptop).ThenInclude(x => x!.CPUSeries)
+                .Include(x => x.Laptop).ThenInclude(x => x!.GPUSeries)
                 .Include(x => x.OrderDetails).ThenInclude(x => x.Order)
                 .Where(p => p.ID == id)
                 .FirstOrDefault();
@@ -137,6 +137,7 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
                 ReviewTime = DateTime.Now
             };
             _context.ProductReviews.Add(pr);
+            product.ReviewCount++; product.ReviewTotal += pr.Rating;
             _context.SaveChanges();
 
             end:;
@@ -146,13 +147,22 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
         public IActionResult EditReview(int pId, int uId, string review, string rating, string? delete)
         {
             var reviewOld = _context.ProductReviews.Where(pr => pr.ProductId == pId && pr.ReviewerId == uId).FirstOrDefault();
+            var product = _context.Products.Find(pId);
+            if (product is null)
+            {
+                this.AddError("Product doesn't exist.");
+                goto end;
+            }
+
             if (delete == null)
             {
                 if (reviewOld != null)
                 {
+                    product.ReviewTotal -= reviewOld.Rating;
                     reviewOld.Content = review;
                     reviewOld.Rating = Convert.ToInt32(rating);
                     reviewOld.ReviewTime = DateTime.Now;
+                    product.ReviewTotal += reviewOld.Rating;
                 }
             }
             else
@@ -160,9 +170,13 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
                 if (reviewOld != null)
                 {
                     _context.Remove(reviewOld);
+                    product.ReviewCount--;
+                    product.ReviewTotal -= reviewOld.Rating;
                 }
             }
             _context.SaveChanges();
+
+            end:;
             return RedirectToAction("Details", "Products", new { id = pId });
         }
     }
