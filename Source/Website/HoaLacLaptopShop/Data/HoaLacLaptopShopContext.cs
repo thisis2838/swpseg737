@@ -43,6 +43,7 @@ public partial class HoaLacLaptopShopContext : DbContext
         {
             entity.HasKey(e => e.ID);
             entity.ToTable("Brands");
+            entity.HasIndex(e => e.Name).IsUnique();
 
             entity.Property(e => e.ID).HasColumnName("id");
             entity.Property(e => e.Name).HasMaxLength(SHORT_TEXT_LENGTH).HasColumnName("name");
@@ -164,6 +165,8 @@ public partial class HoaLacLaptopShopContext : DbContext
             entity.Property(e => e.Description).HasMaxLength(LONG_TEXT_LENGTH).HasColumnName("description");
             entity.Property(e => e.IsDisabled).HasColumnName("isDisabled");
             entity.Property(e => e.IsLaptop).HasColumnName("isLaptop");
+            entity.Property(e => e.ReviewCount).HasColumnName("reviewCount");
+            entity.Property(e => e.ReviewTotal).HasColumnName("reviewTotal");
             entity.Property(e => e.RowVersion).HasColumnName("rowVersion").IsRowVersion();
 
             entity.HasOne(d => d.Brand).WithMany(p => p.Products).HasForeignKey(d => d.BrandId);
@@ -184,7 +187,12 @@ public partial class HoaLacLaptopShopContext : DbContext
         modelBuilder.Entity<ProductReview>(entity =>
         {
             entity.HasKey(e => new { e.ProductId, e.ReviewerId });
-            entity.ToTable("ProductReviews");
+            entity.ToTable("ProductReviews", tb =>
+            {
+                tb.HasTrigger("trg_InsertReview");
+                tb.HasTrigger("trg_DeleteReview");
+                tb.HasTrigger("trg_UpdateReview");
+            });
 
             entity.Property(e => e.ProductId).HasColumnName("productID");
             entity.Property(e => e.ReviewerId).HasColumnName("reviewerID");
@@ -199,6 +207,7 @@ public partial class HoaLacLaptopShopContext : DbContext
         modelBuilder.Entity<User>(entity =>
         {
             entity.HasKey(e => e.ID);
+            entity.HasIndex(e => e.Email).IsUnique();
             entity.ToTable("Users");
 
             entity.Property(e => e.ID).HasColumnName("id");

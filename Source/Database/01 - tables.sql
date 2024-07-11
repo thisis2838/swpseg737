@@ -12,9 +12,9 @@ CREATE TABLE Users
     id                      INTEGER         IDENTITY(1,1) PRIMARY KEY,
  
     -- identity
-    name                    NVARCHAR(256)   NOT NULL,
+    name                    NVARCHAR(256)   NOT NULL UNIQUE,
     email                   NVARCHAR(256)   NOT NULL,
-    passHash                VARCHAR(256)    NULL,
+    passHash                VARCHAR(256)    NOT NULL,
     gender                  BIT             NOT NULL,
     phoneNumber             VARCHAR(20)     NOT NULL,
     -- roles/status
@@ -29,7 +29,7 @@ CREATE TABLE Brands
 ( 
     id                      INTEGER         IDENTITY(1,1) PRIMARY KEY,
  
-    name                    NVARCHAR(256)   NOT NULL,
+    name                    NVARCHAR(256)   NOT NULL UNIQUE,
     description             NVARCHAR(1024)  NULL,
     country                 NVARCHAR(256)   NOT NULL 
 );
@@ -44,6 +44,8 @@ CREATE TABLE Products
     description             NVARCHAR(4000)  NULL,
     isDisabled              BIT             NOT NULL,
     isLaptop                BIT             NOT NULL,
+    reviewCount             INTEGER         NOT NULL,
+    reviewTotal             INTEGER         NOT NULL,
  
     rowVersion              ROWVERSION      NOT NULL 
 );
@@ -95,7 +97,7 @@ CREATE TABLE Vouchers
     id                      INTEGER         IDENTITY(1,1) PRIMARY KEY,
     issuerID                INTEGER         NOT NULL FOREIGN KEY REFERENCES Users(id),
  
-    code                    VARCHAR(20)     NOT NULL,
+    code                    VARCHAR(20)     NOT NULL UNIQUE,
     minimumOrderPrice       MONEY           NOT NULL,
     discountValue           MONEY           NOT NULL,
     isPercentageDiscount    BIT             NOT NULL,

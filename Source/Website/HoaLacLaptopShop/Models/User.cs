@@ -14,7 +14,7 @@ public partial class User
     [Required(AllowEmptyStrings = false, ErrorMessage = "Please enter an email"), MaxLength(256)]
     public string Email { get; set; } = null!;
     [Display(Name = "Password"), MaxLength(256)]
-    public string? PassHash { get; set; }
+    public string PassHash { get; set; } = null!;
     public bool Gender { get; set; }
     [
         Required(AllowEmptyStrings = false, ErrorMessage = "Please enter a phone number"),

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
@@ -22,6 +23,11 @@ public partial class Product
     [DisplayName("Is a Laptop?")]
     public bool IsLaptop { get; set; }
     public virtual Laptop? Laptop { get; set; }
+
+    [ReadOnly(true), HiddenInput]
+    public int ReviewCount { get; set; }
+    [ReadOnly(true), HiddenInput]
+    public int ReviewTotal { get; set; }
 
     [Timestamp]
     public byte[] RowVersion { get; set; } = null!;
