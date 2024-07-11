@@ -1,7 +1,9 @@
 using HoaLacLaptopShop.Areas.Public.ViewModels;
 using HoaLacLaptopShop.Data;
+using HoaLacLaptopShop.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
 using System.Diagnostics;
 
 namespace HoaLacLaptopShop.Areas.Public.Controllers
@@ -16,20 +18,20 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
         }
         public async Task<IActionResult> Index()
         {
-            var products = _context.Products.Include(x => x.ProductImages).AsSplitQuery();
+            IQueryable<Product> products() => _context.Products.Include(x => x.ProductImages);
             return View(new HomeViewModel
             {
-                PopularLaptops      = await products
+                PopularLaptops      = await products()
                                         .Include(x => x.OrderDetails)
                                         .Where(x => x.IsLaptop)
                                         .OrderByDescending(x => x.OrderDetails.Count)
                                         .Take(10).ToListAsync(),
-                PopularAccessories  = await products
+                PopularAccessories  = await products()
                                         .Include(x => x.OrderDetails)
                                         .Where(x => !x.IsLaptop)
                                         .OrderByDescending(x => x.OrderDetails.Count)
                                         .Take(10).ToListAsync(),
-                ProductsByBrand     = await products
+                ProductsByBrand     = await products()
                                         .Include(x => x.Brand)
                                         .GroupBy(x => x.Brand)
                                         .Select(x => new { x.Key, Items = x.Take(5) })
