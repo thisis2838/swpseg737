@@ -18,7 +18,7 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
         }
         public async Task<IActionResult> Index()
         {
-            IQueryable<Product> products() => _context.Products.Include(x => x.ProductImages);
+            IQueryable<Product> products() => _context.EnabledProducts.Include(x => x.ProductImages);
             return View(new HomeViewModel
             {
                 PopularLaptops      = await products()
@@ -44,11 +44,12 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
 
         public IActionResult About()
         {
+            IQueryable<Order> orders() => _context.Orders.Where(x => x.Status == OrderStatus.Finished);
             return View(new AboutViewModel()
             {
-                TotalProducts = _context.Products.Count(),
-                TotalOrder = _context.Orders.Count(),
-                TotalCustomersServed = _context.Orders.GroupBy(x => x.BuyerID).Count()
+                TotalProducts = _context.EnabledProducts.Count(),
+                TotalOrder = orders().Count(),
+                TotalCustomersServed = orders().GroupBy(x => x.BuyerID).Count()
             });
         }
     }

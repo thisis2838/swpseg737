@@ -7,6 +7,13 @@ namespace HoaLacLaptopShop.Helpers
 {
     public static class DBContextHelpers
     {
+        /// <summary>
+        /// Fills the foreign key properties of an relational object
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="context"></param>
+        /// <param name="instance"></param>
+        /// <exception cref="Exception"></exception>
         public static void FillForeignKeys<T>(this DbContext context, T instance)
         {
             var entType = context.Model.FindEntityType(typeof(T).FullName!);

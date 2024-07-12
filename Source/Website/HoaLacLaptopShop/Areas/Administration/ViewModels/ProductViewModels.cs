@@ -1,24 +1,24 @@
 ﻿using HoaLacLaptopShop.Models;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace HoaLacLaptopShop.Areas.Administration.ViewModels
 {
-    public class ProductIndexViewModel
+    public class ProductIndexViewModel : ProductIndexArgs
     {
         public List<Product> Products { get; set; } = null!;
         public int TotalCount { get; set; }
-        public int PageIndex { get; set; }
     }
-
-    public class ProductDetailViewModel : Product
+    public class ProductIndexArgs
     {
-        public ProductDetailViewModel()
+        public int TargetPage { get; set; } = 1;
+        public bool ShowDisabled { get; set; } = false;
+    }
+    public class ProductUpdateViewModel : Product
+    {
+        public ProductUpdateViewModel()
         {
             Laptop = new Laptop();
             IsLaptop = true;
-        }
-
-        public ProductDetailViewModel(Product product) : base()
-        {
         }
     }
 }

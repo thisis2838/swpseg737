@@ -16,13 +16,13 @@ public partial class Product
 
     [Required(AllowEmptyStrings = false), MinLength(5), MaxLength(256)]
     public string Name { get; set; } = null!;
-    [Required(), Range(1000, 100000000, ErrorMessage = "Must higher than 1,000")]
+    [Required(), Range(1000, int.MaxValue)]
     public int Price { get; set; }
-    [Required(), Range(1, 5000, ErrorMessage = "Value must between 1 to 5,000")]
+    [Required(), Range(1, int.MaxValue)]
     public int Stock { get; set; }
     [MaxLength(2048)]
     public string? Description { get; set; }
-    [DisplayName("Is Disabled?")]
+    [DisplayName("Has been disabled?")]
     public bool IsDisabled { get; set; }
     [DisplayName("Is a Laptop?")]
 
@@ -33,11 +33,12 @@ public partial class Product
     public int ReviewCount { get; set; }
     [HiddenInput]
     public int ReviewTotal { get; set; }
+    public decimal AveargeRating => ReviewCount == 0 ? 0 : decimal.Divide(ReviewTotal, ReviewCount);
 
     [Timestamp]
     public byte[] RowVersion { get; set; } = null!;
 
     public virtual ICollection<OrderDetail> OrderDetails { get; set; } = new List<OrderDetail>();
-    public virtual ICollection<ProductImage>? ProductImages { get; set; } = new List<ProductImage>();
+    public virtual ICollection<ProductImage> ProductImages { get; set; } = new List<ProductImage>();
     public virtual ICollection<ProductReview> ProductReviews { get; set; } = new List<ProductReview>();
 }

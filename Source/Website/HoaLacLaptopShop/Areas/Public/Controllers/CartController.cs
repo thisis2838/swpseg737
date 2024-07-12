@@ -37,7 +37,7 @@ public class CartController : Controller
         // If not found item
         if (item == null)
         {
-            var product = _context.Products.Include(x => x.ProductImages).SingleOrDefault(p => p.ID == id);
+            var product = _context.EnabledProducts.Include(x => x.ProductImages).SingleOrDefault(p => p.ID == id);
             if (product == null)
             {
                 this.AddError("Product could not be found to add to cart!");

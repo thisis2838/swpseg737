@@ -15,6 +15,7 @@ public partial class HoaLacLaptopShopContext : DbContext
     public virtual DbSet<Brand> Brands { get; set; }
     public virtual DbSet<Laptop> Laptops { get; set; }
     public virtual DbSet<Product> Products { get; set; }
+    public virtual IQueryable<Product> EnabledProducts => Products.Where(x => !x.IsDisabled);
     public virtual DbSet<LaptopCPUSeries> LaptopCPUSeries { get; set; }
     public virtual DbSet<LaptopGPUSeries> LaptopGPUSeries { get; set; }
     public virtual DbSet<ProductImage> ProductImages { get; set; }

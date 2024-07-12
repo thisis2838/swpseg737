@@ -24,7 +24,7 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
 
         private IQueryable<Product> GetProducts()
         {
-            return _context.Products
+            return _context.EnabledProducts
                 .Include(x => x.ProductImages)
                 .Include(x => x.Brand);
         }
@@ -96,7 +96,6 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
                 .Include(x => x.OrderDetails).ThenInclude(x => x.Order)
                 .Where(p => p.ID == id)
                 .FirstOrDefault();
-
             if (product is null)
             {
                 this.AddError("No product with that ID exists!");
@@ -110,7 +109,7 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
         public IActionResult AddReview(int pId, int uId, string review, string rating = "0")
         {
             var user = _context.Users.Where(u => u.ID == uId).FirstOrDefault();
-            var product = _context.Products.Find(pId);
+            var product = _context.EnabledProducts.FirstOrDefault(x => x.ID == pId);
             if (product is null)
             {
                 this.AddError("Product doesn't exist!");
@@ -149,7 +148,7 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
         public IActionResult EditReview(int pId, int uId, string review, string rating, string? delete)
         {
             var reviewOld = _context.ProductReviews.Where(pr => pr.ProductId == pId && pr.ReviewerId == uId).FirstOrDefault();
-            var product = _context.Products.Find(pId);
+            var product = _context.EnabledProducts.FirstOrDefault(x => x.ID == pId);
             if (product is null)
             {
                 this.AddError("Product doesn't exist.");

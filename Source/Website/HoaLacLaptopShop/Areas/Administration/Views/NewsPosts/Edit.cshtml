@@ -2,12 +2,13 @@
 @model NewsPostDetailsViewModel
 
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = $"Editing News Post #{Model.ID}";
 }
 
 <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote.min.css" rel="stylesheet">
 
-<h1>Edit</h1>
+<h1>Editing</h1>
+<h2>News Post #@Model.ID</h2>
 
 <div>
     <a class="btn btn-primary" onclick="$('#form-edit').submit();">Save</a>

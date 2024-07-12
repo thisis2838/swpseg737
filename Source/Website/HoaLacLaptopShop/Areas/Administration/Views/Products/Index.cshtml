@@ -1,7 +1,6 @@
 ﻿﻿@using HoaLacLaptopShop.Areas.Administration.ViewModels
 @model ProductIndexViewModel
 
-
 <div class="mb-3" style="display:flex; justify-content:space-between">
     <h1 class="h3 d-inline align-middle">
         <a href="@Url.Action("Index","Products")">
@@ -13,37 +12,57 @@
 
 <div class="row">
     <div class="card">
-
         <div class="card-body">
+            <form asp-action="Index" method="get">
+                <label class="form-label" asp-for="ShowDisabled">
+                    <input type="checkbox" asp-for="ShowDisabled" onchange="this.form.submit();" />
+                    Show Disabled Products
+                </label>
+                <input type="hidden" asp-for="TargetPage" id="page" />
+                <nav>
+                    <ul class="pagination">
+                        @for (int i = 1; i <= (Model.TotalCount - 1) / 10 + 1; i++)
+                        {
+                            <li class="page-item @(i == Model.TargetPage ? "active" : "")">
+                                <input type="submit" class="page-link" onclick="$('#page').val(@i)" value="@i" />
+                            </li>
+                        }
+                    </ul>
+                </nav>
+            </form>
+
             <table id="datatables-reponsive" class="table table-striped" style="width:100%">
                 <thead>
                     <tr>
+                        <th>ID</th>
+                        <th>Image</th>
                         <th>Name</th>
                         <th>Brand</th>
                         <th>Price</th>
                         <th>Quantity</th>
-                        <th>Image</th>
-                        <th>Is deleted</th>
-                        <th>Action</th>
+                        <th>Average Rating</th>
+                        <th>Has been disabled?</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach (var product in Model.Products)
                     {
                         <tr>
+                            <td>@product.ID</td>
+                            <td>
+                                <img src="@product.ProductImages.First().GetProductImageURL()"
+                                     alt=""
+                                     style="width: 50px; height: 50px; object-fit: contain" />
+                            </td>
                             <td>@product.Name</td>
                             <td>@product.Brand!.Name</td>
                             <td>@product.Price.ToString("N0")</td>
                             <td>@product.Stock</td>
+                            <td>@($"{product.AveargeRating:0.00} ({product.ReviewCount})")</td>
+                            <td>@product.IsDisabled</td>
                             <td>
-                                <img src="@product.ProductImages.First().GetProductImageURL()"
-                                     alt=""
-                                     style="width: 150px; height: 150px; object-fit: contain" />
-                            </td>
-                            <td>@product.IsDeleted</td>
-                            <td>
-                                <a asp-action="Update" asp-controller="Products" asp-route-id="@product.ID"><p class="btn btn-warning" style="width:90px"><i class="fa-solid fa-pen"></i> Edit </p></a><br />
-                                <a asp-action="DeleteProduct" asp-controller="Products" asp-route-id="@product.ID"><p class="btn btn-danger" style="width:90px"><i class="fa-solid fa-trash"></i> Delete</p></a>
+                                <a asp-action="Edit" asp-route-id="@product.ID"><p class="btn btn-warning" style="width:90px"><i class="fa-solid fa-pen"></i> Edit </p></a><br />
                             </td>
                         </tr>
                     }
@@ -52,14 +71,4 @@
             </table>
         </div>
     </div>
-    <nav aria-label="Page navigation example">
-        <ul class="pagination">
-            @for (int i = 1; i <= (Model.TotalCount - 1) / 10 + 1; i++)
-            {
-                <li class="page-item @(i == Model.PageIndex ? "active" : "")">
-                    <a class="page-link" asp-action="Index" asp-controller="Products" asp-route-page="@i">@i</a>
-                </li>
-            }
-        </ul>
-    </nav>
 </div>

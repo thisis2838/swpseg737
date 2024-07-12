@@ -1,11 +1,21 @@
 ﻿@using HoaLacLaptopShop.Areas.Administration.ViewModels
-@model ProductDetailViewModel
+@using HoaLacLaptopShop.Areas.Administration.Controllers
+
+@model ProductUpdateViewModel
 
 @{
-    var brands = (List<SelectListItem>)ViewData["Brands"]!;
-    var cpus = (List<SelectListItem>)ViewData["Cpus"]!;
-    var gpus = (List<SelectListItem>)ViewData["Gpus"]!;
+    ViewData["Title"] = "Creating New Product";
 }
+
+
+<h1>Creating</h1>
+<h2>New Product</h2>
+
+<div style="margin-bottom: 20px">
+    <a class="btn btn-primary" onclick="$('#main-form').submit();">Create</a>
+    <a class="btn btn-primary" asp-action="Index">Back to List</a>
+</div>
+
 
 <div class="mb-3" style="display:flex; justify-content:space-between">
     <h1 class="h3 d-inline align-middle">
@@ -21,171 +31,35 @@
             <div class="tab-pane fade show active" id="account" role="tabpanel">
                 <div class="card">
                     <div class="card-body">
-                        @if (TempData["SuccessMessage"] != null)
-                        {
-                            <div class="alert alert-success">
-                                @TempData["SuccessMessage"]
-                            </div>
-                        }
-
-                        <form method="post" asp-action="Create" asp-controller="Products" enctype="multipart/form-data">
+                        <form method="post" asp-action="Create" asp-controller="Products" enctype="multipart/form-data" id="main-form">
                             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                             <div class="row">
                                 <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label class="form-label" asp-for="Name">Name</label>
-                                        <span asp-validation-for="Name" class="text-danger"></span>
-                                        <input asp-for="Name" type="text" name="name" class="form-control" placeholder="Name">
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label" asp-for="Price">Price</label>
-                                        <span asp-validation-for="Price" class="text-danger"></span>
-                                        <input type="number" asp-for="Price" name="price" class="form-control" placeholder="Price">
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label" asp-for="Stock">Stock</label>
-                                        <span asp-validation-for="Stock" class="text-danger"></span>
-                                        <input type="number" asp-for="Stock" name="stock" class="form-control" placeholder="Stock">
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label">Brand</label><br />
-                                        <span asp-validation-for="BrandId" class="text-danger"></span>
-                                        <select class="form-control form-select" asp-for="BrandId" asp-items="@brands">
-                                            
-                                        </select>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label" asp-for="Description">Description</label>
-                                        <span asp-validation-for="Description" class="text-danger"></span>
-                                        <textarea name="description" asp-for="Description" class="form-control" cols="10" rows="10" placeholder="Description"></textarea>
-                                    </div>
+                                    @await Html.PartialAsync("_ProductInfoView.cshtml", Model)
                                 </div>
                                 <div class="col-md-6">
+
+                                    <div style="margin-bottom: 10px">
+                                        @await Html.PartialAsync("_ProductImagesView.cshtml", Model)
+                                    </div>
 
                                     <div class="mb-3">
                                         <label class="form-label">Product Type</label><br />
                                         <label class="form-check-label">
-                                            <input type="radio" value="0" name="productType" checked> Laptop
+                                            <input type="radio" asp-for="IsLaptop" value="True" checked onchange="updateLaptopSpecVisibility();"> Laptop
                                         </label>
+                                        <br/>
                                         <label class="form-check-label">
-                                            <input type="radio" value="1" name="productType"> Accessories
+                                            <input type="radio" asp-for="IsLaptop" value="False" onchange="updateLaptopSpecVisibility();"> Accessory
                                         </label>
                                     </div>
 
-                                    <div class="mb-3 laptop" id="cpuContainer">
-                                        <label class="form-label">CPU</label><br />
-                                        <span asp-validation-for="Laptop!.CPUSeriesID" class="text-danger"></span>
-                                        <select class="form-control form-select" asp-for="Laptop!.CPUSeriesID" asp-items="@cpus"></select>
+                                    <div>
+                                        @await Html.PartialAsync("_LaptopSpecsView.cshtml", Model.Laptop ?? new Laptop(), "Laptop")
                                     </div>
 
-                                    <div class="mb-3 laptop" id="gpuContainer">
-                                        <label class="form-label">GPU</label><br />
-                                        <span asp-validation-for="Laptop!.GPUSeriesID" class="text-danger"></span>
-                                        <select class="form-control form-select" asp-for="Laptop!.GPUSeriesID" asp-items="@gpus"></select>
-                                    </div>
-                                    <div class="mb-3 laptop">
-                                        <label class="form-label">Screensize</label>
-                                        <span asp-validation-for="Laptop!.ScreenSize" class="text-danger"></span>
-                                        <select class="form-control form-select" asp-for="Laptop!.ScreenSize">
-                                            @{
-                                                var screensize = new[] { 11.6, 12, 13.3, 14, 15.6, 16, 17 };
-                                            }
-                                            <option selected disabled>Inch</option>
-                                            @foreach (float i in screensize)
-                                            {
-                                                <option value="@i">@i inch</option>
-                                            }
-                                        </select>
-                                    </div>
-
-                                    <div class="mb-3 laptop">
-                                        <label class="form-label">Screen resolution</label>
-                                        <span asp-validation-for="Laptop.ScreenResolution" class="text-danger"></span>
-                                        <select class="form-control form-select" asp-for="Laptop.ScreenResolution">
-                                            <option selected disabled>Resolution</option>
-                                            @{
-                                                var screenresolution = new[] { "1920×1080", "1366×768", "1280×1024", "1024×768" };
-                                            }
-                                            @foreach (string i in screenresolution)
-                                            {
-                                                <option value="@i">@i</option>
-                                            }
-                                        </select>
-                                    </div>
-
-                                    <div class="mb-3 laptop">
-                                        <label class="form-label">Storage type</label>
-                                        <span asp-validation-for="Laptop.StorageType" class="text-danger"></span>
-                                        <select class="form-control form-select" asp-for="Laptop.StorageType">
-                                            <option selected disabled>Type</option>
-                                            <option value="@HoaLacLaptopShop.Models.LaptopStorageType.SSD">SSD</option>
-                                            <option value="@HoaLacLaptopShop.Models.LaptopStorageType.HDD">HDD</option>
-                                        </select>
-                                    </div>
-                                    <div class="mb-3 laptop">
-                                        <label class="form-label">Storage Size</label>
-                                        <span asp-validation-for="Laptop.StorageSize" class="text-danger"></span>
-                                        <select class="form-control form-select" asp-for="Laptop.StorageSize">
-                                            <option selected disabled>Size</option>
-                                            @{
-                                                var storagesize = new[] { 256, 512, 1024 };
-                                            }
-                                            @foreach (int i in storagesize)
-                                            {
-                                                <option value="@i">@i GB</option>
-                                            }
-                                        </select>
-                                    </div>
-
-                                    <div class="mb-3 laptop">
-                                        <label class="form-label">Refesh rate</label>
-                                        <span asp-validation-for="Laptop.RefreshRate" class="text-danger"></span>
-                                        <select class="form-control form-select" asp-for="Laptop.RefreshRate">
-                                            <option selected disabled>Rate</option>
-                                            @{
-                                                var refreshrate = new[] { 60, 144, 165 };
-                                            }
-                                            @foreach (int i in refreshrate)
-                                            {
-                                                <option value="@i">@i Hz</option>
-                                            }
-                                        </select>
-                                    </div>
-
-                                    <div class="mb-3 laptop">
-                                        <label class="form-label">Ram</label>
-                                        <span asp-validation-for="Laptop.RAM" class="text-danger"></span>
-                                        <select class="form-control form-select" asp-for="Laptop.RAM">
-                                            <option selected disabled>Ram</option>
-                                            @{
-                                                var ram = new[] { 8, 16, 32, 64 };
-                                            }
-                                            @foreach (int i in ram)
-                                            {
-                                                <option value="@i">@i GB</option>
-                                            }
-                                        </select>
-                                    </div>
-
-                                    <div class="text-center">
-                                        <span class="text-danger">
-
-                                            @Html.ValidationMessage("Images")
-                                        </span>
-                                        <div class="mt-2">
-                                            <input type="file" name="image1" id="image1" />
-                                        </div>
-                                        <div class="mt-2">
-                                            <input type="file" name="image2" id="image2" />
-                                        </div>
-                                        <div class="mt-2">
-                                            <input type="file" name="image3" id="image3" />
-                                        </div>
-                                    </div>
                                 </div>
                             </div>
-
-                            <button type="submit" class="btn btn-primary">Add product</button>
                         </form>
 
                     </div>
@@ -193,29 +67,11 @@
             </div>
         </div>
     </div>
+</div>
 
-    <script>
-        // Get references to the CPU and GPU containers
-
-        var laptops = Array.from(document.getElementsByClassName('laptop'));
-
-        // Add event listener to the radio buttons
-        var radioButtons = document.querySelectorAll('input[name="productType"]');
-        radioButtons.forEach(function (radio) {
-            radio.addEventListener('change', function () {
-                if (radio.value === '0') {
-                    laptops.forEach(function (lap) {
-                        lap.style.display = 'block';
-                    });
-                } else {
-                    laptops.forEach(function (lap) {
-                        lap.style.display = 'none';
-                    });
-                }
-            });
-        });
-    </script>
-
-
-
-
+@section Scripts
+{
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

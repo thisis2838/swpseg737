@@ -3018,7 +3018,7 @@ textarea.form-control-lg {
 .btn-success {
     background-color: #1cbb8c;
     border-color: #1cbb8c;
-    color: #000
+    color: #fff
 }
 
     .btn-check:focus + .btn-success, .btn-success:focus, .btn-success:hover {
@@ -3114,13 +3114,11 @@ textarea.form-control-lg {
 .btn-danger {
     background-color: #dc3545;
     border-color: #dc3545;
-    color: #fff
 }
 
     .btn-check:focus + .btn-danger, .btn-danger:focus, .btn-danger:hover {
         background-color: #bb2d3b;
         border-color: #b02a37;
-        color: #fff
     }
 
     .btn-check:focus + .btn-danger, .btn-danger:focus {
@@ -3130,7 +3128,6 @@ textarea.form-control-lg {
     .btn-check:active + .btn-danger, .btn-check:checked + .btn-danger, .btn-danger.active, .btn-danger:active, .show > .btn-danger.dropdown-toggle {
         background-color: #b02a37;
         border-color: #a52834;
-        color: #fff
     }
 
         .btn-check:active + .btn-danger:focus, .btn-check:checked + .btn-danger:focus, .btn-danger.active:focus, .btn-danger:active:focus, .show > .btn-danger.dropdown-toggle:focus {
@@ -3140,7 +3137,6 @@ textarea.form-control-lg {
     .btn-danger.disabled, .btn-danger:disabled {
         background-color: #dc3545;
         border-color: #dc3545;
-        color: #fff
     }
 
 .btn-light {
@@ -13847,10 +13843,6 @@ textarea.form-control-lg {
 .btn .feather {
     height: 14px;
     width: 14px
-}
-
-.btn-danger, .btn-danger.disabled, .btn-danger.focus, .btn-danger.hover:not(:disabled):not(.disabled), .btn-danger:disabled, .btn-danger:focus, .btn-danger:hover:not(:disabled):not(.disabled), .btn-dark, .btn-dark.disabled, .btn-dark.focus, .btn-dark.hover:not(:disabled):not(.disabled), .btn-dark:disabled, .btn-dark:focus, .btn-dark:hover:not(:disabled):not(.disabled), .btn-info, .btn-info.disabled, .btn-info.focus, .btn-info.hover:not(:disabled):not(.disabled), .btn-info:disabled, .btn-info:focus, .btn-info:hover:not(:disabled):not(.disabled), .btn-light, .btn-light.disabled, .btn-light.focus, .btn-light.hover:not(:disabled):not(.disabled), .btn-light:disabled, .btn-light:focus, .btn-light:hover:not(:disabled):not(.disabled), .btn-outline-danger.hover:not(:disabled):not(.disabled), .btn-outline-danger:hover:not(:disabled):not(.disabled), .btn-outline-danger:not(:disabled):not(.disabled).active, .btn-outline-danger:not(:disabled):not(.disabled):active, .btn-outline-dark.hover:not(:disabled):not(.disabled), .btn-outline-dark:hover:not(:disabled):not(.disabled), .btn-outline-dark:not(:disabled):not(.disabled).active, .btn-outline-dark:not(:disabled):not(.disabled):active, .btn-outline-info.hover:not(:disabled):not(.disabled), .btn-outline-info:hover:not(:disabled):not(.disabled), .btn-outline-info:not(:disabled):not(.disabled).active, .btn-outline-info:not(:disabled):not(.disabled):active, .btn-outline-light.hover:not(:disabled):not(.disabled), .btn-outline-light:hover:not(:disabled):not(.disabled), .btn-outline-light:not(:disabled):not(.disabled).active, .btn-outline-light:not(:disabled):not(.disabled):active, .btn-outline-primary.hover:not(:disabled):not(.disabled), .btn-outline-primary:hover:not(:disabled):not(.disabled), .btn-outline-primary:not(:disabled):not(.disabled).active, .btn-outline-primary:not(:disabled):not(.disabled):active, .btn-outline-secondary.hover:not(:disabled):not(.disabled), .btn-outline-secondary:hover:not(:disabled):not(.disabled), .btn-outline-secondary:not(:disabled):not(.disabled).active, .btn-outline-secondary:not(:disabled):not(.disabled):active, .btn-outline-success.hover:not(:disabled):not(.disabled), .btn-outline-success:hover:not(:disabled):not(.disabled), .btn-outline-success:not(:disabled):not(.disabled).active, .btn-outline-success:not(:disabled):not(.disabled):active, .btn-outline-warning.hover:not(:disabled):not(.disabled), .btn-outline-warning:hover:not(:disabled):not(.disabled), .btn-outline-warning:not(:disabled):not(.disabled).active, .btn-outline-warning:not(:disabled):not(.disabled):active, .btn-primary, .btn-primary.disabled, .btn-primary.focus, .btn-primary.hover:not(:disabled):not(.disabled), .btn-primary:disabled, .btn-primary:focus, .btn-primary:hover:not(:disabled):not(.disabled), .btn-secondary, .btn-secondary.disabled, .btn-secondary.focus, .btn-secondary.hover:not(:disabled):not(.disabled), .btn-secondary:disabled, .btn-secondary:focus, .btn-secondary:hover:not(:disabled):not(.disabled), .btn-success, .btn-success.disabled, .btn-success.focus, .btn-success.hover:not(:disabled):not(.disabled), .btn-success:disabled, .btn-success:focus, .btn-success:hover:not(:disabled):not(.disabled), .btn-warning, .btn-warning.disabled, .btn-warning.focus, .btn-warning.hover:not(:disabled):not(.disabled), .btn-warning:disabled, .btn-warning:focus, .btn-warning:hover:not(:disabled):not(.disabled), .show > .btn-danger.dropdown-toggle, .show > .btn-dark.dropdown-toggle, .show > .btn-info.dropdown-toggle, .show > .btn-light.dropdown-toggle, .show > .btn-primary.dropdown-toggle, .show > .btn-secondary.dropdown-toggle, .show > .btn-success.dropdown-toggle, .show > .btn-warning.dropdown-toggle {
-    color: #fff
 }
 
 .btn-facebook {
@@ -30011,4 +30003,8 @@ body[data-theme=colored] .simplebar-scrollbar:before {
     position: sticky;
     top: 0;
     width: 264px
+}
+
+.btn-danger {
+    color: #fff
 }

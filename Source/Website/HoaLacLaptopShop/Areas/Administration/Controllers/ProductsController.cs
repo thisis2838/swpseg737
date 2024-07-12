@@ -8,6 +8,14 @@ using HoaLacLaptopShop.Areas.Administration.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using HoaLacLaptopShop.Data;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using HoaLacLaptopShop.Filters;
+using HoaLacLaptopShop.Services;
+using Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
+using Microsoft.VisualBasic;
+using NuGet.Protocol;
+using System.Diagnostics;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using NuGet.Packaging;
 
 namespace HoaLacLaptopShop.Areas.Administration.Controllers
 {
@@ -17,100 +25,177 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
     {
         private readonly HoaLacLaptopShopContext _context = null!;
         private readonly IWebHostEnvironment _environment;
+        private readonly ILocalResourceService _local = null!;
 
-        public ProductsController(HoaLacLaptopShopContext context, IWebHostEnvironment environment)
+        public ProductsController
+        (
+            HoaLacLaptopShopContext context, 
+            IWebHostEnvironment environment,
+            ILocalResourceService local
+        )
         {
             _context = context;
             _environment = environment;
+            _local = local;
         }
 
-        private IQueryable<Product> GetProducts(int page)
+        private IQueryable<Product> GetProducts(int page, bool includeDisabled = false)
         {
             return _context.Products
-                .Skip((page - 1) * 10).Take(10)
-                .Include(x => x.ProductImages).Include(x => x.Brand);
+                .OrderByDescending(x => x.ID)
+                .Where(x => !x.IsDisabled || includeDisabled)
+                .Include(x => x.ProductImages).Include(x => x.Brand)
+                .Skip((page - 1) * 10).Take(10);
+        }
+        private async Task InitializeSelections()
+        {
+            ViewData["Selections"] = new ProductUpdateSelections()
+            {
+                Brands = (await _context.Brands.ToListAsync())
+                    .Select(b => new SelectListItem(b.Name, b.ID.ToString()))
+                    .ToList(),
+                GPUs = (await _context.LaptopGPUSeries.ToListAsync())
+                    .Select(b => new SelectListItem(b.Name, b.ID.ToString()))
+                    .ToList(),
+                CPUs = (await _context.LaptopCPUSeries.ToListAsync())
+                    .Select(b => new SelectListItem(b.Name, b.ID.ToString()))
+                    .ToList(),
+                ScreenResolutions = (await _context.Laptops.Select(x => x.ScreenResolution).Distinct().ToListAsync())
+                    .Select(x => new SelectListItem(x, x))
+                    .ToList(),
+                ScreenSizes = (await _context.Laptops.Select(x => x.ScreenSize).Distinct().ToListAsync())
+                    .Select(x => new SelectListItem(x.ToString(), x.ToString()))
+                    .ToList(),
+                ScreenAspectRatios = (await _context.Laptops.Select(x => x.ScreenAspectRatio).Distinct().ToListAsync())
+                    .Select(x => new SelectListItem(x, x))
+                    .ToList(),
+                ScreenRefreshRates = (await _context.Laptops.Select(x => x.RefreshRate).Distinct().ToListAsync())
+                    .Select(x => new SelectListItem(x.ToString(), x.ToString()))
+                    .ToList(),
+                StorageSizes =(await _context.Laptops.Select(x => x.StorageSize).Distinct().ToListAsync())
+                    .Select(x => new SelectListItem(x.ToString(), x.ToString()))
+                    .ToList(),
+                RAMSizes =(await _context.Laptops.Select(x => x.RAM).Distinct().ToListAsync())
+                    .Select(x => new SelectListItem(x.ToString(), x.ToString()))
+                    .ToList(),
+            };
         }
 
-        public IActionResult Index(int? page)
+        public IActionResult Index(ProductIndexArgs? args)
         {
-            var products = GetProducts(page != null ? page.Value : 1);
+            args ??= new ProductIndexArgs();
+            var products = GetProducts(args.TargetPage, args.ShowDisabled);
             return View(new ProductIndexViewModel
             {
                 Products = products.ToList(),
                 TotalCount = _context.Products.Count(),
-                PageIndex = page != null ? Convert.ToInt32(page) : 1
+                ShowDisabled = args.ShowDisabled,
+                TargetPage = args.TargetPage,
             });
         }
 
-        public IActionResult SearchProduct(string search)
+        public async Task<IActionResult> Create()
         {
-            var products = GetProducts(1);
-
-            return View("Product", new ProductIndexViewModel
-            {
-                Products = products.Where(p => p.Name.ToLower().Contains(search.ToLower())).ToList(),
-                TotalCount = _context.Products.Count(),
-                PageIndex = 1
-            });
-        }
-
-        public IActionResult Create()
-        {
-            var pro = new ProductDetailViewModel();
-            var brandSelectList = _context.Brands.Select(b => new SelectListItem
-            {
-                Value = b.ID.ToString(),
-                Text = b.Name
-            }).ToList();
-            ViewData["Brands"] = brandSelectList;
-            /*ViewData["Brands"] = _context.Brands.ToList();*/
-            var cpuSelectList = _context.LaptopCPUSeries.Select(cpu => new SelectListItem
-            {
-                Value = cpu.ID.ToString(),
-                Text = cpu.Name
-            }).ToList();
-            ViewData["Cpus"] = cpuSelectList;
-
-            var gpuSelectList = _context.LaptopGPUSeries.Select(gpu => new SelectListItem
-            {
-                Value = gpu.ID.ToString(),
-                Text = gpu.Name
-            }).ToList();
-            ViewData["Gpus"] = gpuSelectList;
-            return View(pro);
-        }
-
-        public IActionResult Update(int id)
-        {
-            var pro = _context.Products.Where(p => p.ID == id).Include(p => p.ProductImages).Include(p => p.Laptop).FirstOrDefault();
-            var brandSelectList = _context.Brands.Select(b => new SelectListItem
-            {
-                Value = b.ID.ToString(),
-                Text = b.Name
-            }).ToList();
-            ViewData["Brands"] = brandSelectList;
-            /*ViewData["Brands"] = _context.Brands.ToList();*/
-            var cpuSelectList = _context.LaptopCPUSeries.Select(cpu => new SelectListItem
-            {
-                Value = cpu.ID.ToString(),
-                Text = cpu.Name
-            }).ToList();
-            ViewData["Cpus"] = cpuSelectList;
-
-            var gpuSelectList = _context.LaptopGPUSeries.Select(gpu => new SelectListItem
-            {
-                Value = gpu.ID.ToString(),
-                Text = gpu.Name
-            }).ToList();
-            ViewData["Gpus"] = gpuSelectList;
+            var pro = new ProductUpdateViewModel();
+            await InitializeSelections();
             return View(pro);
         }
         [HttpPost]
-        public async Task<IActionResult> Update(Product product, IFormFile image1, IFormFile image2, IFormFile image3)
+        [ModelStateExclude
+        (
+            nameof(Product.RowVersion),
+            nameof(Product.Brand),
+            $"{nameof(Product.Laptop)}.{nameof(Laptop.CPUSeries)}",
+            $"{nameof(Product.Laptop)}.{nameof(Laptop.GPUSeries)}",
+            $"{nameof(Product.ReviewCount)}.{nameof(Product.ReviewTotal)}",
+            nameof(image1), nameof(image2), nameof(image3)
+        )]
+        public async Task<IActionResult> Create
+        (
+            ProductUpdateViewModel product,
+            IFormFile image1, IFormFile image2, IFormFile image3
+        )
         {
-            ModelState.Remove(nameof(image1));
-            ModelState.Remove(nameof(image2));
-            ModelState.Remove(nameof(image3));
+            if (product.IsLaptop)
+            {
+                _context.FillForeignKeys((Product)product);
+                _context.FillForeignKeys(product.Laptop);
+            }
+            else
+            {
+                RemoveLaptopModelState();
+            }
+
+            await InitializeSelections();
+            
+            if (ModelState.IsValid)
+            {
+                if (!_context.Brands.Any(b => b.ID == product.BrandId))
+                {
+                    ModelState.AddModelError(nameof(Product.BrandId), "Invalid brand");
+                    return View(product);
+                }
+
+                product.ProductImages = new List<ProductImage>();
+                if (image1 == null && image2 == null && image3 == null)
+                {
+                    ModelState.AddModelError(nameof(Product.ProductImages), "At least one image must be specified.");
+                    return View(product);
+                }
+                if (!await SaveImagesAsync(product, [image1, image2, image3]))
+                {
+                    return View(product);
+                }
+
+                product.Laptop = product.IsLaptop ? product.Laptop : null;
+                await _context.Products.AddAsync(product);
+                await _context.SaveChangesAsync();
+
+                this.AddMessage("Product added successfully.");
+                return RedirectToAction(nameof(Create));
+            }
+            else
+            {
+                await InitializeSelections();
+                return View(product);
+            }
+        }
+
+        public async Task<IActionResult> Edit(int id)
+        {
+            var pro = _context.Products.Include(p => p.ProductImages).Include(p => p.Laptop)
+                .Where(p => p.ID == id)
+                .FirstOrDefault();
+            if (pro is null)
+            {
+                this.AddError("No such product exists.");
+                return NotFound();
+            }
+
+            await InitializeSelections();
+            return View(pro);
+        }
+        [HttpPost]
+        [ModelStateExclude
+        (
+            nameof(Product.RowVersion),
+            nameof(Product.Brand),
+            $"{nameof(Product.Laptop)}.{nameof(Laptop.CPUSeries)}",
+            $"{nameof(Product.Laptop)}.{nameof(Laptop.GPUSeries)}",
+            $"{nameof(Product.ReviewCount)}.{nameof(Product.ReviewTotal)}",
+            nameof(image1), nameof(image2), nameof(image3)
+        )]
+        public async Task<IActionResult> Edit(Product product, IFormFile? image1, IFormFile? image2, IFormFile? image3)
+        {
+            var existingProduct = await _context.Products
+                .Include(p => p.ProductImages)
+                .Include(p => p.Laptop)
+                .FirstOrDefaultAsync(p => p.ID == product.ID);
+            if (existingProduct == null)
+            {
+                return NotFound();
+            }
+            product.ProductImages = existingProduct.ProductImages;
 
             if (product.IsLaptop)
             {
@@ -119,314 +204,139 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
             }
             else
             {
-                ModelState.Remove("Laptop.ScreenResolution");
-                ModelState.Remove("Laptop.CPUSeriesID");
-                ModelState.Remove("Laptop.GPUSeriesID");
-                ModelState.Remove("Laptop.ScreenSize");
-                ModelState.Remove("Laptop.StorageType");
-                ModelState.Remove("Laptop.StorageSize");
-                ModelState.Remove("Laptop.RefreshRate");
-                ModelState.Remove("Laptop.RAM");
+                RemoveLaptopModelState();
             }
-
             if (ModelState.IsValid)
             {
-                var existingProduct = await _context.Products
-                    .Include(p => p.ProductImages)
-                    .Include(p => p.Laptop)
-                    .FirstOrDefaultAsync(p => p.ID == product.ID);
-
-                if (existingProduct == null)
-                {
-                    return NotFound();
-                }
-
                 // Update product properties
-                existingProduct.Name = product.Name;
-                existingProduct.Price = product.Price;
-                existingProduct.Stock = product.Stock;
-                existingProduct.BrandId = product.BrandId;
-                existingProduct.Description = product.Description;
+                existingProduct.FillFromOther(product, 
+                [
+                    nameof(Product.Name), 
+                    nameof(Product.Price),
+                    nameof(Product.Stock),
+                    nameof(Product.BrandId),
+                    nameof(Product.Description),
+                ]);
 
-                if (product.IsLaptop)
+                if (product.IsLaptop && !existingProduct.IsLaptop)
                 {
-                    if (existingProduct.Laptop == null)
-                    {
-                        existingProduct.Laptop = new Laptop();
-                    }
-
-                    existingProduct.Laptop.CPUSeriesID = product.Laptop.CPUSeriesID;
-                    existingProduct.Laptop.GPUSeriesID = product.Laptop.GPUSeriesID;
-                    existingProduct.Laptop.ScreenSize = product.Laptop.ScreenSize;
-                    existingProduct.Laptop.ScreenResolution = "16:9";
-                    existingProduct.Laptop.StorageType = product.Laptop.StorageType;
-                    existingProduct.Laptop.StorageSize = product.Laptop.StorageSize;
-                    existingProduct.Laptop.RefreshRate = product.Laptop.RefreshRate;
-                    existingProduct.Laptop.RAM = product.Laptop.RAM;
+                    this.AddWarning("Ignored laptop-specific options as product is not a laptop.");
+                }
+                else if (existingProduct.IsLaptop)
+                {
+                    Trace.Assert(existingProduct.Laptop != null && product.Laptop != null);
+                    existingProduct.Laptop.FillFromOther(product.Laptop, exclude:
+                    [
+                        nameof(Laptop.Product),
+                        nameof(Laptop.ProductID)
+                    ]);
                 }
                 else
                 {
-                    existingProduct.Laptop = null;
+                    Trace.Assert(existingProduct.Laptop is null);
                 }
 
-                // Remove and add images based on provided files
-                await RemoveAndAddImagesAsync(existingProduct, image1, image2, image3);
+                if (!await SaveImagesAsync(existingProduct, [image1, image2, image3]))
+                {
+                    return View(product);
+                }
 
-                _context.Products.Update(existingProduct);
                 await _context.SaveChangesAsync();
-
                 return RedirectToAction(nameof(Index));
             }
             else
             {
-                foreach (var modelStateEntry in ModelState.Values)
-                {
-                    foreach (var error in modelStateEntry.Errors)
-                    {
-                        Console.WriteLine("Invalid: " + error.ErrorMessage);
-                    }
-                }
-                var brandSelectList = _context.Brands.Select(b => new SelectListItem
-                {
-                    Value = b.ID.ToString(),
-                    Text = b.Name
-                }).ToList();
-                ViewData["Brands"] = brandSelectList;
-                /*ViewData["Brands"] = _context.Brands.ToList();*/
-                var cpuSelectList = _context.LaptopCPUSeries.Select(cpu => new SelectListItem
-                {
-                    Value = cpu.ID.ToString(),
-                    Text = cpu.Name
-                }).ToList();
-                ViewData["Cpus"] = cpuSelectList;
-
-                var gpuSelectList = _context.LaptopGPUSeries.Select(gpu => new SelectListItem
-                {
-                    Value = gpu.ID.ToString(),
-                    Text = gpu.Name
-                }).ToList();
-                ViewData["Gpus"] = gpuSelectList;
+                await InitializeSelections();
                 return View(product);
             }
         }
-
-        private async Task RemoveAndAddImagesAsync(Product product, IFormFile image1, IFormFile image2, IFormFile image3)
-        {
-            // Fetch existing product images
-            var existingImages = _context.ProductImages.Where(pi => pi.ProductId == product.ID).ToList();
-
-            // Remove images not replaced by new ones
-            if (image1 != null)
-            {
-                var existingImage1 = existingImages.FirstOrDefault(pi => pi.DisplayIndex == 0);
-                if (existingImage1 != null)
-                {
-                    _context.ProductImages.Remove(existingImage1);
-                    existingImages.Remove(existingImage1);
-
-                }
-                var image1Result = await SaveImageAsync(image1, 0);
-                product.ProductImages.Add(image1Result);
-            }
-
-            if (image2 != null)
-            {
-                var existingImage2 = existingImages.FirstOrDefault(pi => pi.DisplayIndex == 1);
-                if (existingImage2 != null)
-                {
-                    _context.ProductImages.Remove(existingImage2);
-                    existingImages.Remove(existingImage2);
-
-                }
-                var image2Result = await SaveImageAsync(image2, 1);
-                product.ProductImages.Add(image2Result);
-            }
-
-            if (image3 != null)
-            {
-                var existingImage3 = existingImages.FirstOrDefault(pi => pi.DisplayIndex == 2);
-                if (existingImage3 != null)
-                {
-                    _context.ProductImages.Remove(existingImage3);
-                    existingImages.Remove(existingImage3);
-
-                }
-                var image3Result = await SaveImageAsync(image3, 2);
-                product.ProductImages.Add(image3Result);
-            }
-        }
-
 
         [HttpPost]
-        public async Task<IActionResult> Create(ProductDetailViewModel product, string productType, IFormFile image1, IFormFile image2, IFormFile image3)
-        {
-            ModelState.Remove(nameof(image1));
-            ModelState.Remove(nameof(image2));
-            ModelState.Remove(nameof(image3));
-            if (productType == "0")
-            {
-                product.IsLaptop = true;
-            }
-            else if (productType == "1")
-            {
-                product.IsLaptop = false;
-            }
-            else
-            {
-                // Nếu productType không phải "0" hoặc "1", xử lý lỗi hoặc cảnh báo
-                ModelState.AddModelError("productType", "Product type must be '0' (Laptop) or '1' (Accessories).");
-                // Hoặc có thể thiết lập mặc định cho IsLaptop hoặc làm gì đó khác tùy vào logic ứng dụng của bạn
-            }
-            if (product.IsLaptop)
-            {
-                _context.FillForeignKeys((Product)product);
-                _context.FillForeignKeys(product.Laptop);
-
-            }
-            else
-            {
-                ModelState.Remove("Laptop.ScreenResolution");
-                ModelState.Remove("Laptop.CPUSeriesID");
-                ModelState.Remove("Laptop.GPUSeriesID");
-                ModelState.Remove("Laptop.ScreenSize");
-                ModelState.Remove("Laptop.StorageType");
-                ModelState.Remove("Laptop.StorageSize");
-                ModelState.Remove("Laptop.RefreshRate");
-                ModelState.Remove("Laptop.RAM");
-            }
-            var brandSelectList = _context.Brands.Select(b => new SelectListItem
-            {
-                Value = b.ID.ToString(),
-                Text = b.Name
-            }).ToList();
-            ViewData["Brands"] = brandSelectList;
-            /*ViewData["Brands"] = _context.Brands.ToList();*/
-            var cpuSelectList = _context.LaptopCPUSeries.Select(cpu => new SelectListItem
-            {
-                Value = cpu.ID.ToString(),
-                Text = cpu.Name
-            }).ToList();
-            ViewData["Cpus"] = cpuSelectList;
-
-            var gpuSelectList = _context.LaptopGPUSeries.Select(gpu => new SelectListItem
-            {
-                Value = gpu.ID.ToString(),
-                Text = gpu.Name
-            }).ToList();
-            ViewData["Gpus"] = gpuSelectList;
-            if (!_context.Brands.Any(b => b.ID == product.BrandId))
-            {
-                ModelState.AddModelError("BrandId", "Invalid brand");
-                return View(product);
-            }
-            if (ModelState.IsValid)
-            {
-                var productImages = new List<ProductImage>();
-                
-
-                if (image1 == null && image2 == null && image3 == null)
-                {
-
-                    ModelState.AddModelError("Images", "Must contain at least 1 picture");
-                    return View(product);
-                }
-
-                // Handle image1
-                var image1Result = await SaveImageAsync(image1, 0);
-                if (image1Result != null)
-                {
-                    productImages.Add(image1Result);
-                }
-
-                // Handle image2
-                var image2Result = await SaveImageAsync(image2, 1);
-                if (image2Result != null)
-                {
-                    productImages.Add(image2Result);
-                }
-
-                // Handle image3
-                var image3Result = await SaveImageAsync(image3, 2);
-                if (image3Result != null)
-                {
-                    productImages.Add(image3Result);
-                }
-
-                product.ProductImages = productImages;
-
-                if (product.IsLaptop)
-                {
-                    product.Laptop!.ScreenAspectRatio = "16:9";
-                }
-
-                product.Laptop = product.IsLaptop ? product.Laptop : null;
-
-                await _context.Products.AddAsync(product);
-                await _context.SaveChangesAsync();
-
-                TempData["SuccessMessage"] = "Product added successfully.";
-
-                return RedirectToAction(nameof(Create));
-            }
-            else
-            {
-                foreach (var modelStateEntry in ModelState.Values)
-                {
-                    foreach (var error in modelStateEntry.Errors)
-                    {
-                        Console.WriteLine("Invalid: " + error.ErrorMessage);
-                    }
-                }
-                
-                return View(product); // Ensure you return the view with the product model if the model state is invalid
-            }
-
-        }
-
-
-        private async Task<ProductImage?> SaveImageAsync(IFormFile image, int displayIndex)
-        {
-            if (image != null && image.Length > 0)
-            {
-                // Get the path to the wwwroot/images/products directory
-                string uploadDirectory = Path.Combine(_environment.WebRootPath, "images", "products");
-
-                // Ensure the directory exists; create it if not
-                if (!Directory.Exists(uploadDirectory))
-                {
-                    Directory.CreateDirectory(uploadDirectory);
-                }
-
-                // Generate a unique filename for the uploaded image
-                string uniqueFileName = $"{DateTime.Now.Ticks:X}+{new Random().Next(0, 0xFFFF):X}";
-
-                // Combine the upload directory path with the unique filename and ".jpeg" extension
-                string filePath = Path.Combine(uploadDirectory, uniqueFileName + ".jpeg");
-
-                // Save the uploaded image to the specified file path as JPEG
-                using (var localImage = Image.Load(image.OpenReadStream()))
-                {
-                    localImage.Save(filePath, new JpegEncoder());
-                }
-
-                // Create and return a new ProductImage object
-                return new ProductImage
-                {
-                    DisplayIndex = displayIndex,
-                    Token = uniqueFileName
-                };
-            }
-
-            return null;
-        }
-
-
-        public IActionResult DeleteProduct(int id)
+        public IActionResult Delete(int id)
         {
             Product product = _context.Products.Where(p => p.ID == id).FirstOrDefault()!;
-            product.IsDeleted = true;
+            product.IsDisabled = true;
             _context.SaveChanges();
             return RedirectToAction(nameof(Index));
         }
+
+        private async Task<bool> SaveImagesAsync(Product p, IList<IFormFile?> images)
+        {
+            var tokens = new List<string?>();
+            string getPath(string token) => _local.GetRelativePath(ResourceType.Images, "products", token + ".jpeg");
+
+            foreach (var image in images)
+            {
+                if (image is null)
+                {
+                    tokens.Add(null);
+                    continue;
+                }
+
+                string token = ResourceHelper.GenerateResourceToken();
+                try
+                {
+                    using (var localImage = Image.Load(image.OpenReadStream()))
+                    using (var file = _local.FileOpen(getPath(token)))
+                    {
+                        await localImage.SaveAsync(file, new JpegEncoder());
+                        tokens.Add(token);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    foreach (var savedToken in tokens)
+                    {
+                        if (savedToken != null) 
+                            _local.FileRemove(getPath(savedToken));
+                    }
+                    if (ex is InvalidImageContentException || ex is UnknownImageFormatException)
+                    {
+                        ModelState.AddModelError(nameof(Product.ProductImages), "One or more images was in an invalid or unparsable format.");
+                        return false;
+                    }
+                    throw;
+                }
+            }
+
+            for (int i = 0; i < tokens.Count; i++)
+            {  
+                if (tokens[i] != null)
+                {
+                    if (i < p.ProductImages.Count)
+                    {
+                        _local.FileRemove(getPath(p.ProductImages.ElementAt(i).Token));
+                        p.ProductImages.ElementAt(i).Token = tokens[i]!;
+                    }
+                    else
+                    {
+                        p.ProductImages.Add(new ProductImage()
+                        {
+                            DisplayIndex = p.ProductImages.Max(x => x.DisplayIndex) + 1,
+                            Token = tokens[i]!,
+                        });
+                    }
+                }
+            }
+            return true;
+        }
+        private void RemoveLaptopModelState()
+        {
+            var removed = ModelState.Where(x => x.Key.StartsWith("Laptop.")).Select(x => x.Key);
+            foreach (var item in removed) ModelState.Remove(item);
+        }
+    }
+
+    public class ProductUpdateSelections
+    {
+        public required ICollection<SelectListItem> Brands = null!;
+        public required ICollection<SelectListItem> CPUs = null!;
+        public required ICollection<SelectListItem> GPUs = null!;
+        public required ICollection<SelectListItem> ScreenSizes = null!;
+        public required ICollection<SelectListItem> ScreenResolutions = null!;
+        public required ICollection<SelectListItem> ScreenAspectRatios = null!;
+        public required ICollection<SelectListItem> ScreenRefreshRates = null!;
+        public required ICollection<SelectListItem> StorageSizes = null!;
+        public required ICollection<SelectListItem> RAMSizes = null!;
     }
 }
