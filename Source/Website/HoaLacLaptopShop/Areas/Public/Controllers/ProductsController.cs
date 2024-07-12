@@ -43,8 +43,8 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
             var gpus = new List<LaptopGPUSeries>();
             if (args.ShowLaptops)
             {
-                cpus = _context.LaptopCPUSeries.ToList();
-                gpus = _context.LaptopGPUSeries.ToList();
+                cpus = _context.LaptopCPUSeries.Include(x => x.Manufacturer).ToList();
+                gpus = _context.LaptopGPUSeries.Include(x => x.Manufacturer).ToList();
                 products = products.Include(x => x.Laptop);
 
                 // update selectable cpus and filter products accordingly

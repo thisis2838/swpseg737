@@ -40,7 +40,7 @@
                                    name="SelectedCpuIDs"
                                    value="@cpu.ID"
                             @(selected ? "checked" : "") />
-                            <label for="cpu_@cpu.ID">@($"{cpu.Name}")</label>
+                            <label for="cpu_@cpu.ID">@($"{cpu.Manufacturer.Name} {cpu.Name}")</label>
                         </li>
                     }
                 </ul>
@@ -58,7 +58,7 @@
                                    name="SelectedGpuIDs"
                                    value="@gpu.ID"
                             @(selected ? "checked" : "") />
-                            <label for="gpu_@gpu.ID">@($"{gpu.Name}")</label>
+                            <label for="gpu_@gpu.ID">@($"{gpu.Manufacturer.Name} {gpu.Name}")</label>
                         </li>
                     }
                 </ul>

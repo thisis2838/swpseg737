@@ -20,7 +20,7 @@ public partial class Product
     public int Price { get; set; }
     [Required(), Range(1, int.MaxValue)]
     public int Stock { get; set; }
-    [MaxLength(2048)]
+    [MaxLength(4000)]
     public string? Description { get; set; }
     [DisplayName("Has been disabled?")]
     public bool IsDisabled { get; set; }
