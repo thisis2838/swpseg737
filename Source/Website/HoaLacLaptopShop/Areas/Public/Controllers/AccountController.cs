@@ -184,6 +184,26 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
             return _context.Users.Any(x => x.ID == id);
         }
 
+        public async Task<IActionResult> OrderHistory()
+        {
+            var id = HttpContext.GetCurrentUser().ID;
+            var user = _context.Users.Find(id);
+            if (user != null)
+            {
+                var order = await _context.Orders
+                    .Include(o => o.OrderDetails).ThenInclude(oi => oi.Product)
+                    .Include(o => o.Voucher)
+                    .Where(o => o.BuyerID == id)
+                    .ToListAsync();
+                return View(order);
+            }
+            else
+            {
+                this.SetError("User could not be found");
+                return NotFound();
+            }
+        }
+
        
     }
 }

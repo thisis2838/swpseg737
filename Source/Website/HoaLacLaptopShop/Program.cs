@@ -63,7 +63,7 @@ internal class Program
             {
                 options.ViewLocationExpanders.Add(new CustomViewLocationExpander());
             });
-
+        builder.Services.AddSingleton<IVnPayService, VnPayService>();
         var app = builder.Build();
         CleanUpTemporaryFiles(app.Services);
 
