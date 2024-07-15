@@ -11,7 +11,6 @@ public partial class Product
     public int BrandId { get; set; }
     public virtual Brand? Brand { get; set; } = null!;
 
-
     [Required(AllowEmptyStrings = false), MaxLength(256)]
     public string Name { get; set; } = null!;
     public int Price { get; set; }
