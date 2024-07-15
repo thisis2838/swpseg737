@@ -13,8 +13,7 @@ public partial class Product
     [Required()]
     public int BrandId { get; set; }
     public virtual Brand Brand { get; set; } = null!;
-
-    [Required(AllowEmptyStrings = false), MinLength(5), MaxLength(256)]
+    [Required(AllowEmptyStrings = false), MaxLength(256)]
     public string Name { get; set; } = null!;
     [Required(), Range(1000, int.MaxValue)]
     public int Price { get; set; }
@@ -27,6 +26,7 @@ public partial class Product
     [DisplayName("Is a Laptop?")]
 
     public bool IsLaptop { get; set; }
+
     [Timestamp]
     public byte[] RowVersion { get; set; }
     public virtual Laptop? Laptop { get; set; }
@@ -36,9 +36,6 @@ public partial class Product
     [HiddenInput]
     public int ReviewTotal { get; set; }
     public decimal AveargeRating => ReviewCount == 0 ? 0 : decimal.Divide(ReviewTotal, ReviewCount);
-
-    [Timestamp]
-    public byte[] RowVersion { get; set; } = null!;
 
     public virtual ICollection<OrderDetail> OrderDetails { get; set; } = new List<OrderDetail>();
     public virtual ICollection<ProductImage> ProductImages { get; set; } = new List<ProductImage>();

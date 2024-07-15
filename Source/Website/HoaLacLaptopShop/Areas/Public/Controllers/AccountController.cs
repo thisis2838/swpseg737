@@ -199,7 +199,7 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
             }
             else
             {
-                this.SetError("User could not be found");
+                this.AddError("User could not be found");
                 return NotFound();
             }
         }

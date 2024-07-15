@@ -3,12 +3,11 @@ using HoaLacLaptopShop.Models;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using HoaLacLaptopShop.Helpers;
-using Azure.Core;
-using HoaLacLaptopShop.Areas.Public.Controllers;
 using HoaLacLaptopShop.Areas.Public.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using HoaLacLaptopShop.Services;
 using HoaLacLaptopShop.Areas.Shared.ViewModels;
+using HoaLacLaptopShop.Data;
 
 public class CheckoutController : Controller
 {
@@ -89,13 +88,13 @@ public class CheckoutController : Controller
             // Clear the cart after confirming the order
             HttpContext.Session.Remove(CartController.CART_KEY);
 
-            this.SetMessage("Order has been placed successfully!");
+            this.AddMessage("Order has been placed successfully!");
             return RedirectToAction("Index", "Home");
         }
         catch (DbUpdateConcurrencyException ex)
         {
             _context.Database.RollbackTransaction();
-            this.SetError("Concurrency conflict: Your order could not be processed as another user updated one of the products.");
+            this.AddError("Concurrency conflict: Your order could not be processed as another user updated one of the products.");
             return RedirectToAction("Index", "Cart");
         }
         catch (Exception ex)
@@ -128,7 +127,7 @@ public class CheckoutController : Controller
             var product = _context.Products.SingleOrDefault(p => p.ID == cartItem.ID);
             if (product == null)
             {
-                this.SetError("A product in your order could not be found.");
+                this.AddError("A product in your order could not be found.");
                 //return RedirectToAction("Index", "Cart");
             }
             // Decrease the product quantity
@@ -145,7 +144,7 @@ public class CheckoutController : Controller
                 if (databaseValues == null)
                 {
                     // The product was deleted by another user
-                    this.SetError("This product in order was out of stock, ordered by another user.");
+                    this.AddMessage("This product in order was out of stock, ordered by another user.");
                     // You might want to handle this differently
                     continue;
                 }
