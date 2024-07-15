@@ -30,12 +30,27 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
             var salesPercentage = CalculateSalesNumber(order).GetItemByIndex(1);
             var orderCount = OrderCount(order)[0];
             var orderPercentage = OrderCount(order)[1];
+			var topSellingProducts = _context.OrderDetails
+	                          .Include(od => od.Product)
+								.ThenInclude(p => p.ProductImages)
+	                            .Include(od => od.Product.Brand)
+							  .GroupBy(od => od.ProductId)
+	                          .Select(g => new
+	                          {
+		                          Product = g.First().Product,
+		                          Count = g.Count()
+	                          })
+	                          .OrderByDescending(x => x.Count)
+	                          .Take(5)
+	                          .ToList();
 
+			ViewBag.TopSellingProducts = topSellingProducts;
             ViewBag.SalesData = salesData;
             ViewBag.SalesMoney = salesMoney;
             ViewBag.SalesPercentage = salesPercentage;
             ViewBag.OrderCount = orderCount;
             ViewBag.OrderPercentage = orderPercentage;
+            ViewBag.TopSellingProducts = topSellingProducts;
 
             return View(order);
         }
@@ -119,5 +134,6 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
             };
 			return orderData;
         }
+    
     }
 }

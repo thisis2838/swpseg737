@@ -249,7 +249,7 @@
 			<div class="col-12 col-lg-8 col-xxl-9 d-flex">
 				<div class="card flex-fill">
 					<div class="card-header">
-						<div class="card-actions float-end">
+						@* <div class="card-actions float-end">
 							<div class="dropdown position-relative">
 								<a href="#" data-bs-toggle="dropdown" data-bs-display="static">
 									<i class="align-middle" data-feather="more-horizontal"></i>
@@ -261,61 +261,58 @@
 									<a class="dropdown-item" href="#">Something else here</a>
 								</div>
 							</div>
-						</div>
-						<h5 class="card-title mb-0">Latest Projects</h5>
+						</div> *@
+						<h5 class="card-title mb-0">Top 5 Selling Products</h5>
 					</div>
 					<table class="table table-borderless my-0">
 						<thead>
 							<tr>
 								<th>Name</th>
 								<th class="d-none d-xxl-table-cell">Company</th>
-								<th class="d-none d-xl-table-cell">Author</th>
-								<th>Status</th>
+								<th>Numbers</th>
 								<th class="d-none d-xl-table-cell">Action</th>
 							</tr>
 						</thead>
 						<tbody>
-							<tr>
-								<td>
-									<div class="d-flex">
-										<div class="flex-shrink-0">
-											<div class="bg-light rounded-2">
-												<img class="p-2" src="img/icons/brand-1.svg">
+							@if (ViewBag.TopSellingProducts != null)
+							{
+								foreach (var item in ViewBag.TopSellingProducts)
+								{									
+									<tr>
+										<td>
+											<div class="d-flex">
+												<div class="flex-shrink-0">
+													<div class="bg-light rounded-2">
+														<img class="p-2" src="">
+														@* @item.Product.ProductImages.Get(0) *@
+													</div>
+												</div>
+												<div class="flex-grow-1 ms-3">
+													<strong>@item.Product.ID</strong>
+													<div class="text-muted">
+														@item.Product.Name
+													</div>
+												</div>
 											</div>
-										</div>
-										<div class="flex-grow-1 ms-3">
-											<strong>Project Apollo</strong>
+										</td>
+										<td class="d-none d-xxl-table-cell">
+											<strong>Lechters</strong>
 											<div class="text-muted">
-												Web, UI/UX Design
+												@item.Product.Brand.Name
 											</div>
-										</div>
-									</div>
-								</td>
-								<td class="d-none d-xxl-table-cell">
-									<strong>Lechters</strong>
-									<div class="text-muted">
-										Real Estate
-									</div>
-								</td>
-								<td class="d-none d-xl-table-cell">
-									<strong>Vanessa Tucker</strong>
-									<div class="text-muted">
-										HTML, JS, React
-									</div>
-								</td>
-								<td>
-									<div class="d-flex flex-column w-100">
-										<span class="me-2 mb-1 text-muted">65%</span>
-										<div class="progress progress-sm bg-success-light w-100">
-											<div class="progress-bar bg-success" role="progressbar" style="width: 65%;"></div>
-										</div>
-									</div>
-								</td>
-								<td class="d-none d-xl-table-cell">
-									<a href="#" class="btn btn-light">View</a>
-								</td>
-							</tr>
-							<tr>
+										</td>
+										<td>
+											<div class="d-flex flex-column w-100">
+												<span class="me-2 mb-1 text-muted">@item.Count</span>
+											</div>
+										</td>
+										<td class="d-none d-xl-table-cell">
+											<a href="#" class="btn btn-light">View</a>
+										</td>
+									</tr>
+								}								
+							}
+							@* <tr>
 								<td>
 									<div class="d-flex">
 										<div class="flex-shrink-0">
@@ -474,7 +471,7 @@
 								<td class="d-none d-xl-table-cell">
 									<a href="#" class="btn btn-light">View</a>
 								</td>
-							</tr>
+							</tr> *@
 						</tbody>
 					</table>
 				</div>
