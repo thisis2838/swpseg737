@@ -86,9 +86,7 @@ public class VoucherController : Controller
     {
         if (ModelState.IsValid)
         {
-            var issuerId = HttpContext.Session.GetString("CurrentUserId");
-
-            // Chuyển đổi IssuerId thành số nguyên nếu cần
+            var issuerId = HttpContext.Session.GetString("CurrentUserId");         
             if (int.TryParse(issuerId, out int parsedIssuerId))
             {
                 voucher.IssuerId = parsedIssuerId;
