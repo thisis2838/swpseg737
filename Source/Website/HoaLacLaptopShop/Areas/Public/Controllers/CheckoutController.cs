@@ -5,9 +5,9 @@ using Microsoft.EntityFrameworkCore;
 using HoaLacLaptopShop.Helpers;
 using HoaLacLaptopShop.Areas.Public.ViewModels;
 using Microsoft.AspNetCore.Authorization;
-using HoaLacLaptopShop.Services;
 using HoaLacLaptopShop.Areas.Shared.ViewModels;
 using HoaLacLaptopShop.Data;
+using HoaLacLaptopShop.ThirdParty.VNPay;
 
 public class CheckoutController : Controller
 {

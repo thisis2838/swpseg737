@@ -3,6 +3,7 @@ using HoaLacLaptopShop.Helpers;
 using HoaLacLaptopShop.Middlewares;
 using HoaLacLaptopShop.Models;
 using HoaLacLaptopShop.Services;
+using HoaLacLaptopShop.ThirdParty.VNPay;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
