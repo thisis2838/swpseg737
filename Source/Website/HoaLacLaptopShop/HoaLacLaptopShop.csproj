@@ -14,6 +14,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="Views\Voucher\Create.cshtml" />
+    <None Include="Views\Voucher\Delete.cshtml" />
+    <None Include="Views\Voucher\Detail.cshtml" />
+    <None Include="Views\Voucher\Index.cshtml" />
+    <None Include="Views\Voucher\Update.cshtml" />
     <None Include="wwwroot\js\site.js" />
   </ItemGroup>
 
@@ -46,6 +51,22 @@
 
   <ItemGroup>
     <_ContentIncludedByDefault Remove="Areas\Public\Views\Shared\_Layout1.cshtml" />
+    <Content Update="Views\CPU\Create.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="Views\CPU\Delete.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="Views\CPU\Index.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="Views\CPU\Update.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
   </ItemGroup>
 
 </Project>
