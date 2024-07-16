@@ -28,7 +28,7 @@ public partial class Product
 
     public bool IsLaptop { get; set; }
     [Timestamp]
-    public byte[] RowVersion { get; set; }
+    public byte[] RowVersion { get; set; } = null!;
     public virtual Laptop? Laptop { get; set; }
 
     [HiddenInput]
@@ -36,9 +36,6 @@ public partial class Product
     [HiddenInput]
     public int ReviewTotal { get; set; }
     public decimal AveargeRating => ReviewCount == 0 ? 0 : decimal.Divide(ReviewTotal, ReviewCount);
-
-    [Timestamp]
-    public byte[] RowVersion { get; set; } = null!;
 
     public virtual ICollection<OrderDetail> OrderDetails { get; set; } = new List<OrderDetail>();
     public virtual ICollection<ProductImage> ProductImages { get; set; } = new List<ProductImage>();
