@@ -13,8 +13,7 @@ public partial class Product
     [Required()]
     public int BrandId { get; set; }
     public virtual Brand Brand { get; set; } = null!;
-
-    [Required(AllowEmptyStrings = false), MinLength(5), MaxLength(256)]
+    [Required(AllowEmptyStrings = false), MaxLength(256)]
     public string Name { get; set; } = null!;
     [Required(), Range(1000, int.MaxValue)]
     public int Price { get; set; }
@@ -27,6 +26,7 @@ public partial class Product
     [DisplayName("Is a Laptop?")]
 
     public bool IsLaptop { get; set; }
+
     [Timestamp]
     public byte[] RowVersion { get; set; } = null!;
     public virtual Laptop? Laptop { get; set; }

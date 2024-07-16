@@ -3,8 +3,6 @@ using HoaLacLaptopShop.Models;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using HoaLacLaptopShop.Helpers;
-using Azure.Core;
-using HoaLacLaptopShop.Areas.Public.Controllers;
 using HoaLacLaptopShop.Areas.Public.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using HoaLacLaptopShop.Services;
