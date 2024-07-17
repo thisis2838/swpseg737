@@ -18,11 +18,11 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
             _context = context;
         }
 
-        public IActionResult Sales()
+        public async Task<IActionResult> Sales()
         {
-            var order = _context.Orders.Include(o => o.Buyer).Include(o => o.OrderDetails).ThenInclude(oi => oi.Product)
+            var order = await _context.Orders.Include(o => o.OrderDetails)
                 .Where(o => o.Status != OrderStatus.Created)
-                .ToList();
+                .ToListAsync();
             var earningOrder = order.Where(o => o.Status == OrderStatus.Finished).ToList();
 
             var salesData = CalculateSalesData(order);
@@ -87,7 +87,7 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
             if (lastWeekSale == 0) lastWeekSale = 1;
 
             // Calculate the percentage change
-            decimal percentageChange = ((thisWeekSale - lastWeekSale) / lastWeekSale) * 100;
+            decimal percentageChange = ((thisWeekSale - lastWeekSale) / lastWeekSale) * 100 > 1000 ? 1000 : ((thisWeekSale - lastWeekSale) / lastWeekSale) * 100;
             List<Decimal> salesData = new List<Decimal>
             {
                 thisWeekSale,
@@ -127,6 +127,7 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
 			decimal lastWeekOrders = orders.Count(o => o.Status != OrderStatus.Created && (o.OrderTime >= lastWeekMonday && o.OrderTime < mostRecentMonday));
 
             decimal percentage = lastWeekOrders == 0 ? (thisWeekOrders - 1) * 100 : ((thisWeekOrders - lastWeekOrders) / lastWeekOrders) * 100;
+            if (percentage > 1000) percentage = 1000;
             List<decimal> orderData = new List<decimal>
             {
                 thisWeekOrders, 
