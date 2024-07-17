@@ -1,0 +1,50 @@
+﻿@using HoaLacLaptopShop.Areas.Administration.ViewModels
+@model BrandIndexViewModel
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Brands</h1>
+<a asp-action="Add" class="btn btn-primary">Add</a>
+<hr/>
+
+<form asp-action="Index" method="get">
+    <div class="form-group col-md-6">
+        <input asp-for="Search" class="form-control" style="width: unset; display: unset" placeholder="Search by Name" />
+        <button type="submit" class="btn btn-primary">Search</button>
+    </div>
+</form>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Brands.First().ID)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Brands.First().Name)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Brands.First().Description)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Brands.First().Country)
+            </th>              
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var brand in Model.Brands)
+        {
+            <tr>
+                <td>@brand.ID</td>
+                <td>@brand.Name</td>
+                <td class="admin-table-long">@brand.Description</td>
+                <td>@brand.Country</td>
+                <td>
+                    <a class="btn btn-warning" href="@Url.Action("Edit", new { id = brand.ID })">Edit</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

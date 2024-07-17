@@ -12,7 +12,7 @@ public partial class Brand
     [Required, MaxLength(256)]
     public string Name { get; set; } = null!;
     [MaxLength(1024)]
-    public string? Description { get; set; }
+    public string Description { get; set; } = null!;
     [MaxLength(256)]
     public string Country { get; set; } = null!;
 

@@ -14,11 +14,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="Views\Voucher\Create.cshtml" />
-    <None Include="Views\Voucher\Delete.cshtml" />
-    <None Include="Views\Voucher\Detail.cshtml" />
-    <None Include="Views\Voucher\Index.cshtml" />
-    <None Include="Views\Voucher\Update.cshtml" />
+    <None Include="Areas\Administration\Views\Voucher\Create.cshtml" />
+    <None Include="Areas\Administration\Views\Voucher\Delete.cshtml" />
+    <None Include="Areas\Administration\Views\Voucher\Detail.cshtml" />
+    <None Include="Areas\Administration\Views\Voucher\Index.cshtml" />
+    <None Include="Areas\Administration\Views\Voucher\Update.cshtml" />
     <None Include="wwwroot\js\site.js" />
   </ItemGroup>
 
@@ -51,19 +51,18 @@
 
   <ItemGroup>
     <_ContentIncludedByDefault Remove="Areas\Public\Views\Shared\_Layout1.cshtml" />
-    <Content Update="Views\CPU\Create.cshtml">
+    <Compile Update="Areas\Administration\Controllers\BrandsController.cs">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Compile>
+    <Content Update="Areas\Administration\Views\ComponentSeries\CPU\Add.cshtml">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </Content>
-    <Content Update="Views\CPU\Delete.cshtml">
+    <Content Update="Areas\Administration\Views\ComponentSeries\CPU\Index.cshtml">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </Content>
-    <Content Update="Views\CPU\Index.cshtml">
-      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-    </Content>
-    <Content Update="Views\CPU\Update.cshtml">
+    <Content Update="Areas\Administration\Views\ComponentSeries\CPU\Edit.cshtml">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </Content>

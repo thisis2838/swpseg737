@@ -41,7 +41,7 @@ namespace HoaLacLaptopShop.Helpers
         public static bool IsLoggedIn(this HttpContext context)
         {
             return context.GetCurrentUserID() is not null 
-                && context.Items["CurrentUser"] as User != null;
+                && context.Items["CurrentUser"] is not null;
         }
 
         public static User? GetCurrentUser(this HttpContext context)

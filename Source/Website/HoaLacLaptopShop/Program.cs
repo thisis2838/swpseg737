@@ -9,8 +9,11 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Razor;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.EntityFrameworkCore;
+using System.Diagnostics;
+using System.Linq;
 using System.Net;
 
 internal class Program
@@ -62,9 +65,10 @@ internal class Program
             .AddControllersWithViews()
             .AddRazorOptions(options =>
             {
-                options.ViewLocationExpanders.Add(new CustomViewLocationExpander());
+                options.ViewLocationExpanders.Add(new ViewLocationExpander());
             });
         builder.Services.AddSingleton<IVnPayService, VnPayService>();
+
         var app = builder.Build();
         CleanUpTemporaryFiles(app.Services);
 
@@ -101,6 +105,24 @@ internal class Program
             pattern: "{controller}/{action}/{id?}",
             new { controller = "Home", action = "Index" }
         );
+
+        if (app.Environment.IsDevelopment())
+        {
+            app.MapGet
+            (
+                "/debug/routes", 
+                (IEnumerable<EndpointDataSource> endpointSources) =>
+                {
+                    var endpoints = endpointSources
+                        .SelectMany(source => source.Endpoints).OfType<RouteEndpoint>()
+                        .Select(x =>
+                        {
+                            return $"{x.DisplayName!} ({x.RoutePattern.RawText!})" ;
+                        });
+                    return string.Join("\n", endpoints);
+                }
+            );
+        }
 
         app.Run();
     }

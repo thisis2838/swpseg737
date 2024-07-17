@@ -26,7 +26,7 @@ namespace HoaLacLaptopShop.Models
 
         public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
 
-        public float CalculateDiscount(float total)
+        public decimal CalculateDiscount(decimal total)
         {
             if (total < MinimumOrderPrice)
             {

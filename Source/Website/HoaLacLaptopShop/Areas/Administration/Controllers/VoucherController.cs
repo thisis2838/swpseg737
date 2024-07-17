@@ -1,8 +1,10 @@
-﻿using HoaLacLaptopShop.Models;
+﻿using HoaLacLaptopShop.Data;
+using HoaLacLaptopShop.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 
+[Area("Administration")]
 public class VoucherController : Controller
 {
     private readonly HoaLacLaptopShopContext _context;
@@ -33,19 +35,18 @@ public class VoucherController : Controller
         {
             return RedirectToAction("Error403", "Error");
         }
-        var vouchers = from v in _context.Vouchers
-                       select v;
+        var vouchers = from v in _context.Vouchers select v;
         ViewData["CurrentFilter"] = filter;
         // Filter based on the expiration date
         if (!String.IsNullOrEmpty(filter))
         {
             if (filter == "Expired")
             {
-                vouchers = vouchers.Where(v => v.ExpiryDate < DateTime.Now);
+                vouchers = vouchers.Where(v => v.ExpiryDate < DateOnly.FromDateTime(DateTime.Now));
             }
             else if (filter == "Available")
             {
-                vouchers = vouchers.Where(v => v.ExpiryDate >= DateTime.Now);
+                vouchers = vouchers.Where(v => v.ExpiryDate < DateOnly.FromDateTime(DateTime.Now));
             }
         }
         return View(await vouchers.ToListAsync());
