@@ -57,7 +57,7 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
         [Route("Login"), Route("Account/Login")]
         public async Task<ActionResult> Login(LoginViewModel model, string? returnUrl)
         {
-            ViewBag.returnUrl = returnUrl;
+            ViewBag.ReturnUrl = returnUrl;
             if (HttpContext.IsLoggedIn())
             {
                 this.AddError("You are logged in already...");

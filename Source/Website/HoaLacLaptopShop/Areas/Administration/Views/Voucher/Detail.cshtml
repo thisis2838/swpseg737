@@ -1,0 +1,76 @@
+﻿@model HoaLacLaptopShop.Models.Voucher
+
+@{
+    ViewData["Title"] = "Detail";
+}
+
+<h2>Voucher Details</h2>
+
+<table class="table">
+    <tbody>
+        <tr>
+            <th>ID</th>
+            <td>@Model.ID</td>
+        </tr>
+        <tr>
+            <th>Code</th>
+            <td>@Model.Code</td>
+        </tr>
+        <tr>
+            <th>Minimum Order Price</th>
+            <td>@Model.MinimumOrderPrice</td>
+        </tr>
+        <tr>
+            <th>Discount Value</th>
+            <td>@Model.DiscountValue</td>
+        </tr>
+        <tr>
+            <th>Is Percentage Discount</th>
+            <td>@Model.IsPercentageDiscount</td>
+        </tr>
+        <tr>
+            <th>Expiry Date</th>
+            <td>@Model.ExpiryDate.ToShortDateString()</td>
+        </tr>
+        <tr>
+            <th>Issuer ID</th>
+            <td>@Model.IssuerId</td>
+        </tr>
+        <tr>
+            <th>Used Time</th>
+            <td>@ViewBag.UsedTime</td>
+        </tr>
+        <h4>Orders using this voucher</h4>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Buyer ID</th>
+                    <th>Status</th>
+                    <th>Address</th>
+                    <th>Phone Number</th>
+                    <th>Note</th>
+                    <th>Creation Time</th>
+                    <th>Total Price</th>
+                    <th>Payment Method</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var order in ViewBag.Orders)
+                {
+                    <tr>
+                        <td>@order.ID</td>
+                        <td>@order.BuyerID</td>
+                        <td>@order.Status</td>
+                        <td>@order.Address</td>
+                        <td>@order.PhoneNumber</td>
+                        <td>@order.Note</td>
+                        <td>@order.CreationTime</td>
+                        <td>@order.TotalPrice</td>
+                        <td>@order.PaymentMethod</td>
+                    </tr>
+                }
+    </tbody>
+</table>
+
+<a asp-action="Index">Back to List</a>

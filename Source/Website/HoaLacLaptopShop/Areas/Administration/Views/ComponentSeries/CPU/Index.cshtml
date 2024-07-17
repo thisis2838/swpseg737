@@ -1,0 +1,41 @@
+﻿@using HoaLacLaptopShop.Areas.Administration.ViewModels.ComponentSeries
+@model CPUIndexViewModel
+
+<h1>CPU Series</h1>
+<a asp-action="Add" class="btn btn-primary">Add</a>
+<hr />
+
+<form asp-action="Index" method="get">
+    <div class="form-group col-md-6">
+        <input asp-for="Search" class="form-control" style="width: unset; display: unset" placeholder="Enter search term" />
+        <button type="submit" class="btn btn-primary">Search</button>
+    </div>
+</form>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Manufacturer</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.CPUSeries)
+        {
+            <tr>
+                <td>@item.ID</td>
+                <td>@item.Name</td>
+                <td>@item.Manufacturer?.Name</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.ID" class="btn btn-warning">Edit</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+@if (!Model.CPUSeries.Any())
+{
+    <p>Nothing to show!</p>
+}

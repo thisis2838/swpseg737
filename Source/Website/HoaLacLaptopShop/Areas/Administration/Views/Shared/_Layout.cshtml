@@ -11,12 +11,10 @@
     <link rel="shortcut icon" href="~/images/icons/icon-48x48.png" />
 
     <link rel="canonical" href="tables-datatables-responsive.html" />
-    <link 
-        rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" 
-        integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
-        crossorigin="anonymous" 
-        referrerpolicy="no-referrer" 
-    />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+          integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+          crossorigin="anonymous"
+          referrerpolicy="no-referrer" />
     <title>Hoalac Laptops | @ViewData["Title"]</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&amp;display=swap" rel="stylesheet">
@@ -74,31 +72,42 @@
                     <li class="sidebar-header">
                         Pages
                     </li>
+                    @if (user.IsSales || user.IsMarketing)
+                    {
+                        <li class="sidebar-item">
+                            <a class="sidebar-link" href="@Url.Action("Index", "Products")">
+                                <i class="align-middle" data-feather="package"></i> <span class="align-middle">Products</span>
+                            </a>
+                        </li>
+                        if (user.IsSales)
+                        {
+                            <li class="sidebar-item">
+                                <a data-bs-target="#component-series" data-bs-toggle="collapse" class="sidebar-link" aria-expanded="true">
+                                    <i class="align-middle" data-feather="cpu"></i>
+                                    <span class="align-middle">Component Series</span>
+                                </a>
+                                <ul id="component-series" class="sidebar-dropdown list-unstyled collapse show" data-bs-parent="#sidebar" style="">
+                                    <li class="sidebar-item"><a class="sidebar-link" href="@Url.ActionLink("Index", "CPU")">CPU Series</a></li>
+                                    <li class="sidebar-item"><a class="sidebar-link" href="@Url.ActionLink("Index", "GPU")">GPU Series</a></li>
+                                </ul>
+                            </li>
+                        }
+                        <li class="sidebar-item">
+                            <a class="sidebar-link" href="@Url.Action("Index", "Brands")">
+                                <i class="align-middle" data-feather="tag"></i> <span class="align-middle">Brands</span>
+                            </a>
+                        </li>
+                    }
                     <li class="sidebar-item">
-                        <a class="sidebar-link" href="@Url.Action("Index", "Products")">
-                            <i class="align-middle" data-feather="package"></i> <span class="align-middle">Products</span>
-                        </a>
-                    </li>
-                    <li class="sidebar-item">
-                        <a class="sidebar-link" href="@Url.Action("Index", "Brands")">
-                            <i class="align-middle" data-feather="circle"></i> <span class="align-middle">Brands</span>
-                        </a>
-                    </li>
-                    <li class="sidebar-item">
-                        <a class="sidebar-link" href="@Url.Action("Index", "Orders")">
-                            <i class="align-middle" data-feather="shopping-cart"></i> <span class="align-middle">Orders</span>
+                        <a class="sidebar-link" href="@Url.Action("Index", "Users")">
+                            <i class="align-middle" data-feather="user"></i> <span class="align-middle">Users</span>
                         </a>
                     </li>
                     @if (user.IsSales)
                     {
                         <li class="sidebar-item">
-                            <a class="sidebar-link" href="@Url.Action("Index", "Users")">
-                                <i class="align-middle" data-feather="user"></i> <span class="align-middle">Users</span>
-                            </a>
-                        </li>
-                        <li class="sidebar-item">
-                            <a class="sidebar-link" href="@Url.Action("Index", "NewsPosts")">
-                                <i class="align-middle" data-feather="mail"></i> <span class="align-middle">News</span>
+                            <a class="sidebar-link" href="@Url.Action("Index", "Orders")">
+                                <i class="align-middle" data-feather="shopping-cart"></i> <span class="align-middle">Orders</span>
                             </a>
                         </li>
                     }
@@ -107,6 +116,11 @@
                         <li class="sidebar-item">
                             <a class="sidebar-link" href="@Url.Action("Sales", "Statistics")">
                                 <i class="align-middle" data-feather="bar-chart"></i> <span class="align-middle">Sales</span>
+                            </a>
+                        </li>
+                        <li class="sidebar-item">
+                            <a class="sidebar-link" href="@Url.Action("Index", "NewsPosts")">
+                                <i class="align-middle" data-feather="mail"></i> <span class="align-middle">News</span>
                             </a>
                         </li>
                     }

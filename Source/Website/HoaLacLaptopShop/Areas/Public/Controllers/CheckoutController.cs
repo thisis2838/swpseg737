@@ -5,9 +5,9 @@ using Microsoft.EntityFrameworkCore;
 using HoaLacLaptopShop.Helpers;
 using HoaLacLaptopShop.Areas.Public.ViewModels;
 using Microsoft.AspNetCore.Authorization;
-using HoaLacLaptopShop.Services;
 using HoaLacLaptopShop.Areas.Shared.ViewModels;
 using HoaLacLaptopShop.Data;
+using HoaLacLaptopShop.ThirdParty.VNPay;
 
 public class CheckoutController : Controller
 {
@@ -144,13 +144,13 @@ public class CheckoutController : Controller
                 if (databaseValues == null)
                 {
                     // The product was deleted by another user
-                    this.AddMessage("This product in order was out of stock, ordered by another user.");
+                    this.AddError("This product in order was out of stock, ordered by another user.");
                     // You might want to handle this differently
                     continue;
                 }
 
-                var dbQuantity = (int)databaseValues[nameof(Product.Stock)];
-                var dbRowVersion = (byte[])databaseValues[nameof(Product.RowVersion)];
+                var dbQuantity = (int)databaseValues[nameof(Product.Stock)]!;
+                var dbRowVersion = (byte[])databaseValues[nameof(Product.RowVersion)]!;
 
                 // Print out the error with RowVersion values
                 var errorMessage = $"Concurrency conflict: Product was updated by another user. " +
@@ -181,16 +181,17 @@ public class CheckoutController : Controller
                 issue = issue
             });
         }
+        if (voucher == null)
+        {
+            return invalid("Invalid Voucher");
+        }
 
         bool checkExpired = DateTime.Now.Date <= voucher.ExpiryDate.ToDateTime(new TimeOnly());
         if (!checkExpired) return invalid("Voucher has expired");
         var existInOrder = _context.Orders.Any(o => o.VoucherID == voucher.ID && o.BuyerID == userId) && checkExpired;
         if (existInOrder) return invalid("You already used this voucher");
 
-        if (voucher == null)
-        {
-            return invalid("Invalid Voucher");
-        }
+        
 
         decimal discount = CalculateDiscount(voucher, request.subTotal);
         if (discount == 0) return invalid("Please buy more!");

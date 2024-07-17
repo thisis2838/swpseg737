@@ -2,7 +2,7 @@
 
 namespace HoaLacLaptopShop.Services
 {
-    public class CustomViewLocationExpander : IViewLocationExpander
+    public class ViewLocationExpander : IViewLocationExpander
     {
         public void PopulateValues(ViewLocationExpanderContext context)
         {
@@ -19,6 +19,7 @@ namespace HoaLacLaptopShop.Services
                 var areaViewLocations = new[]
                 {
                     $"/Areas/{areaName}/Views/{{1}}/{{0}}.cshtml",
+                    $"/Areas/{areaName}/Views/ComponentSeries/{{1}}/{{0}}.cshtml",
                     $"/Areas/{areaName}/Views/Shared/{{0}}.cshtml"
                 };
 

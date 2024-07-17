@@ -28,7 +28,7 @@ public partial class Product
     public bool IsLaptop { get; set; }
 
     [Timestamp]
-    public byte[] RowVersion { get; set; }
+    public byte[] RowVersion { get; set; } = null!;
     public virtual Laptop? Laptop { get; set; }
 
     [HiddenInput]
