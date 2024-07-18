@@ -89,19 +89,47 @@ public class CartController : Controller
         var existingOrder = _context.Orders
             .Include(o => o.OrderDetails).ThenInclude(od => od.Product)
             .FirstOrDefault(o => o.BuyerID == user.ID && o.Status == OrderStatus.Created);
+
         if (existingOrder != null)
         {
-            var cartItems = existingOrder.OrderDetails.Select(od => new CartItem
-            {
-                ID = od.ProductId,
-                ProductName = od.Product.Name,
-                ThumbnailLink = _context.ProductImages.FirstOrDefault(pi => pi.ProductId == od.ProductId)!.GetProductImageURL(),
-                Price = od.Product.Price,
-                Quantity = od.Quantity
-            })
-            .ToList();
+            var newCart = new List<CartItem>();
+            bool orderChanged = false;
 
-            HttpContext.Session.Set(CART_KEY, cartItems);
+            foreach (var od in existingOrder.OrderDetails)
+            {
+                // Get the current stock level
+                var currentStock = _context.Products
+                    .Where(p => p.ID == od.ProductId)
+                    .Select(p => p.Stock)
+                    .FirstOrDefault();
+
+                // Adjust the quantity based on current stock
+                var adjustedQuantity = Math.Min(od.Quantity, currentStock);
+
+                if (od.Quantity != adjustedQuantity)
+                {
+                    od.Quantity = adjustedQuantity;
+                    orderChanged = true;
+                }
+
+                var cartItem = new CartItem
+                {
+                    ID = od.ProductId,
+                    ProductName = od.Product.Name,
+                    ThumbnailLink = _context.ProductImages.FirstOrDefault(pi => pi.ProductId == od.ProductId)!.GetProductImageURL(),
+                    Price = od.Product.Price,
+                    Quantity = adjustedQuantity
+                };
+
+                newCart.Add(cartItem);
+            }
+
+            if (orderChanged)
+            {
+                _context.SaveChanges();
+            }
+
+            HttpContext.Session.Set(CART_KEY, newCart);
         }
     }
 
