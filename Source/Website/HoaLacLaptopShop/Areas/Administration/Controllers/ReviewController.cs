@@ -1,5 +1,6 @@
 ﻿using HoaLacLaptopShop.Areas.Administration.ViewModels;
 using HoaLacLaptopShop.Data;
+using HoaLacLaptopShop.Helpers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -43,6 +44,7 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
             var review = _context.ProductReviews.Where(pr => pr.ProductId == pid && pr.ReviewerId == rid).FirstOrDefault();
             _context.ProductReviews.Remove(review);
             _context.SaveChanges();
+            this.AddMessage("Delete review successful!");
             return RedirectToAction("Index");
         }
 
