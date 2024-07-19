@@ -109,6 +109,24 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
         [Authorize]
         public ActionResult Edit()
         {
+            var orderCount = _context.Orders.Where(x => x.BuyerID == currentUser.ID).Count();
+            var currentUser = HttpContext.GetCurrentUser()!;
+            return View(new AccountEditViewModel()
+            {
+                ID = currentUser.ID,
+                Email = currentUser.Email,
+                Name = currentUser.Name,
+                Gender = currentUser.Gender,
+                PhoneNumber = currentUser.PhoneNumber,
+                IsAdmin = currentUser.IsAdmin,
+                IsMarketing = currentUser.IsMarketing,
+                IsSales = currentUser.IsSales
+            });
+        }
+
+        [Authorize]
+        public ActionResult Details()
+        {
             var currentUser = HttpContext.GetCurrentUser()!;
             return View(new AccountEditViewModel()
             {

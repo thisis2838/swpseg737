@@ -27,9 +27,7 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
         {
             _context = context;
         }
-
-
-        public ActionResult Index(int? page, string? searchTerm)
+        public ActionResult Index(string? searchTerm, int targetPage = 1)
         {
             var users = _context.Users.AsQueryable();
             if (!string.IsNullOrEmpty(searchTerm))
@@ -42,12 +40,12 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
                         || u.PhoneNumber.Contains(searchTerm)
                     );
             }
-            var curPage = users.Skip(((page ?? 1) - 1) * 12).Take(12);
+            var curPage = users.Skip((targetPage - 1) * 12).Take(12);
             return View(new UserIndexViewModel
             {
                 Users = curPage.ToList(),
                 TotalCount = users.Count(),
-                PageIndex = page != null ? Convert.ToInt32(page) : 1,
+                TargetPage = targetPage,
                 SearchTerm = searchTerm!
             });
         }
