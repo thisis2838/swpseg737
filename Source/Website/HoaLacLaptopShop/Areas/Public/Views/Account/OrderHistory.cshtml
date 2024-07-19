@@ -48,7 +48,7 @@
                 <td><span class="badge bg-@(item.Status)">@item.Status</span></td>
                 <td>@item.TotalPrice</td>
                 <td>
-                    <a asp-route-id="@item.ID" asp-controller="Users" asp-action="OrderHistory" class="btn btn-primary" style="margin-top: 0; border-radius: 50%"><i class="fa-solid fa-chevron-right"></i></a>
+                    <a asp-route-id="@item.ID" asp-controller="Account" asp-action="OrderDetails" class="btn btn-primary" style="margin-top: 0; border-radius: 50%"><i class="fa-solid fa-chevron-right"></i></a>
                 </td>
             </tr>
         }

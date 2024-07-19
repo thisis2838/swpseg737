@@ -261,7 +261,7 @@ public class CheckoutController : Controller
         {
             order.PaymentMethod = PaymentMethod.Online;
             order.OrderTime = DateTime.Now;
-            //order.Status = OrderStatus.Completed; // Mark order as completed
+            order.Status = OrderStatus.Delivering; // Mark order as completed
             _context.SaveChanges();
 
             TempData["Message"] = "Thanh toán VNPay thành công";

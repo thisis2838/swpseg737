@@ -203,7 +203,19 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
                 return NotFound();
             }
         }
+        
+        public IActionResult OrderDetail(int id)
+        {
+            var order =  _context.Orders
+                .Include(o => o.OrderDetails).ThenInclude(oi => oi.Product)
+                .Include(o => o.Buyer)
+                .FirstOrDefault(x => x.ID == id);
 
-       
+            if (order is null)
+            {
+                return NotFound();
+            }
+            return View(order);
+        }
     }
 }
