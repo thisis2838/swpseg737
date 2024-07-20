@@ -30,7 +30,7 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
         }
 
         [Authorize(Roles = "Admin,Sales")]
-        public ActionResult Index(int? page, string? searchTerm)
+        public ActionResult Index(int page = 1, string? searchTerm = null)
         {
             var users = _context.Users.AsQueryable();
             if (!string.IsNullOrEmpty(searchTerm))
@@ -43,12 +43,12 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
                         || u.PhoneNumber.Contains(searchTerm)
                     );
             }
-            var curPage = users.Skip((targetPage - 1) * 12).Take(12);
+            var curPage = users.Skip((page - 1) * 12).Take(12);
             return View(new UserIndexViewModel
             {
                 Users = curPage.ToList(),
                 TotalCount = users.Count(),
-                TargetPage = targetPage,
+                TargetPage = page,
                 SearchTerm = searchTerm!
             });
         }
