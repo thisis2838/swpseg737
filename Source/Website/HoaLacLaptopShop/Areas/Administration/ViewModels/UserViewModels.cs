@@ -8,5 +8,6 @@ namespace HoaLacLaptopShop.Areas.Administration.ViewModels
         public int TotalCount { get; set; }
         public int PageIndex { get; set; }
         public string? SearchTerm { get; set; }
+        public int TargetPage { get; set; } = 1;
     }
 }
