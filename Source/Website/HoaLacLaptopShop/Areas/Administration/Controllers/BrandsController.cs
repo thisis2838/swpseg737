@@ -12,7 +12,6 @@ using Microsoft.EntityFrameworkCore;
 namespace HoaLacLaptopShop.Areas.Administration.Controllers
 {
     [Area("Administration")]
-    [Authorize(Roles = "Marketing,Staff,Admin")]
     public class BrandsController : Controller
     {
         private readonly HoaLacLaptopShopContext _context;
@@ -22,6 +21,7 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
             _context = context;
         }
 
+        [Authorize(Roles = "Sales,Marketing")]
         public async Task<IActionResult> Index(BrandIndexArgs args)
         {
             var brands = _context.Brands.AsQueryable();
@@ -39,6 +39,7 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
             });
         }
 
+        [Authorize(Roles = "Sales")]
         public IActionResult Add()
         {
             return View();
@@ -63,6 +64,7 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
             return View(brand);
         }
 
+        [Authorize(Roles = "Sales")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -77,6 +79,7 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
             return View(brand);
         }
         [HttpPost]
+        [Authorize(Roles = "Sales")]
         [ValidateAntiForgeryToken]
         [ModelStateInclude
         (
@@ -114,6 +117,7 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Sales")]
         public async Task<IActionResult> Delete(int id)
         {
             var brand = await _context.Brands.FindAsync(id);

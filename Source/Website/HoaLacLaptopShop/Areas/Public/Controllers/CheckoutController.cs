@@ -186,12 +186,10 @@ public class CheckoutController : Controller
             return invalid("Invalid Voucher");
         }
 
-        bool checkExpired = DateTime.Now.Date <= voucher.ExpiryDate.ToDateTime(new TimeOnly());
+        bool checkExpired = DateTime.Now.Date <= voucher.ExpiryDate;
         if (!checkExpired) return invalid("Voucher has expired");
         var existInOrder = _context.Orders.Any(o => o.VoucherID == voucher.ID && o.BuyerID == userId) && checkExpired;
         if (existInOrder) return invalid("You already used this voucher");
-
-        
 
         decimal discount = CalculateDiscount(voucher, request.subTotal);
         if (discount == 0) return invalid("Please buy more!");
@@ -203,8 +201,7 @@ public class CheckoutController : Controller
     {
         // Your logic to check if the voucher code is valid
         // Return true if valid, false otherwise
-        return DateTime.Now.Date <= voucher.ExpiryDate.ToDateTime(new TimeOnly()) &&
-            !(_context.Orders.Any(o => o.VoucherID == voucher.ID && o.BuyerID == userId));
+        return DateTime.Now.Date <= voucher.ExpiryDate && !(_context.Orders.Any(o => o.VoucherID == voucher.ID && o.BuyerID == userId));
     }
 
     private decimal CalculateDiscount(Voucher voucher, decimal subtotal)
@@ -243,7 +240,7 @@ public class CheckoutController : Controller
 
         if (response == null || response.VnPayResponseCode != "00")
         {
-            TempData["Message"] = $"Lỗi thanh toán VN Pay: {response.VnPayResponseCode}";
+            this.AddMessage($"Lỗi thanh toán VN Pay: {response.VnPayResponseCode}");
             return RedirectToAction("PaymentFail");
         }
         // Extract OrderId from the OrderInfo
@@ -251,7 +248,7 @@ public class CheckoutController : Controller
         var orderIdString = orderInfo.Split(':').Last().Trim();
         if (!int.TryParse(orderIdString, out int orderId))
         {
-            TempData["Message"] = "Lỗi thanh toán VN Pay: Order ID không hợp lệ";
+            this.AddMessage("Lỗi thanh toán VN Pay: Order ID không hợp lệ");
             return RedirectToAction("PaymentFail");
         }
 
@@ -264,7 +261,7 @@ public class CheckoutController : Controller
             //order.Status = OrderStatus.Completed; // Mark order as completed
             _context.SaveChanges();
 
-            TempData["Message"] = "Thanh toán VNPay thành công";
+            this.AddMessage("Thanh toán VNPay thành công");
             return RedirectToAction("PaymentSuccess");
         }
 

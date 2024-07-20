@@ -1,0 +1,10 @@
+﻿@model dynamic
+@{
+    ViewData["Title"] = $"{Model.Heading} - {Model.Subheading}";
+}
+
+<div class="admin-heading">
+    <h1> <i data-feather="package" class="fa-solid fa-xs"></i> @Model.Heading</h1>
+    <i data-feather="arrow-right"></i>
+    <h2>@Model.Subheading</h2>
+</div>

@@ -4,7 +4,10 @@
     ViewData["Title"] = "Index";
 }
 
-<h1>Brands</h1>
+<partial 
+    name="~/Areas/Administration/Views/Shared/_PageHeading.cshtml" 
+    model="@(new{ Heading = "Brands", Subheading = "List"})" 
+/>
 <a asp-action="Add" class="btn btn-primary">Add</a>
 <hr/>
 

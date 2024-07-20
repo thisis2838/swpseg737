@@ -9,7 +9,7 @@ using static NuGet.Packaging.PackagingConstants;
 namespace HoaLacLaptopShop.Areas.Administration.Controllers
 {
 	[Area("Administration")]
-	[Authorize(Roles = "Admin,Marketing")]
+	[Authorize(Roles = "Marketing")]
 	public class StatisticsController : Controller
 	{
 		private readonly HoaLacLaptopShopContext _context = null!;

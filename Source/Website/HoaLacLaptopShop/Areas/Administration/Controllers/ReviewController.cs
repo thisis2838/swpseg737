@@ -1,12 +1,14 @@
 ﻿using HoaLacLaptopShop.Areas.Administration.ViewModels;
 using HoaLacLaptopShop.Data;
 using HoaLacLaptopShop.Helpers;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace HoaLacLaptopShop.Areas.Administration.Controllers
 {
     [Area("Administration")]
+    [Authorize(Roles = "Marketing")]
     public class ReviewController : Controller
     {
         private readonly HoaLacLaptopShopContext _context = null!;

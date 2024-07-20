@@ -1,13 +1,15 @@
 ﻿@model HoaLacLaptopShop.Areas.Administration.ViewModels.ReviewDetailViewModel
 
-<h1>Review</h1>
-<h2>Review by @Model.User.Name </h2>
-
+<partial 
+    name="~/Areas/Administration/Views/Shared/_PageHeading.cshtml" 
+    model="@(new{ Heading = "Reviews", Subheading = $"#({Model.User.ID} {Model.ProductReview.ProductId})"})" 
+/>
 <div>
     <div class="btn btn-danger" onclick="confirmDelete()">Delete</div>
     <a class="btn btn-primary" asp-action="Index">Back to List</a>
 </div>
 <hr />
+
 <div>
     <div class="row">
         <div class="col-md-6" style="border-right: 1px solid #ccc">

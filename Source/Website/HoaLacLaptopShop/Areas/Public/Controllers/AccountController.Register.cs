@@ -131,7 +131,7 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
                 this.AddError($"Invalid activation code. You have {verif.TriesLeft} tries left.");
                 verif.TriesLeft--;
                 HttpContext.Session.Set(CUR_VERIF_KEY, verif);
-                return View();
+                return RedirectToAction(nameof(RegisterChallenge), new {email = verif.RegisterViewModel.Email});
             }
             if (DateTime.Now - verif.RegistrationTime > TimeSpan.FromMinutes(5))
             {

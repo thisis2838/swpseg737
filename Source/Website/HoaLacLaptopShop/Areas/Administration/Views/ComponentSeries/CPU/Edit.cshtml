@@ -3,8 +3,10 @@
     ViewData["Title"] = "Update";
 }
 
-<h1>Editing</h1>
-<h2>CPU Series #@(Model.ID)</h2>
+<partial 
+    name="~/Areas/Administration/Views/Shared/_PageHeading.cshtml" 
+    model="@(new{ Heading = "Component Series", Subheading = $"CPU #{Model.ID}"})" 
+/>
 
 <div>
     <div value="Save" onclick="$('#main-form').submit();" class="btn btn-primary">Save</div>

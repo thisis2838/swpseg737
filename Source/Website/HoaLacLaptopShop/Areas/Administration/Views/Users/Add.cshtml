@@ -1,0 +1,32 @@
+﻿@model RegisterViewModel
+@{
+    ViewData["Title"] = "Create";
+}
+
+<partial 
+    name="~/Areas/Administration/Views/Shared/_PageHeading.cshtml" 
+    model="@(new{ Heading = "Users", Subheading = $"Add New"})" 
+/>
+<div style="margin-bottom: 20px">
+    <a class="btn btn-primary" onclick="$('#main-form').submit();">Add</a>
+    <a class="btn btn-primary" asp-action="Index">Back to List</a>
+</div>
+<hr />
+
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Add" id="main-form">
+            <partial name="_UserDetailsView.cshtml" model="@Model" />
+            <div class="form-group">
+                <label asp-for="Password" class="control-label form-label"></label>
+                <input asp-for="Password" class="form-control" />
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts 
+{
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

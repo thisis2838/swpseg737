@@ -43,6 +43,8 @@ public partial class Order
     public int? VoucherID { get; set; }
     public virtual Voucher? Voucher { get; set; }
 
+    public string FullAddress => $"{Street}, {Ward}, {District}, {Province}";
+
     public virtual ICollection<OrderDetail> OrderDetails { get; set; } = new List<OrderDetail>();
 }
 

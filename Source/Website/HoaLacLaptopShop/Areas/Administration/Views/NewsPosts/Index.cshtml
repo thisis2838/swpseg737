@@ -5,7 +5,10 @@
     ViewData["Title"] = "News";
 }
 
-<h1>News Posts</h1>
+<partial 
+    name="~/Areas/Administration/Views/Shared/_PageHeading.cshtml" 
+    model="@(new{ Heading = "News Posts", Subheading = $"List"})" 
+/>
 <a class="btn btn-primary" asp-action="Create">Create New</a>
 <hr />
 

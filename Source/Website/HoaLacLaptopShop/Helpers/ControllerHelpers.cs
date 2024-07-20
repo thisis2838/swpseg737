@@ -20,7 +20,7 @@ namespace HoaLacLaptopShop.Helpers
         public static void AddNotifications(this ITempDataDictionary temp, NotificationType type, params string[] newNotifs)
         {
             var notifs = temp[type.ToString()] as ICollection<string> ?? new List<string>();
-            notifs.AddRange(newNotifs);
+            notifs = notifs.AsEnumerable().Concat(newNotifs).ToList();
             temp[type.ToString()] = notifs;
         }
         public static void AddError(this Controller controller, params string[] errors)

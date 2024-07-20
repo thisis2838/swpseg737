@@ -2,105 +2,100 @@
 @using HoaLacLaptopShop.Areas.Administration.Controllers
 @model ProductIndexViewModel
 
-<div class="mb-3" style="display:flex; justify-content:space-between">
-    <h1 class="h3 d-inline align-middle">
-        <a href="@Url.Action("Index","Products")">
-            Product list
-        </a>
-    </h1>
-    <a href="@Url.Action("Create","Products")" class="btn btn-success"><i class="fa-solid fa-plus"></i> Add</a>
-</div>
+<partial 
+    name="~/Areas/Administration/Views/Shared/_PageHeading.cshtml" 
+    model="@(new{ Heading = "Products", Subheading = "List"})" 
+/>
 
-<div class="row">
-    <div class="card">
-        <div class="card-body">
-            <form asp-action="Index" method="get">
-                <label class="form-label" asp-for="ShowDisabled">
-                    <input type="checkbox" asp-for="ShowDisabled" onchange="this.form.submit();" />
-                    Show Disabled Products
-                </label>
-                <input type="hidden" asp-for="TargetPage" id="page" />
+<a asp-action="Add" class="btn btn-success"><i class="fa-solid fa-plus"></i> Add</a>
+<hr />
 
-                <nav>
-                    <ul class="pagination">
-                        @{
-                            int currentPage = Model.TargetPage;
-                            int totalPage = (Model.TotalCount - 1) / 10 + 1;
-                            int startPage = Math.Max(1, currentPage - 2);
-                            int endPage = Math.Min(totalPage, currentPage + 2);
+<form asp-action="Index" method="get" class="row">   
+    <nav class="col-md-6">
+        <ul class="pagination" >
+            @{
+                int currentPage = Model.TargetPage;
+                int totalPage = (Model.TotalCount - 1) / 10 + 1;
+                int startPage = Math.Max(1, currentPage - 2);
+                int endPage = Math.Min(totalPage, currentPage + 2);
 
-                            if (startPage > 1)
-                            {
-                                <li class="page-item">
-                                    <input type="submit" class="page-link" onclick="$('#page').val(1)" value="1" />
-                                </li>
-                                if (startPage > 2)
-                                {
-                                    <li class="page-item disabled"><span class="page-link">...</span></li>
-                                }
-                            }
-
-                            for (int i = startPage; i <= endPage; i++)
-                            {
-                                <li class="page-item @(i == currentPage ? "active" : "")">
-                                    <input type="submit" class="page-link" onclick="$('#page').val(@i)" value="@i" />
-                                </li>
-                            }
-
-                            if (endPage < totalPage)
-                            {
-                                if (endPage < totalPage - 1)
-                                {
-                                    <li class="page-item disabled"><span class="page-link">...</span></li>
-                                }
-                                <li class="page-item">
-                                    <input type="submit" class="page-link" onclick="$('#page').val(@totalPage)" value="@totalPage" />
-                                </li>
-                            }
-                        }
-                    </ul>
-                </nav>
-            </form>
-
-
-            <table id="datatables-reponsive" class="table table-striped" style="width:100%">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Image</th>
-                        <th>Name</th>
-                        <th>Brand</th>
-                        <th>Price</th>
-                        <th>Quantity</th>
-                        <th>Average Rating</th>
-                        <th>Has been disabled?</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var product in Model.Products)
+                if (startPage > 1)
+                {
+                    <li class="page-item">
+                        <input type="submit" class="page-link" onclick="$('#page').val(1)" value="1" />
+                    </li>
+                    if (startPage > 2)
                     {
-                        <tr>
-                            <td>@product.ID</td>
-                            <td>
-                                <img src="@product.ProductImages.First().GetProductImageURL()"
-                                     alt=""
-                                     style="width: 50px; height: 50px; object-fit: contain" />
-                            </td>
-                            <td>@product.Name</td>
-                            <td>@product.Brand!.Name</td>
-                            <td>@product.Price.ToString("N0")</td>
-                            <td>@product.Stock</td>
-                            <td>@($"{product.AveargeRating:0.00} ({product.ReviewCount})")</td>
-                            <td>@product.IsDisabled</td>
-                            <td>
-                                <a asp-action="Edit" asp-route-id="@product.ID"><p class="btn btn-warning" style="width:90px"><i class="fa-solid fa-pen"></i> Edit </p></a><br />
-                            </td>
-                        </tr>
+                        <li class="page-item disabled"><span class="page-link">...</span></li>
                     }
+                }
 
-                </tbody>
-            </table>
+                for (int i = startPage; i <= endPage; i++)
+                {
+                    <li class="page-item @(i == currentPage ? "active" : "")">
+                        <input type="submit" class="page-link" onclick="$('#page').val(@i)" value="@i" />
+                    </li>
+                }
+
+                if (endPage < totalPage)
+                {
+                    if (endPage < totalPage - 1)
+                    {
+                        <li class="page-item disabled"><span class="page-link">...</span></li>
+                    }
+                    <li class="page-item">
+                        <input type="submit" class="page-link" onclick="$('#page').val(@totalPage)" value="@totalPage" />
+                    </li>
+                }
+            }
+        </ul>
+    </nav>
+    <div class="col-md-6">
+        <div class="fa-pull-right">
+            <label class="form-label" asp-for="ShowDisabled">
+                <input type="checkbox" asp-for="ShowDisabled" onchange="this.form.submit();" />
+                Show Disabled Products
+            </label>
+            <input type="hidden" asp-for="TargetPage" id="page" />
         </div>
     </div>
-</div>
+</form>
+
+<table id="datatables-reponsive" class="table table-striped" style="width:100%">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Image</th>
+            <th>Name</th>
+            <th>Brand</th>
+            <th>Price</th>
+            <th>Quantity</th>
+            <th>Average Rating</th>
+            <th>Has been disabled?</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var product in Model.Products)
+        {
+            <tr>
+                <td>@product.ID</td>
+                <td>
+                    <img src="@product.ProductImages.First().GetProductImageURL()"
+                            alt=""
+                            style="width: 50px; height: 50px; object-fit: contain" />
+                </td>
+                <td>@product.Name</td>
+                <td>@product.Brand!.Name</td>
+                <td>@product.Price.ToString("N0")</td>
+                <td>@product.Stock</td>
+                <td>@($"{product.AveargeRating:0.00} ({product.ReviewCount})")</td>
+                <td>@product.IsDisabled</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@product.ID"><p class="btn btn-warning" style="width:90px"><i class="fa-solid fa-pen"></i> Edit </p></a><br />
+                </td>
+            </tr>
+        }
+
+    </tbody>
+</table>

@@ -20,7 +20,6 @@ using NuGet.Packaging;
 namespace HoaLacLaptopShop.Areas.Administration.Controllers
 {
     [Area("Administration")]
-    [Authorize(Roles = "Admin,Sales")]
     public class ProductsController : Controller
     {
         private readonly HoaLacLaptopShopContext _context = null!;
@@ -39,6 +38,7 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
             _local = local;
         }
 
+        [NonAction]
         private IQueryable<Product> GetProducts(int page, bool includeDisabled = false)
         {
             return _context.Products
@@ -47,6 +47,7 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
                 .Include(x => x.ProductImages).Include(x => x.Brand)
                 .Skip((page - 1) * 10).Take(10);
         }
+        [NonAction]
         private async Task InitializeSelections()
         {
             ViewData["Selections"] = new ProductUpdateSelections()
@@ -81,6 +82,7 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
             };
         }
 
+        [Authorize(Roles = "Marketing,Staff")]
         public IActionResult Index(ProductIndexArgs? args)
         {
             args ??= new ProductIndexArgs();
@@ -94,7 +96,8 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
             });
         }
 
-        public async Task<IActionResult> Create()
+        [Authorize(Roles = "Staff")]
+        public async Task<IActionResult> Add()
         {
             var pro = new ProductUpdateViewModel();
             await InitializeSelections();
@@ -110,7 +113,8 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
             $"{nameof(Product.ReviewCount)}.{nameof(Product.ReviewTotal)}",
             nameof(image1), nameof(image2), nameof(image3)
         )]
-        public async Task<IActionResult> Create
+        [Authorize(Roles = "Staff")]
+        public async Task<IActionResult> Add
         (
             ProductUpdateViewModel product,
             IFormFile image1, IFormFile image2, IFormFile image3
@@ -152,7 +156,7 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
                 await _context.SaveChangesAsync();
 
                 this.AddMessage("Product added successfully.");
-                return RedirectToAction(nameof(Create));
+                return RedirectToAction(nameof(Add));
             }
             else
             {
@@ -161,6 +165,7 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
             }
         }
 
+        [Authorize(Roles = "Staff")]
         public async Task<IActionResult> Edit(int id)
         {
             var pro = _context.Products.Include(p => p.ProductImages).Include(p => p.Laptop)
@@ -176,6 +181,7 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
             return View(pro);
         }
         [HttpPost]
+        [Authorize(Roles = "Staff")]
         [ModelStateExclude
         (
             nameof(Product.RowVersion),
@@ -252,6 +258,7 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Staff")]
         public IActionResult Delete(int id)
         {
             Product product = _context.Products.Where(p => p.ID == id).FirstOrDefault()!;
@@ -260,6 +267,7 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        [NonAction]
         private async Task<bool> SaveImagesAsync(Product p, IList<IFormFile?> images)
         {
             var tokens = new List<string?>();

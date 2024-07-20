@@ -21,7 +21,7 @@ using System.Text.RegularExpressions;
 namespace HoaLacLaptopShop.Areas.Administration.Controllers
 {
     [Area("Administration")]
-    [Authorize(Roles = "Admin,Marketing")]
+    [Authorize(Roles = "Marketing")]
     public class NewsPostsController : Public.Controllers.NewsPostsController
     {
         private readonly ITemporaryResourceService _temp;
