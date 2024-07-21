@@ -2,7 +2,9 @@
 @using HoaLacLaptopShop.Areas.Public.Controllers
 
 <h1>Review List</h1>
-
+<div>
+    <a class="btn btn-primary" asp-action="Details">Back to Profile</a>
+</div>
 <table id="datatables-reponsive" class="table table-striped" style="width:100%">
     <thead>
         <tr>
@@ -43,9 +45,7 @@
                 <td>@review.Content</td>
                 <td>
                     <a asp-action="ReviewDetails" asp-route-pid="@review.ProductId" asp-route-rid="@review.ReviewerId">
-                        <p class="btn btn-success" style="width:90px">
-                            <i class="fa-solid fa-eye"></i> View
-                        </p>
+                        <p class="btn btn-success" style="width:90px">View</p>
                     </a>
                 </td>
 

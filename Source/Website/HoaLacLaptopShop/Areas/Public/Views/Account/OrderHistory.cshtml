@@ -2,66 +2,74 @@
 @{
     ViewData["Title"] = "Order History";
 }
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
-      integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
-      crossorigin="anonymous"
-      referrerpolicy="no-referrer" />
-
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>#Order Id</th>
-            <th>Creation Time</th>
-            <th>Order Products</th>
-            <th>Status</th>
-            <th>Total Price</th>
-            <th>Action</th>
-        </tr>
-    </thead>
-    <tbody id="table-body">
-        @foreach (var item in Model.Take(10)) // initially show 10 rows
-        {
-            <tr>
-                <td>@item.ID</td>
-                <td>@item.OrderTime</td>
-                <td>
-                    @foreach (var orderItem in item.OrderDetails)
+<h1>Order List</h1>
+<div>
+    <a class="btn btn-primary" asp-action="Details">Back to Profile</a>
+</div>
+<hr />
+<div class="row">
+    <div class="card">
+        <div class="card-body">
+            <table id="datatables-reponsive" class="table table-striped" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Created</th>
+                        <th>Customer Name</th>
+                        <th>Title</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
                     {
-                        <span>@orderItem.Quantity @orderItem.Product.Name</span>
-                        <br />
+                        <tr>
+                            <td>@item.ID</td>
+                            <td>@item.OrderTime</td>
+                            <td>@item.Buyer.Name</td>
+                            <td>
+                                @foreach (var orderItem in item.OrderDetails)
+                                {
+                                    <span>@orderItem.Quantity @orderItem.Product.Name</span>
+                                    <br />
+                                }
+                            </td>
+                            <td>@string.Format("{0:N0}", item.TotalPrice)</td>
+                            <td class="order-status">@item.Status</td>
+                            <td><a asp-action="OrderDetails" asp-controller="Account" asp-route-id="@item.ID" class="btn btn-primary">View Details</a></td>
+                        </tr>
+
                     }
-                </td>
-                <td><span class="badge bg-@(item.Status)">@item.Status</span></td>
-                <td>@item.TotalPrice</td>
-                <td>
-                    <a asp-route-id="@item.ID" asp-controller="Users" asp-action="OrderHistory" class="btn btn-primary" style="margin-top: 0; border-radius: 50%"><i class="fa-solid fa-chevron-right"></i></a>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
-<button id="load-more" class="btn btn-primary" style="display: none;">Load More</button>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // Datatables Responsive
+        $("#datatables-reponsive").DataTable({
+            responsive: true
+        });
+    });
+</script>
+
 <script>
     $(document).ready(function () {
-        const totalRows = @Model.Count(); // total number of rows in the model
-        const rowsToShow = 10;
-        let currentIndex = rowsToShow;
-
-        if (totalRows > rowsToShow) {
-            $('#load-more').show();
-        }
-
-        $('#load-more').click(function () {
-            $('#table-body').find('tr').slice(currentIndex, currentIndex + rowsToShow).show();
-            currentIndex += rowsToShow;
-
-            if (currentIndex >= totalRows) {
-                $('#load-more').hide();
-            }
+        $('#orderStatus').change(function () {
+            var selectedStatus = $(this).val();
+            $('#datatables-reponsive tbody tr').each(function () {
+                var row = $(this);
+                var status = row.find('.order-status').text();
+                if (selectedStatus === "All" || status === selectedStatus) {
+                    row.show();
+                } else {
+                    row.hide();
+                }
+            });
         });
-
-        // Initially hide rows beyond the first set
-        $('#table-body').find('tr').slice(rowsToShow).hide();
     });
 </script>

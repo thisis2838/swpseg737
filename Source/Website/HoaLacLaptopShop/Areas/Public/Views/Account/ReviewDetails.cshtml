@@ -1,7 +1,5 @@
 ﻿@model HoaLacLaptopShop.Areas.Public.ViewModels.ReviewDetailViewModel
-
-<partial name="~/Areas/Administration/Views/Shared/_PageHeading.cshtml"
-         model="@(new{ Heading = "Reviews", Subheading = $"#({Model.User.ID} {Model.ProductReview.ProductId})"})" />
+         <h1>Review #@Model.User.ID</h1>
 <div>
     <a class="btn btn-primary" asp-action="ReviewHistory">Back to List</a>
 </div>

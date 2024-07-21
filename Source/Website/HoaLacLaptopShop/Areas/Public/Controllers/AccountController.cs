@@ -205,6 +205,20 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
                 .ToListAsync();
             return View(order);
         }
+        [Authorize]
+        public async Task<IActionResult> OrderDetails(int id)
+        {
+            var order = await _context.Orders
+                .Include(o => o.OrderDetails).ThenInclude(oi => oi.Product)
+                .Include(o => o.Buyer)
+                .FirstOrDefaultAsync(x => x.ID == id);
+
+            if (order is null)
+            {
+                return NotFound();
+            }
+            return View(order);
+        }
 
         [Authorize]
         public async Task<IActionResult> ReviewHistory(int page = 1)
