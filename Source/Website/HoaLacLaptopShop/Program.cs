@@ -42,7 +42,7 @@ internal class Program
             {
                 options.LoginPath = "/Account/Login";
                 options.AccessDeniedPath = "/Error/403";
-                options.SlidingExpiration = false;
+                options.SlidingExpiration = true;
             }
         );
         builder.Services.AddAuthorization(options =>

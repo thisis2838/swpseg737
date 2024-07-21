@@ -89,7 +89,7 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
             }
             return RedirectToAction("Index", "Home");
         }
-
+        [Authorize]
         [HttpGet]
         [Route("Logout"), Route("Account/Logout")]
         public async Task<ActionResult> Logout()
@@ -119,7 +119,7 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
         public ActionResult Details()
         {
             var currentUser = HttpContext.GetCurrentUser()!;
-            return View(new AccountEditViewModel()
+            return View(new User()
             {
                 ID = currentUser.ID,
                 Email = currentUser.Email,
@@ -142,6 +142,7 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
             nameof(AccountEditViewModel.NewPassword),
             nameof(AccountEditViewModel.PhoneNumber)
         )]
+        [Authorize]
         public async Task<ActionResult> Edit(AccountEditViewModel model, string gender)
         {
             if (model.ID != HttpContext.GetCurrentUserID())
@@ -192,7 +193,6 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
         {
             return _context.Users.Any(x => x.ID == id);
         }
-
         [Authorize]
         public async Task<IActionResult> OrderHistory()
         {
@@ -204,6 +204,39 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
                 .Where(o => o.BuyerID == id)
                 .ToListAsync();
             return View(order);
+        }
+
+        [Authorize]
+        public async Task<IActionResult> ReviewHistory(int page = 1)
+        {
+            var id = HttpContext.GetCurrentUser()!.ID;
+            var user = _context.Users.Find(id)!;
+            var review = await _context.ProductReviews
+                .Include(p => p.Product)
+                .ThenInclude(p => p.ProductImages)
+                .Where(p => p.ReviewerId == id)
+                .OrderBy(p => p.ReviewTime)
+                .ToListAsync();
+            var curPage = review.Skip((page - 1) * 12).Take(12);
+            return View(new ReviewViewModel
+            {
+                ProductReviews = curPage.ToList(),
+                TotalCount = review.Count,
+                TargetPage = page
+            });
+        }
+        [Authorize]
+        public async Task<IActionResult> ReviewDetails(int pid, int rid)
+        {
+            var product = _context.Products.Where(p => p.ID == pid).Include(p => p.ProductImages).Include(p => p.Brand).FirstOrDefault();
+            var reviewer = _context.Users.Where(u => u.ID == rid).FirstOrDefault();
+            var review = _context.ProductReviews.Where(pr => pr.ProductId == pid && pr.ReviewerId == rid).FirstOrDefault();
+            return View(new ReviewDetailViewModel
+            {
+                Product = product,
+                User = reviewer,
+                ProductReview = review
+            });
         }
     }
 }

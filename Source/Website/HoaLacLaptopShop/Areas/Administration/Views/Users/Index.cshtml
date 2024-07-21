@@ -85,7 +85,7 @@
                 if (startPage > 1)
                 {
                     <li class="page-item">
-                        <input type="submit" name="targetPage" class="page-link" value="1" />
+                        <input type="submit" name="page" class="page-link" value="1" />
                     </li>
                     if (startPage > 2)
                     {
@@ -96,7 +96,7 @@
                 for (int i = startPage; i <= endPage; i++)
                 {
                     <li class="page-item @(i == currentPage ? "active" : "")">
-                        <input type="submit" name="targetPage" class="page-link" value="@i" />
+                        <input type="submit" name="page" class="page-link" value="@i" />
                     </li>
                 }
 
@@ -107,7 +107,7 @@
                         <li class="page-item disabled"><span class="page-link">...</span></li>
                     }
                     <li class="page-item">
-                        <input type="submit" name="targetPage" class="page-link" value="@totalPage" />
+                        <input type="submit" name="page" class="page-link" value="@totalPage" />
                     </li>
                 }
             }

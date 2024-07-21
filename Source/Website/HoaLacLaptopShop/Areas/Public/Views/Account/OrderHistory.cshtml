@@ -2,31 +2,17 @@
 @{
     ViewData["Title"] = "Order History";
 }
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-
-<div class="row" style="justify-content:space-around; margin-bottom: 30px;">
-    <div class="col-md-6 align-items-center" style="display: flex; gap: 16px">
-        <i class="fa-solid fa-filter"></i>
-        <span>YEAR</span>
-        <select id="filter-year" class="form-select">
-            <option value="">Any</option>
-            <!-- Add year options dynamically or manually -->
-        </select>
-        <span>Location</span>
-        <select id="filter-year" class="form-select">
-            <option value="value">Any</option>
-        </select>
-    </div>
-
-</div>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+      integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer" />
 
 <table class="table table-striped">
     <thead>
         <tr>
-            <th>#</th>
+            <th>#Order Id</th>
             <th>Creation Time</th>
             <th>Order Products</th>
-            @* <th>Location</th> *@
             <th>Status</th>
             <th>Total Price</th>
             <th>Action</th>
