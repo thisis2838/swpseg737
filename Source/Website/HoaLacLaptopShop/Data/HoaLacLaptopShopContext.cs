@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Reflection;
 using HoaLacLaptopShop.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.Extensions.Configuration;
 
 namespace HoaLacLaptopShop.Data;
@@ -33,9 +35,10 @@ public partial class HoaLacLaptopShopContext : DbContext
     {
     }
 
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
+
+	protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        const int VERY_SHORT_TEXT_LENGTH = 20;
+		const int VERY_SHORT_TEXT_LENGTH = 20;
         const int SHORT_TEXT_LENGTH = 256;
         const int MEDIUM_TEXT_LENGTH = 1024;
         const int LONG_TEXT_LENGTH = 2048;
