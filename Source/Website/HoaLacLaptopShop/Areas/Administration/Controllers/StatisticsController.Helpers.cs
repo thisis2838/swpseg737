@@ -24,6 +24,30 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
 {
 	public partial class StatisticsController : Controller
 	{
+		/*
+		 * basic logic:
+		 * 
+		 * convert the order time of each order into an integer
+		 * - if segmenting by days, get the number of days between the order date and start date
+		 * - if segmenting by weeks, get the number of weeks between the order date and the start date
+		 * - if segmenting by month, turn the order date into YYYYMM
+		 * - if segmenting by quarter, turn the order date into YYYYQQ
+		 * - if segmenting by year, get the year of the order date
+		 * for months, quarters, and years; we have to handle overflows correctly,
+		 * for example: quarter 202004 should be 202100 (assuming zero index)
+		 * 
+		 * then we group the orders by the new value on the server, 
+		 * then convert the integers back into a datetime representing the start of the segment
+		 * so for example, the first day of the week, month, etc
+		 * 
+		 * there may be segments which don't have any orders, in which case we have to put
+		 * empty revenue data into it by generating a list of start dates from the start to end date
+		 * then simply outerjoining the groupby data with the dates
+		 * 
+		 * we'll be utilizing expressions since they allow direct translation into sql
+		 * so we can run all the conversion code on the server, thus putting the work onto the sql server
+		 *  
+		 */
 		private ICollection<DatedRevenue> CalculateHistoricalRevenue
 		(
 			Func<IQueryable<Order>> orderProvider,
@@ -32,9 +56,12 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
 		)
 		{
 			fromDate = fromDate.Date; toDate = toDate.Date;
+
+			// expression to turn order date into the segment number
 			Expression<Func<DateTime, int>> timeToSegment = null!;
-			// hackhack for byday/week, we can only use datediff on the server and .totaldays on the client
+			// hackhack: for byday/week, we can only use datediff on the server and .totaldays on the client
 			Expression<Func<DateTime, int>> timeToSegmentClient = null!;
+			// expression to get the start date for a segment
 			Expression<Func<int, DateTime>> timeFromSegment = null!;
 
 			const int MONTHS_IN_YEAR = 12, QUARTERS_IN_YEAR = 4;
@@ -80,6 +107,9 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
 				StartDate = timeFromSegment.Invoke(group.Key),
 				Revenue = CalculateRevenueFromOrders(group)
 			};
+			// "expand" here is part of linqkit's extensions which allows us to use expressions
+			// directly inside other expressions, instead of having to run them through
+			// expresssion.lambda() and the like
 			var revenueBySegment = orderProvider()
 				.GroupBy(groupByExpr.Expand())
 				.Select(selectExpr.Expand())
@@ -94,6 +124,7 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
 					if (date > toDate) return null;
 					return (DateTime?)date;
 				})
+				// take until we're not over the end date
 				.TakeWhile(x => x != null)
 				.Select(x => x!.Value);
 			return
