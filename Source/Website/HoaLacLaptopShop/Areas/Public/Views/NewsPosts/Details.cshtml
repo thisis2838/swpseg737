@@ -7,19 +7,9 @@
 
 <h1 style="word-wrap: anywhere">@Model.Title</h1>
 <h4><span>Posted at <b>@Model.Time.ToString("hh:mm:ss tt")</b> at <b>@Model.Time.ToString("yyyy-MM-dd")</b> by <b>@Model.Author!.Name</b></span></h4>
-<p>@Model.Length post &bull; @Model.WordCount word(s) &bull; @Model.ImageCount image(s) &bull; @Model.ReadingTime minute(s) to consume.</p>
+<p>@Model.Length post &bull; @Model.WordCount word(s) &bull; @Model.ImageCount image(s) &bull; @(Model.ReadingTime)-minute digest.</p>
 <div>
     <a class="btn btn-primary" asp-action="Index">Back to List</a>
-    @{
-        var user = Context.GetCurrentUser();
-        if (user != null)
-        {
-            if (user.IsSales && (user.IsAdmin || user.ID == Model.AuthorId))
-            {
-                <a class="btn btn-primary" href="@Url.Action("Edit", "NewsPosts", new { area = "Administration", id = Model!.ID})">Edit</a>
-            }
-        }
-    }
 </div>
 <hr />
 <div style="margin-bottom: 20px; overflow-y: hidden">@Html.Raw(Model.Content)</div>

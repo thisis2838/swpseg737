@@ -25,7 +25,7 @@
                                         ">
                                 <div class="news-entry-short" style="width:100%; padding:10px">
                                     <a href="@Url.Action("Details", "NewsPosts", new {id = news.ID})"><h2>@news.Title</h2></a>
-                                    <p>Posted @(Math.Ceiling((DateTime.Now - news.Time).TotalMinutes)) mins ago</p>
+                                    <p>Posted @news.Time.ToTimeFromNow()</p>
                                 </div>
                             </div>
                         }
