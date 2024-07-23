@@ -1,65 +1,67 @@
-﻿@model User
+﻿@model UserEditViewModel
 @{
     ViewData["Title"] = "Edit";
 }
 
-<h1>Edit</h1>
-
-<h4>User</h4>
+<partial 
+    name="~/Areas/Administration/Views/Shared/_PageHeading.cshtml" 
+    model="@(new{ Heading = "Users", Subheading = $"#({Model.ID})"})" 
+/>
+<div style="margin-bottom: 20px">
+    <a class="btn btn-primary" onclick="$('#main-form').submit();">Save</a>
+    @if (Model?.IsDisabled == true)
+    {
+        <a class="btn btn-danger" onclick="confirmEnable()">Enable</a>
+    }
+    else
+    {
+        <a class="btn btn-danger" onclick="confirmDisable()">Disable</a>
+    }
+    <a class="btn btn-primary" asp-action="Index">Back to List</a>
+</div>
 <hr />
+
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="ID" />
+        <form asp-action="Edit" id="main-form">
+            <partial name="_UserDetailsView.cshtml" model="@Model" />
             <div class="form-group">
-                <label asp-for="Name" class="control-label"></label>
-                <input asp-for="Name" class="form-control" readonly/>
-                <span asp-validation-for="Name" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Email" class="control-label"></label>
-                <input asp-for="Email" class="form-control" readonly />
-                <span asp-validation-for="Email" class="text-danger"></span>
-            </div>
-                <input asp-for="PassHash" type="hidden"/>
-                <input asp-for="Gender" type="hidden"/>
-            <div class="form-group">
-                <label asp-for="Gender" class="control-label"></label>
-                <span class="form-control" readonly>@(Model.Gender ? "Male" : "Female")</span>
-            </div>
-            <div class="form-group">
-                <label asp-for="PhoneNumber" class="control-label"></label>
-                <input asp-for="PhoneNumber" class="form-control" readonly />
-                <span asp-validation-for="PhoneNumber" class="text-danger"></span>
-            </div>
-            <label>Role</label>
-            <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="IsAdmin" /> Administrator
-                </label>
-            </div>
-            <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="IsMarketing" /> Marketing
-                </label>
-            </div>
-            <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="IsSales" /> Sales
-                </label>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
+                <label asp-for="NewPassword" class="control-label form-label"></label>
+                <input asp-for="NewPassword" class="form-control" />
+                <span asp-validation-for="NewPassword" class="text-danger"></span>
             </div>
         </form>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
+@if (Model?.IsDisabled == true)
+{
+    <form id="enableForm" asp-action="Reenable" hidden>
+        <input type="hidden" asp-for="ID" />
+    </form>
+}
+else
+{
+    <form id="disableForm" asp-action="Disable" hidden>
+        <input type="hidden" asp-for="ID" />
+    </form>
+}
 
-@section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+@section Scripts
+{
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script type="text/javascript">
+        function confirmEnable()
+        {
+            var confirmation = confirm("Are you sure you want to enable this user?");
+            if (confirmation) $('#enableForm').submit();
+        }
+        function confirmDisable()
+        {
+            var confirmation = confirm("Are you sure you want to disable this user?");
+            if (confirmation) $('#disableForm').submit();
+        }
+    </script>
 }

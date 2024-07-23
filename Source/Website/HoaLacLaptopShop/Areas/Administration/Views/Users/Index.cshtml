@@ -4,15 +4,17 @@
     ViewData["Title"] = "Index";
 }
 
+<partial 
+    name="~/Areas/Administration/Views/Shared/_PageHeading.cshtml" 
+    model="@(new{ Heading = "Users", Subheading = $"List"})" 
+/>
+<a asp-action="Add" class="btn btn-primary">Add</a>
+<hr/>
 
 <div class="row ">
-    <div class="col-sm-6">
-        <h1>Account List</h1>
-        <p><a asp-action="Create">Create New Account</a></p>
-    </div>
     <form class="col-sm-6">
         <div class="search_box">
-            <label class="control-label">Search</label>
+            <label class="control-label form-label">Search</label>
             <input class="form-control" style="width: 50%" name="searchTerm" value="@(Model.SearchTerm?? "")" />
         </div>
     </form>
@@ -33,7 +35,7 @@
                 Phone Number
             </th>
             <th>
-               Is Disabled
+                Is Disabled
             </th>
             <th>
                 Role
@@ -65,19 +67,51 @@
                     <span>@(item.IsSales ? "Sales" : "")</span>
                 </td>
                 <td>
-                    <a asp-action="Details" asp-route-id="@item.ID"><p class="btn btn-info mt-2">Details <i class="fa-solid fa-circle-info"></i></p></a><br />
+                    <a asp-action="Edit" asp-route-id="@item.ID"><p class="btn btn-info mt-2">Edit</p></a><br />
                 </td>
             </tr>
         }
     </tbody>
 </table>
-<nav aria-label="Page navigation example">
-    <ul class="pagination">
-        @for (int i = 1; i <= Math.Ceiling(Model.TotalCount / 12f); i++)
-        {
-            <li class="page-item @(i == Model.PageIndex ? "active" : "")">
-                <a class="page-link" href="@Url.Action("Index", new { page = i, searchTerm = Model.SearchTerm })">@i</a>
-            </li>
-        }
-    </ul>
-</nav>
+<form asp-action="Index" method="get">
+    <nav>
+        <ul class="pagination">
+            @{
+                int currentPage = Model.TargetPage;
+                int totalPage = (Model.TotalCount - 1) / 12 + 1;
+                int startPage = Math.Max(1, currentPage - 2);
+                int endPage = Math.Min(totalPage, currentPage + 2);
+
+                if (startPage > 1)
+                {
+                    <li class="page-item">
+                        <input type="submit" name="page" class="page-link" value="1" />
+                    </li>
+                    if (startPage > 2)
+                    {
+                        <li class="page-item disabled"><span class="page-link">...</span></li>
+                    }
+                }
+
+                for (int i = startPage; i <= endPage; i++)
+                {
+                    <li class="page-item @(i == currentPage ? "active" : "")">
+                        <input type="submit" name="page" class="page-link" value="@i" />
+                    </li>
+                }
+
+                if (endPage < totalPage)
+                {
+                    if (endPage < totalPage - 1)
+                    {
+                        <li class="page-item disabled"><span class="page-link">...</span></li>
+                    }
+                    <li class="page-item">
+                        <input type="submit" name="page" class="page-link" value="@totalPage" />
+                    </li>
+                }
+            }
+        </ul>
+    </nav>
+</form>
+

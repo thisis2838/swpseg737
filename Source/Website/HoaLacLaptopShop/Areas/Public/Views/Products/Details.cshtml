@@ -67,26 +67,30 @@
                     <div class="tab-pane fade" id="details">
                         @if (Model.IsLaptop)
                         {
-                            <p>CPU: <span>@Model.Laptop!.CPUSeries.Name</span></p>
-                            <p>GPU: <span>@Model.Laptop!.GPUSeries.Name</span><br /></p>
-                            <p>
-                                Screen size: <span>@Model.Laptop.ScreenSize inch</span><br />
-                            </p>
-                            <p>
-                                Screen resolution: <span>@Model.Laptop.ScreenResolution</span><br />
-                            </p>
-                            <p>
-                                Screen ratio: <span>@Model.Laptop.ScreenAspectRatio</span><br />
-                            </p>
-                            <p>
-                                Storage :
-                                <span>
-                                    @Model.Laptop!.StorageSize
-                                    <span>@Model.Laptop!.StorageType.ToString()</span>
-                                </span>
-                            </p>
+                            <div class="col-md-3">
+                                <p>CPU: <span>@Model.Laptop!.CPUSeries.Manufacturer.Name @Model.Laptop!.CPUSeries.Name</span></p>
+                                <p>GPU: <span>@Model.Laptop!.GPUSeries.Manufacturer.Name @Model.Laptop!.GPUSeries.Name</span><br /></p>
+                                <p>
+                                    Screen size: <span>@Model.Laptop.ScreenSize inch</span><br />
+                                </p>
+                                <p>
+                                    Screen resolution: <span>@Model.Laptop.ScreenResolution</span><br />
+                                </p>
+                                <p>
+                                    Screen ratio: <span>@Model.Laptop.ScreenAspectRatio</span><br />
+                                </p>
+                                <p>
+                                    Storage :
+                                    <span>
+                                        @Model.Laptop!.StorageSize
+                                        <span>@Model.Laptop!.StorageType.ToString()</span>
+                                    </span>
+                                </p>
+                            </div>
                         }
-                        <p style="white-space: pre-wrap;">@Model.Description</p>
+                        <div class="col-md-9">
+                            <p style="white-space: pre-wrap;">@Model.Description</p>
+                        </div>
                     </div>
 
                     <div class="tab-pane fade" id="companyprofile">
@@ -147,12 +151,10 @@
                                                 <div style="display: inline-block;">
                                                     @for (int i = 1; i <= 5; i++)
                                                     {
-                                                        <span 
-                                                            style="display: inline-block;" 
-                                                            id="@($"span{i}")"
-                                                            onmouseout="@($"CRateOut({i})")" onmouseover="@($"CRateOver({i})")" onclick="@($"CRateClick({i})")" 
-                                                            class="glyphicon glyphicon-star-empty"
-                                                        ></span>
+                                                        <span style="display: inline-block;"
+                                                              id="@($"span{i}")"
+                                                              onmouseout="@($"CRateOut({i})")" onmouseover="@($"CRateOver({i})")" onclick="@($"CRateClick({i})")"
+                                                              class="glyphicon glyphicon-star-empty"></span>
                                                     }
                                                 </div>
                                             </div>
@@ -172,11 +174,10 @@
                                                 <div style="display: inline-block;">
                                                     @for (int i = 1; i <= 5; i++)
                                                     {
-                                                        <span 
-                                                            style="display: inline-block;" 
-                                                            id="@($"span{i}")"
-                                                            onmouseout="@($"CRateOut({i})")" onmouseover="@($"CRateOver({i})")" onclick="@($"CRateClick({i})")" 
-                                                            class="glyphicon glyphicon-star-empty">
+                                                        <span style="display: inline-block;"
+                                                              id="@($"span{i}")"
+                                                              onmouseout="@($"CRateOut({i})")" onmouseover="@($"CRateOver({i})")" onclick="@($"CRateClick({i})")"
+                                                              class="glyphicon glyphicon-star-empty">
                                                         </span>
                                                     }
                                                 </div>

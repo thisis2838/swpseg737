@@ -1,0 +1,59 @@
+﻿@using HoaLacLaptopShop.Areas.Administration.ViewModels
+@using HoaLacLaptopShop.Areas.Administration.Controllers
+
+@model ProductUpdateViewModel
+
+@{
+    ViewData["Title"] = "Creating New Product";
+}
+
+
+<partial 
+    name="~/Areas/Administration/Views/Shared/_PageHeading.cshtml" 
+    model="@(new{ Heading = "Products", Subheading = "Add New"})" 
+/>
+
+<div style="margin-bottom: 20px">
+    <a class="btn btn-primary" onclick="$('#main-form').submit();">Add</a>
+    <a class="btn btn-primary" asp-action="Index">Back to List</a>
+</div>
+
+<hr/>
+
+<form method="post" asp-action="Add" asp-controller="Products" enctype="multipart/form-data" id="main-form">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="row">
+        <div class="col-md-6">
+            @await Html.PartialAsync("_ProductInfoView.cshtml", Model)
+        </div>
+        <div class="col-md-6">
+
+            <div style="margin-bottom: 10px">
+                @await Html.PartialAsync("_ProductImagesView.cshtml", Model)
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Product Type</label><br />
+                <label class="form-check-label">
+                    <input type="radio" asp-for="IsLaptop" value="True" checked onchange="updateLaptopSpecVisibility();"> Laptop
+                </label>
+                <br/>
+                <label class="form-check-label">
+                    <input type="radio" asp-for="IsLaptop" value="False" onchange="updateLaptopSpecVisibility();"> Accessory
+                </label>
+            </div>
+
+            <div>
+                @await Html.PartialAsync("_LaptopSpecsView.cshtml", Model.Laptop ?? new Laptop(), "Laptop")
+            </div>
+
+        </div>
+    </div>
+</form>
+
+@section Scripts
+{
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

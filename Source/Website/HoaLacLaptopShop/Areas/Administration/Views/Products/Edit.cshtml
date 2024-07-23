@@ -7,8 +7,10 @@
     ViewData["Title"] = $"Editing Product #{Model.ID}";
 }
 
-<h1>Edit</h1>
-<h2>Product #@Model.ID</h2>
+<partial 
+    name="~/Areas/Administration/Views/Shared/_PageHeading.cshtml" 
+    model="@(new{ Heading = "Products", Subheading = $"#{Model.ID}" })" 
+/>
 
 <div style="margin-bottom: 20px">
     <a class="btn btn-primary" onclick="$('#main-form').submit();">Save</a>
@@ -16,39 +18,28 @@
     <a class="btn btn-primary" asp-action="Index">Back to List</a>
 </div>
 
-<div class="row">
-    <div class="card">
-        <div class="tab-content">
-            <div class="tab-pane fade show active" id="account" role="tabpanel">
-                <div class="card">
-                    <div class="card-body">
-                        <form method="post" asp-action="@nameof(ProductsController.Edit)" enctype="multipart/form-data" id="main-form">
-                            <input type="hidden" value="@Model.ID" name="id" />
-                            <div class="row">
-                                <div class="col-md-6">
-                                    @await Html.PartialAsync("_ProductInfoView.cshtml", Model)
-                                </div>
-                                <div class="col-md-6">
+<hr/>
 
-                                    <div style="margin-bottom: 10px">
-                                        @await Html.PartialAsync("_ProductImagesView.cshtml", Model)
-                                    </div>
+<form method="post" asp-action="@nameof(ProductsController.Edit)" enctype="multipart/form-data" id="main-form">
+    <input type="hidden" value="@Model.ID" name="id" />
+    <div class="row">
+        <div class="col-md-6">
+            @await Html.PartialAsync("_ProductInfoView.cshtml", Model)
+        </div>
+        <div class="col-md-6">
 
-                                    @if (Model.IsLaptop)
-                                    {
-                                        <input type="hidden" asp-for="IsLaptop" />
-                                        @await Html.PartialAsync("_LaptopSpecsView.cshtml", Model.Laptop!, "Laptop")
-                                    }
-                                </div>
-                            </div>
-                        </form>
-
-                    </div>
-                </div>
+            <div style="margin-bottom: 10px">
+                @await Html.PartialAsync("_ProductImagesView.cshtml", Model)
             </div>
+
+            @if (Model.IsLaptop)
+            {
+                <input type="hidden" asp-for="IsLaptop" />
+                @await Html.PartialAsync("_LaptopSpecsView.cshtml", Model.Laptop!, "Laptop")
+            }
         </div>
     </div>
-</div>
+</form>
 <form id="form-delete" asp-action="Delete">
     <input type="hidden" asp-for="ID" />
 </form>

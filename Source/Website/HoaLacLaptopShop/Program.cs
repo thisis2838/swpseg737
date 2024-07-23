@@ -4,6 +4,7 @@ using HoaLacLaptopShop.Middlewares;
 using HoaLacLaptopShop.Models;
 using HoaLacLaptopShop.Services;
 using HoaLacLaptopShop.ThirdParty.VNPay;
+using LinqKit;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
@@ -28,8 +29,10 @@ internal class Program
         // Add services to the container.
         builder.Services.AddDbContext<HoaLacLaptopShopContext>(options =>
         {
-            options.UseSqlServer(builder.Configuration.GetConnectionString("HoaLacLaptopShop"));
-        });
+            options
+                .UseSqlServer(builder.Configuration.GetConnectionString("HoaLacLaptopShop"))
+				.WithExpressionExpanding();
+		});
         builder.Services.AddDbContext<TemporaryResourceContext>(options =>
         {
             options.UseSqlServer(builder.Configuration.GetConnectionString("HoaLacLaptopShop"));
@@ -42,7 +45,7 @@ internal class Program
             {
                 options.LoginPath = "/Account/Login";
                 options.AccessDeniedPath = "/Error/403";
-                options.SlidingExpiration = false;
+                options.SlidingExpiration = true;
             }
         );
         builder.Services.AddAuthorization(options =>

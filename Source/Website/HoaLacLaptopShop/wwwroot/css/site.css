@@ -105,3 +105,16 @@ body {
     max-width: 25vw; 
     white-space:nowrap
 }
+
+
+.admin-heading
+{
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+.admin-heading > *
+{
+    margin-right: 5px;
+    margin-bottom: 0px;
+}

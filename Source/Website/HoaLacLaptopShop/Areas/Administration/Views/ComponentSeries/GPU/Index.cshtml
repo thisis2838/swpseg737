@@ -1,7 +1,10 @@
 ﻿@using HoaLacLaptopShop.Areas.Administration.ViewModels.ComponentSeries
 @model GPUIndexViewModel
 
-<h1>GPU Series</h1>
+<partial 
+    name="~/Areas/Administration/Views/Shared/_PageHeading.cshtml" 
+    model="@(new{ Heading = "Component Series", Subheading = $"GPUs"})" 
+/>
 <a asp-action="Add" class="btn btn-primary">Add</a>
 <hr />
 

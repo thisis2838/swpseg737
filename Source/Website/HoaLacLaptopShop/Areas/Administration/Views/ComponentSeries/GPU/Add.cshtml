@@ -3,8 +3,10 @@
     ViewData["Title"] = "Create";
 }
 
-<h1>Creating</h1>
-<h2>New GPU Series</h2>
+<partial 
+    name="~/Areas/Administration/Views/Shared/_PageHeading.cshtml" 
+    model="@(new{ Heading = "Component Series", Subheading = $"GPU Creation"})" 
+/>
 
 <div onclick="$('#main-form').submit();" class="btn btn-primary">Add</div>
 <a class="btn btn-primary" asp-action="Index">Back to List</a>

@@ -1,10 +1,14 @@
 ﻿using HoaLacLaptopShop.Data;
+using HoaLacLaptopShop.Filters;
+using HoaLacLaptopShop.Helpers;
 using HoaLacLaptopShop.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 
 [Area("Administration")]
+[Authorize(Roles = "Marketing")]
 public class VoucherController : Controller
 {
     private readonly HoaLacLaptopShopContext _context;
@@ -14,27 +18,8 @@ public class VoucherController : Controller
         _context = context;
     }
 
-    // GET: Voucher/Index
-    public async Task<IActionResult> Index(string filter)
+    public async Task<IActionResult> Index(string? filter)
     {
-        var userId = HttpContext.Session.GetString("CurrentUserId");
-
-        if (userId == null)
-        {
-            return RedirectToAction("Error403", "Error");
-        }
-
-        var user = _context.Users.SingleOrDefault(u => u.ID.ToString() == userId);
-        if (user == null)
-        {
-            return RedirectToAction("Error403", "Error");
-        }
-
-        var currentUser = _context.Users.SingleOrDefault(u => u.ID.ToString() == userId);
-        if (currentUser != null && currentUser.IsSales == false)
-        {
-            return RedirectToAction("Error403", "Error");
-        }
         var vouchers = from v in _context.Vouchers select v;
         ViewData["CurrentFilter"] = filter;
         // Filter based on the expiration date
@@ -42,130 +27,93 @@ public class VoucherController : Controller
         {
             if (filter == "Expired")
             {
-                vouchers = vouchers.Where(v => v.ExpiryDate < DateOnly.FromDateTime(DateTime.Now));
+                vouchers = vouchers.Where(v => v.ExpiryDate < DateTime.Now);
             }
             else if (filter == "Available")
             {
-                vouchers = vouchers.Where(v => v.ExpiryDate < DateOnly.FromDateTime(DateTime.Now));
+                vouchers = vouchers.Where(v => v.ExpiryDate < DateTime.Now);
             }
         }
         return View(await vouchers.ToListAsync());
     }
-    //GET Voucher/Detail
 
-    public async Task<IActionResult> Detail(int? id)
-    {
-        if (id == null)
-        {
-            return NotFound();
-        }
-
-        var voucher = await _context.Vouchers.FirstOrDefaultAsync(m => m.ID == id);
-
-        if (voucher == null)
-        {
-            return NotFound();
-        }
-
-        var usedTime = await GetVoucherUsageCountAsync(id.Value);
-        ViewBag.UsedTime = usedTime;
-        var orders = await _context.Orders.Where(o => o.VoucherID == id).ToListAsync();
-        ViewBag.Orders = orders;
-        return View(voucher);
-    }
-
-    // GET: Voucher/Create
-    public IActionResult Create()
+    public IActionResult Add()
     {
         return View();
     }
 
-    // POST: Voucher/Create
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create([Bind("Code,MinimumOrderPrice,DiscountValue,IsPercentageDiscount,ExpiryDate")] Voucher voucher)
+    [ModelStateInclude
+    (
+        nameof(Voucher.Code),
+        nameof(Voucher.MinimumOrderPrice),
+        nameof(Voucher.DiscountValue),
+        nameof(Voucher.IsPercentageDiscount),
+        nameof(Voucher.ExpiryDate)
+    )]
+    public async Task<IActionResult> Add(Voucher voucher)
     {
+        if (await _context.Vouchers.AnyAsync(x => x.ID == voucher.ID))
+        {
+            return BadRequest("Tried to create a new voucher with an already used ID.");
+        }
+
         if (ModelState.IsValid)
         {
-            var issuerId = HttpContext.Session.GetString("CurrentUserId");         
-            if (int.TryParse(issuerId, out int parsedIssuerId))
-            {
-                voucher.IssuerId = parsedIssuerId;
-            }
-            else
-            {
-                ModelState.AddModelError("IssuerId", "Cannot determine the issuer ID.");
-                return View(voucher);
-            }
-            bool codeExists = await _context.Vouchers.AnyAsync(v => v.Code == voucher.Code && v.ID != voucher.ID);
+            voucher.IssuerId = HttpContext.GetCurrentUserID()!.Value;
+            bool codeExists = await _context.Vouchers.AnyAsync(v => v.Code == voucher.Code);
             if (codeExists)
             {
-                ModelState.AddModelError("Code", "Voucher code already exists.");
+                ModelState.AddModelError(nameof(Voucher.Code), "Voucher code already exists. Please enter a different code.");
                 return View(voucher);
             }
-            try
-            {
-                _context.Update(voucher);
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!VoucherExists(voucher.ID))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+
+            _context.Update(voucher);
+            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
        
         return View(voucher);
     }
 
-    // GET: Voucher/Update
-    public async Task<IActionResult> Update(int? id)
+    public async Task<IActionResult> Edit(int id)
     {
-        if (id == null)
-        {
-            return NotFound();
-        }
-        var voucher = await _context.Vouchers.FindAsync(id);
-        if (voucher == null)
-        {
-            return NotFound();
-        }
+        var voucher = await _context.Vouchers.Include(x => x.Orders).Include(x => x.Issuer).FirstOrDefaultAsync(x => x.ID == id);
+        if (voucher == null) return NotFound();
         return View(voucher);
     }
-
-    // POST: Voucher/Update
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Update(int id, [Bind("ID,Code,MinimumOrderPrice,DiscountValue,IsPercentageDiscount,ExpiryDate,IssuerId")] Voucher updatedVoucher)
+    [ModelStateInclude
+    (
+        nameof(Voucher.MinimumOrderPrice), 
+        nameof(Voucher.DiscountValue),
+        nameof(Voucher.IsPercentageDiscount),
+        nameof(Voucher.ExpiryDate)
+    )]
+    public async Task<IActionResult> Edit(Voucher model)
     {
         if (ModelState.IsValid)
         {
-            try
+            var existing = await _context.Vouchers.FirstOrDefaultAsync(x => x.ID == model.ID);
+            if (existing is null)
             {
-                _context.Update(updatedVoucher);
-                await _context.SaveChangesAsync();
+                return BadRequest("No voucher with such an ID exists.");
             }
-            catch (DbUpdateConcurrencyException)
+            if (existing.Code != model.Code || existing.IssuerId == model.IssuerId)
             {
-                if (!VoucherExists(updatedVoucher.ID))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                return BadRequest("Bad identification data while trying to update voucher.");
             }
+
+            existing.MinimumOrderPrice = model.MinimumOrderPrice;
+            existing.DiscountValue = model.DiscountValue;
+            existing.ExpiryDate = model.ExpiryDate;
+            existing.IsPercentageDiscount = model.IsPercentageDiscount;
+            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
-        return View(updatedVoucher);
+        return View(model);
     }
 
     // GET: Voucher/Delete

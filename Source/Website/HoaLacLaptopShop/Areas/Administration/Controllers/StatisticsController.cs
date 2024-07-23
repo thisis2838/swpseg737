@@ -1,196 +1,182 @@
 ﻿using AngleSharp.Common;
+using HoaLacLaptopShop.Areas.Administration.ViewModels;
 using HoaLacLaptopShop.Data;
+using HoaLacLaptopShop.Helpers;
 using HoaLacLaptopShop.Models;
+using LinqKit;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.Identity.Client;
+using Microsoft.VisualBasic;
+using NuGet.DependencyResolver;
+using NuGet.Protocol;
+using System;
+using System.Linq.Expressions;
+using static NuGet.Packaging.PackagingConstants;
 
 namespace HoaLacLaptopShop.Areas.Administration.Controllers
 {
 	[Area("Administration")]
-	[Authorize(Roles = "Admin,Marketing")]
-	public class StatisticsController : Controller
+	[Authorize(Roles = "Marketing")]
+	public partial class StatisticsController : Controller
 	{
 		private readonly HoaLacLaptopShopContext _context = null!;
 		public StatisticsController(HoaLacLaptopShopContext context)
 		{
 			_context = context;
 		}
-
-		public IActionResult Sales()
+		public IActionResult Sales(GeneralStatsIndexArgs? args)
 		{
-			var order = _context.Orders.Include(o => o.OrderDetails)
-				.Where(o => o.Status != OrderStatus.Created)
-				.ToList();
-			var earningOrder = order.Where(o => o.Status == OrderStatus.Finished).ToList();
-
-			var salesData = CalculateSalesData(order);
-			var salesMoney = CalculateSalesNumber(order).GetItemByIndex(0);
-			var salesPercentage = CalculateSalesNumber(order).GetItemByIndex(1);
-			var orderCount = OrderCount(order)[0];
-			var orderPercentage = OrderCount(order)[1];
-			var userCount = CalculateVistorsNumber(order)[0];
-			var userPercentage = CalculateVistorsNumber(order)[1];
-
-			var topSellingProducts = _context.OrderDetails
-									.Include(od => od.Product)
-										.ThenInclude(p => p.ProductImages)
-									.Include(od => od.Product.Brand)
-									.GroupBy(od => od.ProductId)
-									.Select(g => new
-									{
-										Product = g.First().Product,
-										Count = g.Count()
-									})
-									.OrderByDescending(x => x.Count)
-									.Take(5)
-									.ToList();
-			var brandCounts = _context.Orders.SelectMany(o => o.OrderDetails).GroupBy(od => od.Product.Brand)
-				   .Select(g => new { Brand = g.Key, Count = g.Count() })
-				   .OrderByDescending(b => b.Count)
-				   .ToList();
-
-			var top4Brands = brandCounts.Take(4).ToList();
-			var otherCount = brandCounts.Skip(4).Sum(b => b.Count);
-			var brandData = new List<KeyValuePair<string, int>>();
-			brandData.AddRange(top4Brands.Select(b => new KeyValuePair<string, int>(b.Brand.Name, b.Count)));
-			if (otherCount > 0)
+			args ??= new GeneralStatsIndexArgs();
+			DateTime now;
 			{
-				brandData.Add(new KeyValuePair<string, int>("Other", otherCount));
+				int dayOfWeek = ((int)DateTime.Now.DayOfWeek + 6) % 7;
+				now = DateTime.Now.Date.AddDays(-dayOfWeek);
 			}
 
-			ViewBag.BrandData = brandData;
-			ViewBag.TopSellingProducts = topSellingProducts;
-			ViewBag.SalesData = salesData;
-			ViewBag.SalesMoney = salesMoney;
-			ViewBag.SalesPercentage = salesPercentage;
-			ViewBag.OrderCount = orderCount;
-			ViewBag.OrderPercentage = orderPercentage;
-			ViewBag.UserCount = userCount;
-			ViewBag.UserPercentage = userPercentage;
-			ViewBag.TopSellingProducts = topSellingProducts;
+			var days = args.TimeRange switch
+			{
+				TimeRange.LastWeek => 7,
+				TimeRange.LastMonth => 7 * 4,
+				TimeRange.LastQuarter => (7 * 4 * 3),
+				TimeRange.LastYear => (7 * 4 * 3 * 4),
+				_ => throw new Exception()
+			};
+			var start = now - TimeSpan.FromDays(days);
 
-			return View(order);
-		}
+			// -- order based revenue -- //
 
-		public List<Decimal> CalculateVistorsNumber(List<Order> orders)
-		{
-			DateTime now = DateTime.Now;
-			DateTime lastWeekStart = now.AddDays(-7);
-			DateTime twoWeeksAgoStart = lastWeekStart.AddDays(-7);
+			IQueryable<Order> orders() => _context.Orders.Include(x => x.OrderDetails)
+				.AsNoTracking().AsExpandableEFCore()
+				.Where(x => x.Status != OrderStatus.Created &&x.OrderTime <= now && x.OrderTime >= start);
+			var totalRev = CalculateRevenueFromOrders(orders());
+			var historical = CalculateHistoricalRevenue(orders, start, now, args.TimeSegment);
 
-			// count the customers of last 7 days
-			var userIdsLastWeekCount = _context.Orders
-				.Where(o => o.Status != OrderStatus.Created && o.OrderTime >= lastWeekStart && o.OrderTime < now)
-				.Select(o => o.BuyerID)
-				.Distinct()
-				.Count();
-			// count the customers of last 
-			var userIdsPreviousWeekCount = _context.Orders
-				.Where(o => o.Status != OrderStatus.Created && o.OrderTime >= twoWeeksAgoStart && o.OrderTime < lastWeekStart)
-				.Select(o => o.BuyerID)
-				.Distinct()
+			var newCustomers = orders().Include(x => x.Buyer).ThenInclude(x => x.Orders)
+				.Select(x => x.Buyer).Distinct()
+				.Where(x => x.Orders.All(x => x.OrderTime >= start))
 				.Count();
 
-			decimal percentageChange = userIdsPreviousWeekCount == 0
-				? (userIdsLastWeekCount == 0 ? 0 : 100)
-				: ((decimal)(userIdsLastWeekCount - userIdsPreviousWeekCount) / userIdsPreviousWeekCount) * 100;
+			// -- order details based revenue -- //
 
-			return new List<decimal> { userIdsLastWeekCount, percentageChange };
-		}
-		public List<Decimal> CalculateSalesNumber(List<Order> orders)
-		{
-			DateTime currentDate = DateTime.Now;
-			// Calculate how many days have passed since the most recent Monday
-			int dayOfWeek = ((int)currentDate.DayOfWeek + 6) % 7;
-			DateTime mostRecentMonday = currentDate.AddDays(-dayOfWeek);
+			IQueryable<OrderDetail> orderDetails() => _context
+				.OrderDetails.AsNoTracking().AsExpandableEFCore()
+				.Include(x => x.Order).Where(x => x.Order.Status != OrderStatus.Created && x.Order.OrderTime <= now && x.Order.OrderTime >= start)
+				.Include(x => x.Product).ThenInclude(x => x.Brand);
+			
+			var topBrands = takeTop(orderDetails().GroupBy(x => x.Product.Brand), 10);
+			var topProducts = takeTop(orderDetails().GroupBy(x => x.Product), 10);
 
-			// Calculate the sales of this and last week, then compare
-			decimal thisWeekSale = 0;
-			for (int i = 0; i <= dayOfWeek; i++)
+			// efcore doesn't persist .includes after a groupby, for some reason...
 			{
-				DateTime targetDay = mostRecentMonday.AddDays(i);
-				decimal totalSalesForDay = orders
-					.Where(order => order.OrderTime.Date == targetDay.Date)
-					.Sum(order => order.TotalPrice - order.DiscountedPrice);
-
-				thisWeekSale += totalSalesForDay;
+				var ids = topProducts.Select(x => x.Key.ID).ToList();
+				var actual = _context.Products.Include(x => x.Brand).Include(x => x.ProductImages)
+					.Where(x => ids.Contains(x.ID))
+					.ToDictionary(x => x.ID, x => x);
+				topProducts = topProducts.Select(x => new KeyValuePair<Product, Revenue>(actual[x.Key.ID], x.Value)).ToList();
 			}
 
-			decimal lastWeekSale = 0;
-			DateTime lastWeekMonday = currentDate.AddDays(-7 - dayOfWeek);
-			for (int i = 0; i <= dayOfWeek; i++)
+			var vm = new GeneralStatsViewModel()
 			{
-				DateTime targetDay = lastWeekMonday.AddDays(i);
-				decimal totalSalesForDay = orders
-					.Where(order => order.OrderTime.Date == targetDay.Date)
-					.Sum(order => order.TotalPrice - order.DiscountedPrice);
-				lastWeekSale += totalSalesForDay;
-			}
-			if (lastWeekSale == 0) lastWeekSale = 1;
+				TimeRange = args.TimeRange,
+				TimeSegment = args.TimeSegment,
+				GeneralRevenue = totalRev,
+				HistoricalStats = historical,
+				TopBrands = topBrands,
+				TopProducts = topProducts,
 
-			// Calculate the percentage change
-			decimal percentageChange = ((thisWeekSale - lastWeekSale) / lastWeekSale) * 100 > 1000 ? 1000 : ((thisWeekSale - lastWeekSale) / lastWeekSale) * 100;
-			List<Decimal> salesData = new List<Decimal>
-			{
-				thisWeekSale,
-				percentageChange
+				NewCustomers = newCustomers
 			};
-			return salesData;
+
+			return View(vm);
 		}
+        public IActionResult Brand(GeneralStatsIndexArgs? args, int Id)
+        {
+            args ??= new GeneralStatsIndexArgs();
+            DateTime now;
+            {
+                int dayOfWeek = ((int)DateTime.Now.DayOfWeek + 6) % 7;
+                now = DateTime.Now.Date.AddDays(-dayOfWeek);
+            }
+            var days = args.TimeRange switch
+            {
+                TimeRange.LastWeek => 7,
+                TimeRange.LastMonth => 7 * 4,
+                TimeRange.LastQuarter => (7 * 4 * 3),
+                TimeRange.LastYear => (7 * 4 * 3 * 4),
+                _ => throw new Exception()
+            };
+            var start = now - TimeSpan.FromDays(days);
 
-		public List<decimal> CalculateSalesData(List<Order> orders)
-		{
-			DateTime currentDate = DateTime.Now.Date;
-			List<decimal> salesData = new List<decimal>();
+            // Query for orders of the specific brand
+            IQueryable<Order> orders() => _context.Orders
+                .Include(x => x.OrderDetails)
+                .ThenInclude(od => od.Product)
+                .AsNoTracking().AsExpandableEFCore()
+                .Where(x => x.Status != OrderStatus.Created &&
+                            x.OrderTime <= now &&
+                            x.OrderTime >= start &&
+                            x.OrderDetails.Any(od => od.Product.BrandId == Id));
 
-			for (int i = 0; i < 7; i++)
-			{
-				DateTime targetDate = currentDate.AddDays(-i);
-				decimal totalSales = orders
-					.Where(o => o.OrderTime.Date == targetDate)
-					.Sum(o => o.TotalPrice - o.DiscountedPrice) / 1000000;
+            var totalRev = CalculateRevenueFromOrders(orders());
+            var historical = CalculateHistoricalRevenue(orders, start, now, args.TimeSegment);
 
-				salesData.Insert(0, totalSales);
-			}
+            // Query for order details of the specific brand
+            IQueryable<OrderDetail> orderDetails() => _context.OrderDetails
+                .AsNoTracking().AsExpandableEFCore()
+                .Include(x => x.Order)
+                .Include(x => x.Product)
+                .Where(x => x.Order.Status != OrderStatus.Created &&
+                            x.Order.OrderTime <= now &&
+                            x.Order.OrderTime >= start &&
+                            x.Product.BrandId == Id);
 
-			return salesData;
-		}
+            // Get top 5 products for the brand
+            var topProducts = takeTop(orderDetails().GroupBy(x => x.Product), 5);
 
-		public List<decimal> OrderCount(List<Order> orders)
-		{
-			DateTime currentDate = DateTime.Now;
-			// Calculate how many days have passed since the most recent Monday
-			int dayOfWeek = ((int)currentDate.DayOfWeek + 6) % 7;
-			DateTime mostRecentMonday = currentDate.AddDays(-dayOfWeek);
-			DateTime lastWeekMonday = currentDate.AddDays(-7 - dayOfWeek);
+            // Retrieve full product details
+            var productIds = topProducts.Select(x => x.Key.ID).ToList();
+            var actualProducts = _context.Products
+                .Include(x => x.Brand)
+                .Include(x => x.ProductImages)
+                .Where(x => productIds.Contains(x.ID))
+                .ToDictionary(x => x.ID, x => x);
 
-			// Calculate the sales of this and last week, then compare
-			decimal thisWeekOrders = _context.Orders.Count(o => o.Status != OrderStatus.Created && (o.OrderTime <= currentDate && o.OrderTime >= mostRecentMonday));
-			decimal lastWeekOrders = orders.Count(o => o.Status != OrderStatus.Created && (o.OrderTime >= lastWeekMonday && o.OrderTime < mostRecentMonday));
+            topProducts = topProducts
+                .Select(x => new KeyValuePair<Product, Revenue>(actualProducts[x.Key.ID], x.Value))
+                .ToList();
 
-			decimal percentage = lastWeekOrders == 0 ? (thisWeekOrders - 1) * 100 : ((thisWeekOrders - lastWeekOrders) / lastWeekOrders) * 100;
-			if (percentage > 1000) percentage = 1000;
-			List<decimal> orderData = new List<decimal>
-			{
-				thisWeekOrders,
-				percentage
-			};
-			return orderData;
-		}
+            // Get brand details
+            var brand = _context.Brands.FirstOrDefault(b => b.ID == Id);
+            if (brand == null)
+            {
+                return NotFound();
+            }
 
-		// Sale for a specific product
-		public IActionResult Product(int id)
-		{
-			id = 2050;
-			var product = _context.Products.FirstOrDefault(p => p.ID == id);
+            var vm = new BrandStatsViewModel()
+            {
+                TimeRange = args.TimeRange,
+                TimeSegment = args.TimeSegment,
+                Brand = brand,
+                GeneralRevenue = totalRev,
+                HistoricalStats = historical,
+                TopProducts = topProducts
+            };
 
-			var totalProductOrders = _context.OrderDetails.Where(o => o.ProductId == id).Sum(o => o.Quantity);
-			var totalProductRevenue = _context.OrderDetails.Include(o => o.Product)
-								.Where(o => o.ProductId == id).Sum(o => o.Quantity * o.Product.Price);
+            return View(vm);
+        }
 
+        private ICollection<KeyValuePair<T, Revenue>> takeTop<T>(IQueryable<IGrouping<T, OrderDetail>> grouped, int num) where T : class
+        {
+            return grouped
+                .Select(x => new { key = x.Key, rev = CalculateRevenueFromOrderDetails(x) })
+                .OrderByDescending(x => x.rev.UnitsSold)
+                .Take(num)
+                .ToDictionary(x => x.key, x => x.rev);
+        }
 
-            return View(product);
-		}
-	}
+    }
 }

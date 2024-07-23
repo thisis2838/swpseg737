@@ -1,0 +1,24 @@
+﻿@model HoaLacLaptopShop.Models.Voucher
+@{
+    ViewData["Title"] = "Create";
+}
+
+
+<partial 
+    name="~/Areas/Administration/Views/Shared/_PageHeading.cshtml"
+    model="@(new{ Heading = "Vouchers", Subheading = $"Add New"})" 
+/>
+<a class="btn btn-primary" onclick="$('#main-form').submit()">Add</a>
+<a asp-action="Index" class="btn btn-primary">Back to List</a>
+<hr/>
+
+<form asp-action="Add" id="main-form">
+    <partial name="_VoucherDetailsView.cshtml" model="@Model"></partial>
+</form>
+
+@section Scripts
+{
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

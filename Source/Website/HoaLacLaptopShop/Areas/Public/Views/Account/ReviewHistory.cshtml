@@ -1,0 +1,97 @@
+﻿@model HoaLacLaptopShop.Areas.Public.ViewModels.ReviewViewModel
+@using HoaLacLaptopShop.Areas.Public.Controllers
+
+<h1>Review List</h1>
+<div>
+    <a class="btn btn-primary" asp-action="Details">Back to Profile</a>
+</div>
+<table id="datatables-reponsive" class="table table-striped" style="width:100%">
+    <thead>
+        <tr>
+            <th>Image</th>
+            <th width="30%">Name</th>
+            <th>Reviewer</th>
+            <th>Time</th>
+            <th width="10%">Rating</th>
+            <th width="30%">Content</th>
+            <th >Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var review in Model.ProductReviews)
+        {
+            <tr>
+                <td>
+                    <img src="@review.Product.ProductImages.First().GetProductImageURL()"
+                            alt=""
+                            style="width: 50px; height: 50px; object-fit: contain" />
+                </td>
+                <td>@review.Product.Name</td>
+                <td>@review.Reviewer.Name</td>
+                <td>@review.ReviewTime</td>
+                <td>
+                    @{
+                        int i = 0;
+                        @for (i = 0; i < @review.Rating; i++)
+                        {
+                            <svg class="fa-star" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24"><path d="M12 .587l3.668 7.568 8.332 1.151-6.064 5.828 1.48 8.279-7.416-3.967-7.417 3.967 1.481-8.279-6.064-5.828 8.332-1.151z" /></svg>
+                        }
+                        @for (; i < 5; i++)
+                        {
+                            <svg class="fa-star" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24"><path d="M12 5.173l2.335 4.817 5.305.732-3.861 3.71.942 5.27-4.721-2.524-4.721 2.525.942-5.27-3.861-3.71 5.305-.733 2.335-4.817zm0-4.586l-3.668 7.568-8.332 1.151 6.064 5.828-1.48 8.279 7.416-3.967 7.416 3.966-1.48-8.279 6.064-5.827-8.332-1.15-3.668-7.569z" /></svg>
+                        }
+                    }
+                </td>
+                <td>@review.Content</td>
+                <td>
+                    <a asp-action="ReviewDetails" asp-route-pid="@review.ProductId" asp-route-rid="@review.ReviewerId">
+                        <p class="btn btn-success" style="width:90px">View</p>
+                    </a>
+                </td>
+
+            </tr>
+        }
+
+    </tbody>
+</table>
+<form asp-action="ReviewHistory" method="get">
+    <nav>
+        <ul class="pagination">
+            @{
+                int currentPage = Model.TargetPage;
+                int totalPage = (Model.TotalCount - 1) / 12 + 1;
+                int startPage = Math.Max(1, currentPage - 2);
+                int endPage = Math.Min(totalPage, currentPage + 2);
+
+                if (startPage > 1)
+                {
+                    <li class="page-item">
+                        <input type="submit" name="page" class="page-link" value="1" />
+                    </li>
+                    if (startPage > 2)
+                    {
+                        <li class="page-item disabled"><span class="page-link">...</span></li>
+                    }
+                }
+
+                for (int i = startPage; i <= endPage; i++)
+                {
+                    <li class="page-item @(i == currentPage ? "active" : "")">
+                        <input type="submit" name="page" class="page-link" value="@i" />
+                    </li>
+                }
+
+                if (endPage < totalPage)
+                {
+                    if (endPage < totalPage - 1)
+                    {
+                        <li class="page-item disabled"><span class="page-link">...</span></li>
+                    }
+                    <li class="page-item">
+                        <input type="submit" name="page" class="page-link" value="@totalPage" />
+                    </li>
+                }
+            }
+        </ul>
+    </nav>
+</form>

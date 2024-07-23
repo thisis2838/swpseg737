@@ -11,7 +11,7 @@ using System.Reflection;
 namespace HoaLacLaptopShop.Areas.Administration.Controllers
 {
     [Area("Administration")]
-    [Authorize(Roles = "Admin,Sales")]
+    [Authorize(Roles = "Sales")]
     public class OrdersController : Controller
     {
         private readonly HoaLacLaptopShopContext _context = null!;

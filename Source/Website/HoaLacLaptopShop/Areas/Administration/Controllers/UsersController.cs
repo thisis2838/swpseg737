@@ -14,11 +14,12 @@ using HoaLacLaptopShop.Areas.Shared.ViewModels;
 using HoaLacLaptopShop.Data;
 using HoaLacLaptopShop.Areas.Administration.ViewModels;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+using HoaLacLaptopShop.Filters;
+using NuGet.Protocol;
 
 namespace HoaLacLaptopShop.Areas.Administration.Controllers
 {
     [Area("Administration")]
-    [Authorize(Roles = "Admin,Sales,Marketing")]
     public class UsersController : Controller
     {
         private readonly HoaLacLaptopShopContext _context;
@@ -28,8 +29,8 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
             _context = context;
         }
 
-
-        public ActionResult Index(int? page, string? searchTerm)
+        [Authorize(Roles = "Admin,Sales")]
+        public ActionResult Index(int page = 1, string? searchTerm = null)
         {
             var users = _context.Users.AsQueryable();
             if (!string.IsNullOrEmpty(searchTerm))
@@ -42,16 +43,17 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
                         || u.PhoneNumber.Contains(searchTerm)
                     );
             }
-            var curPage = users.Skip(((page ?? 1) - 1) * 12).Take(12);
+            var curPage = users.Skip((page - 1) * 12).Take(12);
             return View(new UserIndexViewModel
             {
                 Users = curPage.ToList(),
                 TotalCount = users.Count(),
-                PageIndex = page != null ? Convert.ToInt32(page) : 1,
+                TargetPage = page,
                 SearchTerm = searchTerm!
             });
         }
 
+        [Authorize(Roles = "Admin,Sales")]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -71,32 +73,21 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
         }
 
         [Authorize(Roles = "Admin")]
-        public IActionResult Create()
+        public IActionResult Add()
         {
             return View();
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Create(RegisterViewModel model, string gender)
+        [ModelStateExclude(nameof(RegisterViewModel.PassHash))]
+        public async Task<IActionResult> Add(RegisterViewModel model)
         {
-            var fields = new string[]
-            {
-                nameof(RegisterViewModel.ID),
-                nameof(RegisterViewModel.Name),
-                nameof(RegisterViewModel.Email),
-                nameof(RegisterViewModel.Password),
-                nameof(RegisterViewModel.PhoneNumber),
-                nameof(RegisterViewModel.IsAdmin),
-                nameof(RegisterViewModel.IsMarketing),
-                nameof(RegisterViewModel.IsSales)
-            };
-            if (fields.All(x => !ModelState.TryGetValue(x, out var valid) || valid.ValidationState == ModelValidationState.Valid))
+            if (ModelState.IsValid)
             {
                 var user = model as User;
                 var hasher = new PasswordHasher<User>();
                 user.PassHash = hasher.HashPassword(user, model.Password);
-                user.Gender = gender.Equals("Male");
                 _context.Add(user);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -119,36 +110,39 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
                 this.AddError("User could not be found");
                 return NotFound();
             }
-            return View(user);
+            var model = new UserEditViewModel();
+            model.FillFromOther(user);
+            return View(model);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Edit(int id, UserEditViewModel model)
+        [ModelStateExclude(nameof(UserEditViewModel.PassHash))]
+        public async Task<IActionResult> Edit(UserEditViewModel model)
         {
-            if (id != model.ID)
+            var existing = await _context.Users.FindAsync(model.ID);
+            if (existing is null)
             {
+                this.AddError("No user with such an ID exists!");
                 return NotFound();
             }
 
-            var fields = new string[]
-            {
-                nameof(UserEditViewModel.ID),
-                nameof(UserEditViewModel.Name),
-                nameof(UserEditViewModel.Email),
-                nameof(UserEditViewModel.PassHash),
-                nameof(UserEditViewModel.Gender),
-                nameof(UserEditViewModel.PhoneNumber),
-                nameof(UserEditViewModel.IsAdmin),
-                nameof(UserEditViewModel.IsMarketing),
-                nameof(UserEditViewModel.IsSales)
-            };
-            if (fields.All(x => !ModelState.TryGetValue(x, out var valid) || valid.ValidationState == ModelValidationState.Valid))
+            if (ModelState.IsValid)
             {
                 try
                 {
-                    _context.Update(model as User);
+                    if (model.NewPassword != null)
+                    {
+                        var hasher = new PasswordHasher<User>();
+                        model.PassHash = hasher.HashPassword(model, model.NewPassword);
+                    }
+                    else
+                    {
+                        model.PassHash = existing.PassHash;
+                    }
+                    existing.FillFromOther(model);
+                    _context.Update(existing);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
@@ -189,6 +183,7 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Reenable(int id)
         {
             var user = await _context.Users.FindAsync(id);

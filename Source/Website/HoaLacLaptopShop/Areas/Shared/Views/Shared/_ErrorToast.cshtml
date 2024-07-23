@@ -68,6 +68,7 @@
 }
 @if (TempData.TryGetValue("Error", out var errors))
 {
+    if (errors is ICollection<string>)
     foreach (var error in (ICollection<string>)errors!)
     {
         <script>showError('@error')</script>
