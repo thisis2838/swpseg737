@@ -98,41 +98,49 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
                 .FirstOrDefault();
             if (product is null)
             {
-                this.AddError("No product with that ID exists!");
-                return NotFound();
+                return NotFound("The requested product could not be found.");
             }
+
+            var otherProducts = _context.Brands
+                .Include(x => x.Products).ThenInclude(x => x.Laptop).ThenInclude(x => x!.GPUSeries).ThenInclude(x => x!.Manufacturer)
+                .Include(x => x.Products).ThenInclude(x => x.Laptop).ThenInclude(x => x!.CPUSeries).ThenInclude(x => x!.Manufacturer)
+                .Include(x => x.Products).ThenInclude(x => x.ProductImages)
+                .First(x => x.ID == product.BrandId)
+                .Products.OrderBy(x => Guid.NewGuid()).Take(5)
+                .ToList();
+            ViewData["BrandsOtherProducts"] = otherProducts;
 
             return View(product);
         }
 
         [Authorize, HttpPost, ValidateAntiForgeryToken]
-        public IActionResult AddReview(int pId, int uId, string review, string rating = "0")
+        public IActionResult AddReview(int pId, string review, string rating = "0")
         {
-            var user = _context.Users.Where(u => u.ID == uId).FirstOrDefault();
+            var user = HttpContext.GetCurrentUser()!;
             var product = _context.EnabledProducts.FirstOrDefault(x => x.ID == pId);
             if (product is null)
             {
-                this.AddError("Product doesn't exist!");
+                this.AddError("The product to add the review to could not be found.");
                 return RedirectToAction("Index", "Home");
             }
 
-            var hasBought = _context.OrderDetails.Include(x => x.Order).Any(x => x.ProductId == pId && x.Order.BuyerID == uId);
+            var hasBought = _context.OrderDetails.Include(x => x.Order).Any(x => x.ProductId == pId && x.Order.BuyerID == user.ID);
             if (!hasBought)
             {
-                this.AddError("You must buy this product before you can review it.");
+                this.AddError("You must purchase the product to be able to review it.");
                 goto end;
             }
-            var previousReview = _context.ProductReviews.Find(pId, uId);
+            var previousReview = _context.ProductReviews.Find(pId, user.ID);
             if (previousReview != null)
             {
-                this.AddError("You have already reviewed this product!");
+                this.AddError("You have already reviewed this product.");
                 goto end;
             }
 
             var pr = new ProductReview
             {
                 ProductId = pId,
-                ReviewerId = uId,
+                ReviewerId = user.ID,
                 Content = review,
                 Rating = int.Parse(rating),
                 ReviewTime = DateTime.Now
@@ -142,16 +150,23 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
             _context.SaveChanges();
 
             end:;
-            return RedirectToAction("Details", "Products", new { id = product.ID });
+            return RedirectToAction("Details", "Products", new { id = product.ID }, "reviews");
         }
 
-        public IActionResult EditReview(int pId, int uId, string review, string rating, string? delete)
+        [Authorize, HttpPost, ValidateAntiForgeryToken]
+        public IActionResult EditReview(int pId, string review, string rating, string? delete)
         {
+            var uId = HttpContext.GetCurrentUserID()!;
             var reviewOld = _context.ProductReviews.Where(pr => pr.ProductId == pId && pr.ReviewerId == uId).FirstOrDefault();
+            if (reviewOld is null)
+            {
+                this.AddError("The review to be edited could not be found.");
+                return RedirectToAction("Index", "Home");
+            }
             var product = _context.EnabledProducts.FirstOrDefault(x => x.ID == pId);
             if (product is null)
             {
-                this.AddError("Product doesn't exist.");
+                this.AddError("The product to edit your review of could not be found.");
                 goto end;
             }
 
@@ -178,7 +193,7 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
             _context.SaveChanges();
 
             end:;
-            return RedirectToAction("Details", "Products", new { id = pId });
+            return RedirectToAction("Details", "Products", new { id = pId }, "reviews");
         }
     }
 }

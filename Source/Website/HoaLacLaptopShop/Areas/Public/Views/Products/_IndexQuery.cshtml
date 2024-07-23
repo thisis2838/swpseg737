@@ -28,7 +28,7 @@
         @if(Model.ShowLaptops)
         {
             <div class="">
-                <label class="control-label form-label">CPU</label>
+                <label class="control-label form-label">CPU Series</label>
                 <ul>
                     @for (int i = 0; i < ViewBag.ParentModel.CPUs!.Count; i++)
                     {
@@ -46,7 +46,7 @@
                 </ul>
             </div>
             <div class="">
-                <label class="control-label form-label">GPU</label>
+                <label class="control-label form-label">GPU Series</label>
                 <ul>
                     @for (int i = 0; i < ViewBag.ParentModel.GPUs!.Count; i++)
                     {

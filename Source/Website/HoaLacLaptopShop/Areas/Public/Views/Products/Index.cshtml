@@ -36,7 +36,7 @@
                         @for (int i = 1; i <= Math.Ceiling(Model.Total / 12f); i++)
                         {
                             <li class="page-item @(i == Model.PageIndex ? "active" : "")">
-                                <a class="page-link" onclick="clickPage(@i)">@i</a>
+                                <a class="page-link" style="cursor: pointer" onclick="clickPage(@i)">@i</a>
                             </li>
                         }
                     </ul>

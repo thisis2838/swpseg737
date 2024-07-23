@@ -1,9 +1,8 @@
 ﻿@using HoaLacLaptopShop.Areas.Public.ViewModels
 @model HoaLacLaptopShop.Models.Product
 
-<div class="product-image-wrapper single-products text-center" >
+<div class="product-card text-center">
 	<a 
-		class="product-card" 
 		href="@Url.Action("Details", "Products", new {id = Model.ID})" 
 		@(Model.IsLaptop ? $"data-laptop-id={Model.ID}" : "")
 	>
@@ -52,11 +51,21 @@
 {
 	<div id="@(Model.ID)-laptop-card" style="display: none">
 		<div class="product-info-laptop">
-			<span><img src="~/images/icons/cpu.svg" height="15px" style="margin: 5px" />@Model.Laptop.CPUSeries.Manufacturer.Name @Model.Laptop!.CPUSeries.Name</span>
-			<span><img src="~/images/icons/gpu.svg" height="15px" style="margin: 5px" />@Model.Laptop.GPUSeries.Manufacturer.Name @Model.Laptop!.GPUSeries.Name</span>
-			<span><img src="~/images/icons/screen.svg" height="15px" style="margin: 5px" />@Model.Laptop.ScreenSize" @Model.Laptop.ScreenResolution</span>
-			<span><img src="~/images/icons/ram.svg" height="15px" style="margin: 5px" />@Model.Laptop.RAM GB</span>
-			<span><img src="~/images/icons/storage.svg" height="15px" style="margin: 5px" />@Model.Laptop.StorageSize GB @Model.Laptop.StorageType</span>
+			<span style="display: inline-block"><img src="~/images/icons/cpu.svg" height="15px" style="margin: 5px" />
+				@Model.Laptop.CPUSeries.Manufacturer.Name @Model.Laptop!.CPUSeries.Name
+			</span>
+			<span style="display: inline-block"><img src="~/images/icons/gpu.svg" height="15px" style="margin: 5px" />
+				@Model.Laptop.GPUSeries.Manufacturer.Name @Model.Laptop!.GPUSeries.Name
+			</span>
+			<span style="display: inline-block"><img src="~/images/icons/screen.svg" height="15px" style="margin: 5px" />
+				@Model.Laptop.ScreenSize" @Model.Laptop.ScreenResolution
+			</span>
+			<span style="display: inline-block"><img src="~/images/icons/ram.svg" height="15px" style="margin: 5px" />
+				@Model.Laptop.RAM GB
+			</span>
+			<span style="display: inline-block"><img src="~/images/icons/storage.svg" height="15px" style="margin: 5px" />
+				@Model.Laptop.StorageSize GB @Model.Laptop.StorageType
+			</span>
 		</div>
 	</div>
 }

@@ -298,7 +298,7 @@ a#scrollUp i
 {
     background: #F0F0E9;
     border: medium none;
-    color: #B2B2B2;
+    color: #949494;
     font-family: 'roboto';
     font-size: 12px;
     font-weight: 300;
@@ -967,12 +967,7 @@ h2.title
     position: relative;
 }
 
-.product-image-wrapper
-{
-    border: 1px solid #F7F7F5;
-    overflow: hidden;
-    margin-bottom: 30px;
-}
+
 
 
 .new, .sale
@@ -990,6 +985,7 @@ h2.title
     font-size: 24px;
     font-weight: 700;
 }
+
 
 .product-card p
 {
@@ -1015,33 +1011,27 @@ h2.title
     display: block
 }
 
-.single-products a
+.product-card a
 {
     color: unset
 }
-.single-products
+.product-card
 {
     position: relative;
     height: auto;
     overflow: hidden;
     text-overflow: ellipsis;
-}
-.single-products:hover .product-overlay
-{
-    display: block;
-    height: 100%;
-}
-
-.product-card
-{
-    position: relative;
+    border: 2px solid #F7F7F5;
+    border-radius: 5px;
+    overflow: hidden;
+    margin-bottom: 30px;
 }
 
 .product-card .product-name
 {
     text-align: center;
     height: 50px;
-    overflow-x: hidden;
+    overflow:auto;
 }
 
 .product-card-notice
@@ -1050,6 +1040,7 @@ h2.title
     width: 100px;
     margin: 10px;
     z-index: 1;
+    display: none;
 }
 .product-card-nearlyout
 {
@@ -1446,8 +1437,6 @@ h2.title
 .cart
 {
     background: #FE980F;
-    border: 0 none;
-    border-radius: 0;
     color: #FFFFFF;
     font-family: 'Roboto', sans-serif;
     font-size: 15px;
@@ -1537,8 +1526,7 @@ h2.title
 #reviews textarea
 {
     background: #F0F0E9;
-    border: medium none;
-    color: #A6A6A1;
+    border: 2px solid;
     height: 195px;
     margin-bottom: 25px;
     margin-top: 15px;
@@ -1546,14 +1534,11 @@ h2.title
     padding-left: 10px;
     padding-top: 15px;
     resize: none;
-    width: 99.5%;
 }
 
 #reviews button
 {
     background: #FE980F;
-    border: 0 none;
-    border-radius: 0;
     color: #FFFFFF;
     font-family: 'Roboto', sans-serif;
     font-size: 14px;
