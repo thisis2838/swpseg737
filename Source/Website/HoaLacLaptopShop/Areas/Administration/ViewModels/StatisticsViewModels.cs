@@ -41,8 +41,6 @@ namespace HoaLacLaptopShop.Areas.Administration.ViewModels
 		public required ICollection<DatedRevenue> HistoricalStats { get; set; }
 		public required ICollection<KeyValuePair<Brand, Revenue>> TopBrands { get; set; }
 		public required ICollection<KeyValuePair<Product, Revenue>> TopProducts { get; set; }
-
-		public required int NewCustomers { get; set;}
 	}
 
 	public class Revenue

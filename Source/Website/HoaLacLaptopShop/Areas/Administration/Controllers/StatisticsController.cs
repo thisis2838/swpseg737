@@ -55,11 +55,6 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
 			var totalRev = CalculateRevenueFromOrders(orders());
 			var historical = CalculateHistoricalRevenue(orders, start, now, args.TimeSegment);
 
-			var newCustomers = orders().Include(x => x.Buyer).ThenInclude(x => x.Orders)
-				.Select(x => x.Buyer).Distinct()
-				.Where(x => x.Orders.All(x => x.OrderTime >= start))
-				.Count();
-
 			// -- order details based revenue -- //
 
 			IQueryable<OrderDetail> orderDetails() => _context
@@ -92,8 +87,6 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
 				HistoricalStats = historical,
 				TopBrands = topBrands,
 				TopProducts = topProducts,
-
-				NewCustomers = newCustomers
 			};
 
 			return View(vm);
