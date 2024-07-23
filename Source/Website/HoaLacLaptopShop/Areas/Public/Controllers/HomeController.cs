@@ -19,6 +19,7 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
         public async Task<IActionResult> Index()
         {
             IQueryable<Product> products() => _context.EnabledProducts
+                .Where(x => x.Stock > 0)
                 .Include(x => x.ProductImages)
                 .Include(x => x.Laptop).ThenInclude(x => x.CPUSeries).ThenInclude(x => x.Manufacturer)
                 .Include(x => x.Laptop).ThenInclude(x => x.GPUSeries).ThenInclude(x => x.Manufacturer);

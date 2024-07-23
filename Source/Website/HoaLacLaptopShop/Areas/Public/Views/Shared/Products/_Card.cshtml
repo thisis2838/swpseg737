@@ -3,15 +3,30 @@
 
 <div class="product-image-wrapper single-products text-center" >
 	<a 
-		class="product-info" 
+		class="product-card" 
 		href="@Url.Action("Details", "Products", new {id = Model.ID})" 
 		@(Model.IsLaptop ? $"data-laptop-id={Model.ID}" : "")
 	>
+		@if (Model.Stock <= 5)
+		{
+			if (Model.Stock == 0)
+			{
+				<div class="product-card-notice product-card-out">
+					<span>Out of stock!</span>
+				</div>
+			}
+			else
+			{
+				<div class="product-card-notice product-card-nearlyout">
+					<span>Only @Model.Stock left!</span>
+				</div>
+			}
+		}
 		<div>
 			<img 
 				class="main-image"
 				src="@Model.ProductImages.First().GetProductImageURL()" 
-				alt="" 
+				alt="@Model.Name" 
 				style="" 
 			/>
 		</div>
