@@ -4,7 +4,6 @@ using HoaLacLaptopShop.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using static NuGet.Packaging.PackagingConstants;
 
 namespace HoaLacLaptopShop.Areas.Administration.Controllers
 {
@@ -180,5 +179,18 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
 			return orderData;
 		}
 
+		// Sale for a specific product
+		public IActionResult Product(int id)
+		{
+			id = 2050;
+			var product = _context.Products.FirstOrDefault(p => p.ID == id);
+
+			var totalProductOrders = _context.OrderDetails.Where(o => o.ProductId == id).Sum(o => o.Quantity);
+			var totalProductRevenue = _context.OrderDetails.Include(o => o.Product)
+								.Where(o => o.ProductId == id).Sum(o => o.Quantity * o.Product.Price);
+
+
+            return View(product);
+		}
 	}
 }
