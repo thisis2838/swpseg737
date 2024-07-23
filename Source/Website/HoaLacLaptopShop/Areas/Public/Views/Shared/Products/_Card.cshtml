@@ -1,29 +1,49 @@
 ﻿@using HoaLacLaptopShop.Areas.Public.ViewModels
 @model HoaLacLaptopShop.Models.Product
 
-<div class="product-image-wrapper">
-	<div class="single-products">
-		<a class="productinfo text-center" href="@Url.Action("Details", "Products", new {id = Model.ID})">
+<div class="product-image-wrapper single-products text-center" >
+	<a 
+		class="product-info" 
+		href="@Url.Action("Details", "Products", new {id = Model.ID})" 
+		@(Model.IsLaptop ? $"data-laptop-id={Model.ID}" : "")
+	>
+		<div>
+			<img 
+				class="main-image"
+				src="@Model.ProductImages.First().GetProductImageURL()" 
+				alt="" 
+				style="" 
+			/>
+		</div>
+		<div style="margin: 10px">
+			<div class="product-name"><strong>@Model.Name</strong></div>
 			<div>
-				<img 
-					src="@Model.ProductImages.First().GetProductImageURL()" 
-					alt="" 
-					style="width: 200px; height: 200px; object-fit: contain" 
-				/>
+				<h2 class="product-price">@Model.Price.ToString("n0")đ</h2>
 			</div>
 			<div>
-				<h2>@Model.Price.ToString("n0")đ</h2>
-				<p>@Model.Name</p>
-				@{
-					if (ViewData["User"] != null)
-					{
-						<a href="#" class="btn btn-default add-to-cart"><i class="fa fa-shopping-cart"></i>Add to cart</a>
-					}
-					else
-					{
-					}
-				}
+				<span>
+					@Model.AveargeRating.ToString("0.0")
+					<svg class="fa-star" xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24">
+						<path d="M12 .587l3.668 7.568 8.332 1.151-6.064 5.828 1.48 8.279-7.416-3.967-7.417 3.967 1.481-8.279-6.064-5.828 8.332-1.151z" />
+					</svg>
+					(in @Model.ReviewTotal reviews)
+				</span>
 			</div>
-		</a>
-	</div>
+		</div>
+	</a>
 </div>
+
+@if (Model.IsLaptop && Model.Laptop != null)
+{
+	<div id="@(Model.ID)-laptop-card" style="display: none">
+		<div class="product-info-laptop">
+			<span><img src="~/images/icons/cpu.svg" height="15px" style="margin: 5px" />@Model.Laptop.CPUSeries.Manufacturer.Name @Model.Laptop!.CPUSeries.Name</span>
+			<span><img src="~/images/icons/cpu.svg" height="15px" style="margin: 5px" />@Model.Laptop.GPUSeries.Manufacturer.Name @Model.Laptop!.GPUSeries.Name</span>
+			<span><img src="~/images/icons/cpu.svg" height="15px" style="margin: 5px" />@Model.Laptop.ScreenSize" @Model.Laptop.ScreenResolution</span>
+			<span><img src="~/images/icons/cpu.svg" height="15px" style="margin: 5px" />@Model.Laptop.RAM GB</span>
+			<span><img src="~/images/icons/cpu.svg" height="15px" style="margin: 5px" />@Model.Laptop.StorageSize GB @Model.Laptop.StorageType</span>
+		</div>
+	</div>
+}
+
+
