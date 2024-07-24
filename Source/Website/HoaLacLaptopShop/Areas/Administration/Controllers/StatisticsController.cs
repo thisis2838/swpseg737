@@ -169,6 +169,67 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
             return View(vm);
         }
 
+        public IActionResult Product(GeneralStatsIndexArgs? args, int Id)
+        {
+            args ??= new GeneralStatsIndexArgs();
+            DateTime now;
+            {
+                int dayOfWeek = ((int)DateTime.Now.DayOfWeek + 6) % 7;
+                now = DateTime.Now.Date.AddDays(-dayOfWeek);
+            }
+            var days = args.TimeRange switch
+            {
+                TimeRange.LastWeek => 7,
+                TimeRange.LastMonth => 7 * 4,
+                TimeRange.LastQuarter => (7 * 4 * 3),
+                TimeRange.LastYear => (7 * 4 * 3 * 4),
+                _ => throw new Exception()
+            };
+            var start = now - TimeSpan.FromDays(days);
+
+            // Query for orders containing the specific product
+            IQueryable<Order> orders() => _context.Orders
+                .Include(x => x.OrderDetails)
+                .AsNoTracking().AsExpandableEFCore()
+                .Where(x => x.Status != OrderStatus.Created &&
+                            x.OrderTime <= now &&
+                            x.OrderTime >= start &&
+                            x.OrderDetails.Any(od => od.ProductId == Id));
+
+            var totalRev = CalculateRevenueFromOrders(orders());
+            var historical = CalculateHistoricalRevenue(orders, start, now, args.TimeSegment);
+
+            // Query for order details of the specific product
+            IQueryable<OrderDetail> orderDetails() => _context.OrderDetails
+                .AsNoTracking().AsExpandableEFCore()
+                .Include(x => x.Order)
+                .Where(x => x.Order.Status != OrderStatus.Created &&
+                            x.Order.OrderTime <= now &&
+                            x.Order.OrderTime >= start &&
+                            x.ProductId == Id);
+
+            // Get product details
+            var product = _context.Products
+                .Include(p => p.Brand)
+                .Include(p => p.ProductImages)
+                .FirstOrDefault(p => p.ID == Id);
+
+            if (product == null)
+            {
+                return NotFound();
+            }
+
+            var vm = new ProductStatsViewModel()
+            {
+                TimeRange = args.TimeRange,
+                TimeSegment = args.TimeSegment,
+                Product = product,
+                GeneralRevenue = totalRev,
+                HistoricalStats = historical
+            };
+
+            return View(vm);
+        }
         private ICollection<KeyValuePair<T, Revenue>> takeTop<T>(IQueryable<IGrouping<T, OrderDetail>> grouped, int num) where T : class
         {
             return grouped

@@ -113,7 +113,7 @@
                             <td>@item.Value.UnitsSold</td>
                             <td>@item.Value.TotalRevenue.ToString("N0")</td>
                             <td class="d-none d-xl-table-cell">
-                                <a href="#" class="btn btn-light">View</a>
+                                <a asp-controller="Statistics" asp-action="Product" asp-route-id="@item.Key.ID" class="btn btn-light">View</a>
                             </td>
                         </tr>
                     }

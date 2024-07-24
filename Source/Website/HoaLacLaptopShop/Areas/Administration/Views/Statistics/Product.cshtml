@@ -1,0 +1,149 @@
+﻿@using HoaLacLaptopShop.Areas.Administration.ViewModels
+@using System.Collections.Generic
+@model ProductStatsViewModel
+<partial name="~/Areas/Administration/Views/Shared/_PageHeading.cshtml"
+         model="@(new{ Heading = "Sales", Subheading = $"Product"})" />
+
+<form asp-action="Product" method="get">
+    <div class="form-group">
+        <select class="form-control form-select" style="width: unset; display: inline-block" asp-for="TimeRange" asp-items="@Html.GetEnumSelectList<TimeRange>()"></select>
+        <select class="form-control form-select" style="width: unset; display: inline-block" asp-for="TimeSegment" asp-items="@Html.GetEnumSelectList<TimeSegment>()"></select>
+        <input class="btn btn-primary" type="submit" value="Show" />
+    </div>
+</form>
+
+<hr />
+
+<h3>Detailed Statistics</h3>
+<div class="row">
+    <div class="col-md-5">
+        <div class="row">
+            <div class="col-sm-6">
+                <partial name="_SalesStatCard.cshtml"
+                         model="@(new
+                    {
+                        Heading = "Units Sold",
+                        Icon = "truck",
+                        Value = Model.GeneralRevenue.UnitsSold
+                    })" />
+                <partial name="_SalesStatCard.cshtml"
+                         model="@(new
+                    {
+                        Heading = "Buyers",
+                        Icon = "users",
+                        Value = Model.GeneralRevenue.Customers
+                    })" />
+            </div>
+            <div class="col-sm-6">
+                <partial name="_SalesStatCard.cshtml"
+                         model="@(new
+                    {
+                        Heading = "Revenue",
+                        Icon = "dollar-sign",
+                        Value = string.Format("{0:N0}", Model.GeneralRevenue.TotalRevenue)
+                    })" />
+                <partial name="_SalesStatCard.cshtml"
+                         model="@(new
+                    {
+                        Heading = "Orders",
+                        Icon = "shopping-cart",
+                        Value = Model.GeneralRevenue.NumberOfOrders
+                    })" />
+            </div>
+        </div>
+    </div>
+    <div class="col-md-7">
+        <div class="card flex-fill w-100">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Sales @Model.TimeRange</h5>
+            </div>
+            <div class="card-body d-flex w-100">
+                <div class="align-self-center chart chart-lg">
+                    <canvas id="chartjs-dashboard-bar"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts
+{
+    @{
+        var salesLabels = Model.HistoricalStats.Select(x => x.StartDate.ToShortDateString()).ToList();
+        var revenueData = Model.HistoricalStats.Select(x => x.Revenue.TotalRevenue / 1_000_000m).ToList();
+        var unitsData = Model.HistoricalStats.Select(x => x.Revenue.UnitsSold).ToList();
+        var ordersData = Model.HistoricalStats.Select(x => x.Revenue.NumberOfOrders).ToList();
+    }
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Bar chart
+            new Chart(document.getElementById("chartjs-dashboard-bar"), {
+                type: "line",
+                data:
+                {
+                    labels: @Html.Raw(Json.Serialize(salesLabels)),
+                    datasets:
+                        [
+                            {
+                                label: "Revenue (millions)",
+                                data: @Html.Raw(Json.Serialize(revenueData)),
+
+                                fill: false,
+                                backgroundColor: 'green',
+                                borderColor: 'green',
+                                hoverBackgroundColor: 'green',
+                                hoverBorderColor: 'green',
+                            },
+                            {
+                                label: "Units sold",
+                                data: @Html.Raw(Json.Serialize(unitsData)),
+
+                                fill: false,
+                                backgroundColor: 'lightgreen',
+                                borderColor: 'lightgreen',
+                                hoverBackgroundColor: 'lightgreen',
+                                hoverBorderColor: 'lightgreen',
+                            },
+                            {
+                                label: "Orders",
+                                data: @Html.Raw(Json.Serialize(ordersData)),
+
+                                fill: false,
+                                backgroundColor: 'blue',
+                                borderColor: 'blue',
+                                hoverBackgroundColor: 'blue',
+                                hoverBorderColor: 'blue',
+                            },
+                        ]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    scales:
+                    {
+                        yAxes:
+                            [{
+                                stacked: false,
+                            }],
+                        xAxes:
+                            [{
+                                stacked: false,
+                                gridLines: { display: false },
+                            }]
+                    }
+                }
+            });
+
+            // function getLabels() {
+            //     var currentDate = new Date();
+            //     var labels = [];
+            //     for (var i = 0; i < 7; i++) {
+            //         var date = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() - i);
+            //         var day = date.getDate();
+            //         var month = date.getMonth() + 1;
+            //         var formattedDate = day + "/" + month;
+            //         labels.unshift(formattedDate);
+            //     }
+            //     return labels;
+            // }
+        });
+    </script>
+}
