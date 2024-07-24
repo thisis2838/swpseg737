@@ -1,4 +1,4 @@
-﻿using HoaLacLaptopShop.Areas.Public.Controllers;
+﻿using AngleSharp.Attributes;
 using HoaLacLaptopShop.Areas.Public.ViewModels;
 using HoaLacLaptopShop.Data;
 using HoaLacLaptopShop.Helpers;
@@ -6,219 +6,122 @@ using HoaLacLaptopShop.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
-[Authorize]
-public class CartController : Controller
+namespace HoaLacLaptopShop.Areas.Public.Controllers
 {
-    private readonly HoaLacLaptopShopContext _context;
-
-    public CartController(HoaLacLaptopShopContext context)
+	[Authorize]
+	public class CartController : OrdersController
     {
-        _context = context;
-    }
+		protected override bool AutoRefreshPrices => true;
 
-    public const string CART_KEY = "MYCART";
-    public List<CartItem> Cart => HttpContext.Session.Get<List<CartItem>>(CART_KEY) ?? new List<CartItem>();
+        public CartController(HoaLacLaptopShopContext context) : base(context)
+		{ }
 
-    public IActionResult Index()
-    {
-        LoadCartFromDatabase();
-        return View(Cart);
-    }
+        public IActionResult Index()
+		{
+			return View(Cart);
+		}
 
-    [HttpPost]
-    [Authorize]
-    public IActionResult AddToCart(int id, int quantity = 1)
-    {
-        var user = HttpContext.GetCurrentUser()!;
-        var cart = Cart;
-        var item = cart.SingleOrDefault(p => p.ID == id);
+		[HttpPost]
+		public IActionResult ModifyQuantity(int productID, int quantity = 1)
+		{
+			var product = Context.EnabledProducts.Include(x => x.ProductImages).SingleOrDefault(x => x.ID == productID);
+			if (product is null)
+			{
+				this.AddError("The requested product could not be found.");
+				return NotFound();
+			}
+			if (quantity == 0)
+			{
+				this.AddError("Invalid quantity requested.");
+				return RedirectToAction(nameof(Index));
+			}
+			
+			var user = HttpContext.GetCurrentUser()!;
+			var cart = Cart;
+			int actualQty = 0;
 
-        // If not found item
-        if (item == null)
-        {
-            var product = _context.EnabledProducts.Include(x => x.ProductImages).SingleOrDefault(p => p.ID == id);
-            if (product == null)
-            {
-                this.AddError("Product could not be found to add to cart!");
-                return NotFound();
-            }
+			var item = cart.OrderDetails.SingleOrDefault(x => x.ProductId == product.ID);
+			// If not found item
+			if (item is null)
+			{
+				if (product.Stock == 0)
+				{
+					this.AddError("The requested product was out of stock.");
+					return RedirectToAction(nameof(Index));
+				}
+				if (quantity < 0)
+				{
+					this.AddError("Invalid quantity requested for adding to cart.");
+					return RedirectToAction(nameof(Index));
+				}
 
-            item = new CartItem
-            {
-                ID = id,
-                ProductName = product.Name,
-                Price = product.Price,
-                Quantity = quantity,
-                ThumbnailLink = product.ProductImages.First().GetProductImageURL()
-            };
-            cart.Add(item);
-        }
-        else
-        {
-            item.Quantity += quantity;
-        }
+				actualQty = Math.Min(product.Stock, quantity);
+				cart.OrderDetails.Add(new OrderDetail()
+				{
+					Product = product,
+					Quantity = actualQty
+				});
+			}
+			else
+			{
+				if (product.Stock == 0)
+				{
+					this.AddWarning("The requested product was out of stock and was removed from the cart.");
+					return RedirectToAction(nameof(RemoveFromCart), new { productID });
+				}
 
-        HttpContext.Session.Set(CART_KEY, cart);
+				var newQty = item.Quantity += actualQty;
+				// we're erasing this item from cart due to quantity being plunged to below 0
+				if (newQty < 0)
+				{
+					this.AddWarning("The product was removed from the cart as the requested quantity was equal to below 0.");
+					return RedirectToAction(nameof(RemoveFromCart), new { productID });
+				}
 
-        // Save or update order in the database
-        SaveOrder(cart);
-        return RedirectToAction("Index");
-    }
+				actualQty = Math.Min(product.Stock, quantity + item.Quantity) - item.Quantity;
+				item.Quantity += actualQty;
+			}
 
-    [Authorize]
-    [HttpPost]
-    public IActionResult RemoveCart(int id)
-    {
-        var cart = Cart;
-        var item = cart.SingleOrDefault(p => p.ID == id);
-        if (item != null)
-        {
-            cart.Remove(item);
+			if (actualQty != quantity)
+			{
+				if (actualQty == 0)
+				{
+					this.AddError($"Couldn't increase the quantity of the order due to product shortage.");
+				}
+				else
+				{
+					this.AddWarning($"Only {actualQty} units were added to the order due to product shortage.");
+				}
+			}
+			Context.SaveChanges();
+			return RedirectToAction(nameof(Index));
+		}
 
-            // Update the order in the database
-            UpdateOrder(cart);
-            HttpContext.Session.Set(CART_KEY, cart);
-        }
-        return RedirectToAction("Index");
-    }
+		[Authorize, HttpPost]
+		public IActionResult RemoveFromCart(int productID)
+		{
+			if (!Context.Products.Any(x => x.ID == productID))
+			{
+				this.AddError("The requested product could not be found.");
+			}
+			else
+			{
+				var item = Cart.OrderDetails.FirstOrDefault(x => x.ProductId == productID);
+				if (item is null)
+				{
+					this.AddWarning("The requested product had not been added to the cart.");
+				}
+				else
+				{
+					this.AddMessage("Removed item from cart.");
+					Cart.OrderDetails.Remove(item);
+					Context.SaveChanges();
+				}
+			}
 
-    private void LoadCartFromDatabase()
-    {
-        var user = HttpContext.GetCurrentUser()!;
-        var existingOrder = _context.Orders
-            .Include(o => o.OrderDetails).ThenInclude(od => od.Product)
-            .FirstOrDefault(o => o.BuyerID == user.ID && o.Status == OrderStatus.Created);
-
-        if (existingOrder != null)
-        {
-            var newCart = new List<CartItem>();
-            bool orderChanged = false;
-
-            foreach (var od in existingOrder.OrderDetails)
-            {
-                // Get the current stock level
-                var currentStock = _context.Products
-                    .Where(p => p.ID == od.ProductId)
-                    .Select(p => p.Stock)
-                    .FirstOrDefault();
-
-                // Adjust the quantity based on current stock
-                var adjustedQuantity = Math.Min(od.Quantity, currentStock);
-
-                if (od.Quantity != adjustedQuantity)
-                {
-                    od.Quantity = adjustedQuantity;
-                    orderChanged = true;
-                }
-
-                var cartItem = new CartItem
-                {
-                    ID = od.ProductId,
-                    ProductName = od.Product.Name,
-                    ThumbnailLink = _context.ProductImages.FirstOrDefault(pi => pi.ProductId == od.ProductId)!.GetProductImageURL(),
-                    Price = od.Product.Price,
-                    Quantity = adjustedQuantity
-                };
-
-                newCart.Add(cartItem);
-            }
-
-            if (orderChanged)
-            {
-                _context.SaveChanges();
-            }
-
-            HttpContext.Session.Set(CART_KEY, newCart);
-        }
-    }
-
-    // For add to Cart -> Changes in Order and OrderDetails
-    [Authorize]
-    private void SaveOrder(List<CartItem> cart)
-    {
-        var user = HttpContext.GetCurrentUser()!;
-        // Find existing order in DB
-        var existingOrder = _context.Orders
-            .Include(o => o.OrderDetails)
-            .FirstOrDefault(o => o.BuyerID == user.ID && o.Status == OrderStatus.Created);
-
-        if (existingOrder == null)
-        {
-            // Map data from order and orderDetails to viewModel - CartItem
-            existingOrder = new Order
-            {
-                BuyerID = user.ID,
-                Status = OrderStatus.Created,
-                District = "",
-                Province = "",
-                Ward = "",
-                Street = "",
-                RecipientName = user.Name,
-                PhoneNumber = user.PhoneNumber,
-                OrderTime = DateTime.Now,
-                TotalPrice = (decimal)cart.Sum(c => c.Total),
-                PaymentMethod = PaymentMethod.CashOnDelivery, // // Defeaul Payment
-            };
-
-            _context.Orders.Add(existingOrder);
-        }
-        else
-        {
-            existingOrder.TotalPrice = (decimal)cart.Sum(c => c.Total);
-        }
-
-        // Update order details. Iterate through cart -> add to orderDetails table
-        foreach (var cartItem in cart)
-        {
-            var orderDetail = existingOrder.OrderDetails.FirstOrDefault(od => od.ProductId == cartItem.ID);
-            if (orderDetail == null)
-            {
-                orderDetail = new OrderDetail
-                {
-                    ProductId = cartItem.ID,
-                    Quantity = cartItem.Quantity,
-                    ProductPrice = (int)cartItem.Price
-                };
-                existingOrder.OrderDetails.Add(orderDetail);
-            }
-            else
-            {
-                orderDetail.Quantity = cartItem.Quantity;
-            }
-        }
-
-        _context.SaveChanges();
-    }
-    // For remove item from cart
-    [Authorize]
-    private void UpdateOrder(List<CartItem> cart)
-    {
-        var user = HttpContext.GetCurrentUser()!;
-        var existingOrder = _context.Orders
-            .Include(o => o.OrderDetails)
-            .FirstOrDefault(o => o.BuyerID == user.ID && o.Status == OrderStatus.Created);
-
-        if (existingOrder != null)
-        {
-            existingOrder.TotalPrice = (decimal)cart.Sum(c => c.Total);
-
-            // Update or remove order details
-            foreach (var orderDetail in existingOrder.OrderDetails.ToList())
-            {
-                var cartItem = cart.SingleOrDefault(c => c.ID == orderDetail.ProductId);
-                if (cartItem == null)
-                {
-                    _context.OrderDetails.Remove(orderDetail);
-                }
-                else
-                {
-                    orderDetail.Quantity = cartItem.Quantity;
-                }
-            }
-
-            _context.SaveChanges();
-        }
-    }
-
+			return RedirectToAction(nameof(Index));
+		}
+	}
 }

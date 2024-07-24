@@ -8,265 +8,276 @@ using Microsoft.AspNetCore.Authorization;
 using HoaLacLaptopShop.Areas.Shared.ViewModels;
 using HoaLacLaptopShop.Data;
 using HoaLacLaptopShop.ThirdParty.VNPay;
+using Microsoft.AspNetCore.Mvc.Abstractions;
+using Microsoft.CodeAnalysis;
+using HoaLacLaptopShop.Filters;
+using System.Xml;
+using System.Data;
+using System.Diagnostics;
 
-public class CheckoutController : Controller
+namespace HoaLacLaptopShop.Areas.Public.Controllers
 {
-    private readonly HoaLacLaptopShopContext _context;
-    private readonly IVnPayService _vnPayService;
-
-    public CheckoutController(HoaLacLaptopShopContext context, IVnPayService vnPayService)
+    public class CheckoutController : OrdersController
     {
-        _context = context;
-        _vnPayService = vnPayService;
+        protected override bool AutoRefreshPrices => false;
 
-    }
+        private readonly IVnPayService _vnPayService;
 
-    [HttpGet]
-    public IActionResult Index()
-    {
-        var userId = HttpContext.GetCurrentUserID()!;
-
-        // Find the order associated with the current user
-        var order = _context.Orders
-            .Include(o => o.OrderDetails).ThenInclude(oi => oi.Product)  // Include related OrderItems
-            .Include(o => o.Buyer)       // Include related Buyer
-            .SingleOrDefault(o => o.BuyerID.ToString() == userId.ToString() && o.Status == OrderStatus.Created);
-
-        if (order is null)
+        public CheckoutController(HoaLacLaptopShopContext context, IVnPayService vnPayService) : base(context)
         {
-            this.AddError("Please purchase some items first before checking out.");
-            return RedirectToAction("Index", "Cart");
+            _vnPayService = vnPayService;
         }
 
-        return View(order);
-    }
-
-    [HttpPost]
-    public IActionResult ConfirmOrder
-    (
-        string name, string phone,
-        string address, string city, string district, string ward,
-        PaymentMethod paymentMethod, string voucherCode
-    )
-    {
-        var user = HttpContext.GetCurrentUser()!;
-        var cartItems = HttpContext.Session.Get<List<CartItem>>(CartController.CART_KEY) ?? new List<CartItem>();
-        var order = _context.Orders
-            .Include(o => o.OrderDetails)
-            .Include(o => o.Buyer)
-            .SingleOrDefault(o => o.BuyerID == user.ID && o.Status == OrderStatus.Created);
-        if (!cartItems.Any() || order is null)
+        [HttpGet, Authorize]
+        public IActionResult Index()
         {
-            this.AddError("Please purchase some items first before checking out.");
-            return RedirectToAction("Index", "Cart");
-        }
-        try
-        {
-            if (paymentMethod == PaymentMethod.Online)
+            if (!CheckCartIntegrity())
             {
-                // Update order with address and contact information
-                order.RecipientName = name;
-                order.PhoneNumber = phone;
-                order.Province = city;
-                order.District = district;
-                order.Ward = ward;
-                order.Street = address;
-                _context.SaveChanges();
-                var VnPayModel = new VnPayRequestModel
+                return RedirectToAction(nameof(CartController.Index), "Cart");
+            }
+            RefreshPrices();
+            return View(Cart);
+        }
+
+
+        [HttpPost, Authorize]
+        [ModelStateInclude
+        (
+            nameof(Order.RecipientName), nameof(Order.PhoneNumber),
+            nameof(Order.Province), nameof(Order.District), nameof(Order.Ward), nameof(Order.Street),
+            nameof(Order.PaymentMethod)
+        )]
+        public IActionResult ConfirmOrder(Order vm, string? voucherCode)
+        {
+            if (!CheckCartIntegrity())
+            {
+                return RedirectToAction(nameof(CartController.Index), "Cart");
+            }
+            if (!ModelState.IsValid)
+            {
+                return RedirectToAction(nameof(CheckoutController.Index));
+            }
+
+            Voucher? voucher = null;
+            if (voucherCode != null)
+            {
+                voucher = Context.Vouchers.FirstOrDefault(x => x.Code.ToLower() == voucherCode.ToLower());
+                if (voucher is null || voucher.IsDisabled || voucher.ExpiryDate < DateTime.Now)
                 {
-                    OrderId = order.ID,
-                    Amount = order.OrderDetails.Sum(oi => oi.SubTotal),
-                    CreatedDate = DateTime.Now,
-                    Description = $"{order.Buyer.Name} {order.Buyer.PhoneNumber}"
-                };
-                return Redirect(_vnPayService.CreatePaymentUrl(HttpContext, VnPayModel));
+                    this.AddError("Unknown voucher code, or voucher was unusable.");
+                    return RedirectToAction(nameof(CheckoutController.Index));
+                }
+                if (!HasUsedVoucher(voucher))
+                {
+                    this.AddError("You cannot use this voucher as you've already used it once before!");
+                    return RedirectToAction(nameof(CheckoutController.Index));
+                }
             }
-            _context.Database.BeginTransaction();
-            ProcessOrder(name, phone, address, city, district, ward, paymentMethod, voucherCode, cartItems, order);
-
-            _context.Database.CommitTransaction();
-            // Clear the cart after confirming the order
-            HttpContext.Session.Remove(CartController.CART_KEY);
-
-            this.AddMessage("Order has been placed successfully!");
-            return RedirectToAction("Index", "Home");
-        }
-        catch (DbUpdateConcurrencyException ex)
-        {
-            _context.Database.RollbackTransaction();
-            this.AddError("Concurrency conflict: Your order could not be processed as another user updated one of the products.");
-            return RedirectToAction("Index", "Cart");
-        }
-        catch (Exception ex)
-        {
-            return RedirectToAction("Index", "Home");
-        }
-        
-    }
-
-    private void ProcessOrder(string name, string phone, string address, string city, string district, string ward, PaymentMethod paymentMethod, string voucherCode, List<CartItem> cartItems, Order? order)
-    {
-        order.Status = OrderStatus.Delivering; // Change status to delivering
-        order.RecipientName = name;
-        // Set the corresponding locations
-        order.Province = city;
-        order.District = district;
-        order.Ward = ward;
-        order.Street = address;
-        order.PhoneNumber = phone;
-        order.OrderTime = DateTime.Now;
-        order.PaymentMethod = paymentMethod;
-        // Handling voucherId
-        var voucher = _context.Vouchers.SingleOrDefault(v => v.Code == voucherCode);
-        order.TotalPrice = order.OrderDetails.Sum(oi => oi.SubTotal);
-        order.VoucherID = voucher != null ? voucher.ID : null;
-        order.DiscountedPrice = voucher != null ? CalculateDiscount(voucher, order.OrderDetails.Sum(oi => oi.SubTotal)) : 0;
-
-        foreach (var cartItem in cartItems)
-        {
-            var product = _context.Products.SingleOrDefault(p => p.ID == cartItem.ID);
-            if (product == null)
-            {
-                this.AddError("A product in your order could not be found.");
-                //return RedirectToAction("Index", "Cart");
-            }
-            // Decrease the product quantity
-            product.Stock -= cartItem.Quantity;
             try
             {
-                _context.SaveChanges();
+                Context.Database.BeginTransaction();
+                ProcessOrder(vm, voucher);
+                Context.Database.CommitTransaction();
+
+                // FIXME: we shouldn't be saving data before payment becuase products
+                // may become unavailable while the customer is finishing the invoice
+                if (vm.PaymentMethod == PaymentMethod.Online)
+                {
+                    var VnPayModel = new VnPayRequestModel
+                    {
+                        OrderId = Cart.ID,
+                        Amount = (double)Cart.TotalPrice,
+                        CreatedDate = DateTime.Now,
+                        Description = $"hoalaclaptops order #{Cart.ID} by {Cart.Buyer.Name}, {Cart.Buyer.PhoneNumber}"
+                    };
+                    return Redirect(_vnPayService.CreatePaymentUrl(HttpContext, VnPayModel));
+                }
+                else
+                {
+                    this.AddMessage("Order has been placed successfully!");
+                    return RedirectToAction(nameof(HomeController.Index), "Home");
+                }
             }
             catch (DbUpdateConcurrencyException)
             {
-                var entry = _context.Entry(product);
-                var databaseValues = entry.GetDatabaseValues();
-
-                if (databaseValues == null)
-                {
-                    // The product was deleted by another user
-                    this.AddError("This product in order was out of stock, ordered by another user.");
-                    // You might want to handle this differently
-                    continue;
-                }
-
-                var dbQuantity = (int)databaseValues[nameof(Product.Stock)]!;
-                var dbRowVersion = (byte[])databaseValues[nameof(Product.RowVersion)]!;
-
-                // Print out the error with RowVersion values
-                var errorMessage = $"Concurrency conflict: Product was updated by another user. " +
-                                   $"Current stock is {dbQuantity}. " +
-                                   $"Database RowVersion: {BitConverter.ToString(dbRowVersion)}. " +
-                                   $"Attempted RowVersion: {BitConverter.ToString(product.RowVersion)}.";
-
-                // Log the error
-                Console.WriteLine(errorMessage);
-
-                throw new DbUpdateConcurrencyException(errorMessage);
+                Context.Database.RollbackTransaction();
+                this.AddError
+                (
+                    "A concurrency error was encountered while processing your order. " +
+                    "Someone might've bought the the last available units of your desired products. " +
+                    "Please recheck your cart and try again."
+                );
+                return RedirectToAction(nameof(CheckoutController.Index));
+            }
+            catch (Exception ex)
+            {
+                this.AddError("An unknown error was encountered " + ex.Message);
+                return RedirectToAction(nameof(HomeController.Index), "Home");
             }
         }
 
-    }
 
-    [HttpPost]
-    public IActionResult CheckVoucher([FromBody] VoucherRequest request)
-    {
-        var userId = HttpContext.GetCurrentUserID()!;
-        var voucher = _context.Vouchers.SingleOrDefault(v => v.Code == request.voucherCode);
-        JsonResult invalid(String issue)
+        [HttpPost]
+        public IActionResult CheckVoucher([FromBody] VoucherRequest request)
         {
-            return Json(new
+            var userId = HttpContext.GetCurrentUserID()!;
+            var voucher = Context.Vouchers.SingleOrDefault(v => v.Code.ToLower() == request.voucherCode.ToLower());
+            JsonResult invalid(String issue)
             {
-                valid = false,
-                discount = 0,
-                issue = issue
-            });
-        }
-        if (voucher == null)
-        {
-            return invalid("Invalid Voucher");
-        }
+                return Json(new
+                {
+                    valid = false,
+                    discount = 0,
+                    issue = issue
+                });
+            }
+            if (voucher == null || voucher.IsDisabled)
+            {
+                return invalid("Invalid voucher code. Please check your input and try again.");
+            }
 
-        bool checkExpired = DateTime.Now.Date <= voucher.ExpiryDate;
-        if (!checkExpired) return invalid("Voucher has expired");
-        var existInOrder = _context.Orders.Any(o => o.VoucherID == voucher.ID && o.BuyerID == userId) && checkExpired;
-        if (existInOrder) return invalid("You already used this voucher");
+            if (DateTime.Now.Date <= voucher.ExpiryDate)
+                return invalid("Voucher is unusable as it has expired.");
+            var existInOrder = Context.Orders.Any(o => o.VoucherID == voucher.ID && o.BuyerID == userId);
+            if (existInOrder)
+                return invalid("You have already used this voucher in the past.");
+            if (Cart.TotalPrice < voucher.MinimumOrderPrice) 
+                return invalid("Your order's total price is below the minimum applicable price for this voucher. Please purchase more.");
+            decimal discount = CalculateDiscount(voucher, Cart.TotalPrice);
+            if (discount == 0)
+                this.AddWarning("The requested voucher was applied, but won't discount anything.");
 
-        decimal discount = CalculateDiscount(voucher, request.subTotal);
-        if (discount == 0) return invalid("Please buy more!");
-
-        return Json(new { valid = true, discount = discount });
-    }
-
-    private bool CheckVoucherCode(Voucher voucher, int userId)
-    {
-        // Your logic to check if the voucher code is valid
-        // Return true if valid, false otherwise
-        return DateTime.Now.Date <= voucher.ExpiryDate && !(_context.Orders.Any(o => o.VoucherID == voucher.ID && o.BuyerID == userId));
-    }
-
-    private decimal CalculateDiscount(Voucher voucher, decimal subtotal)
-    {
-        if (subtotal < voucher.MinimumOrderPrice)
-        {
-            return 0;
+            return Json(new { valid = true, discount = discount });
         }
 
-        if (voucher.IsPercentageDiscount)
+        public IActionResult PaymentCallback()
         {
-            return subtotal * (voucher.DiscountValue / 100);
-        }
-        else
-        {
-            return voucher.DiscountValue;
-        }
-    }
+            var response = _vnPayService.PaymentExecute(Request.Query);
+            if (response == null || response.VnPayResponseCode != "00")
+            {
+                this.AddMessage($"VNPay error encountered{(response is null ? "" : ($" (code: {response.VnPayResponseCode})"))}");
+                return RedirectToAction(nameof(HomeController.Index), "Home");
+            }
 
-    [Authorize]
-    public IActionResult PaymentSuccess()
-    {
-        return View();
-    }
+            // Extract OrderId from the OrderInfo
+            var orderInfo = response.OrderDescription; // "Thanh toan don hang: OrderId"
+            var orderIdString = orderInfo.Split(':').Last().Trim();
+            if (!int.TryParse(orderIdString, out int orderId))
+            {
+                this.AddMessage("VNPay error encountered: Invalid order ID.");
+                return RedirectToAction(nameof(HomeController.Index), "Home");
+            }
 
-    [Authorize]
-    public IActionResult PaymentFail()
-    {
-        return View();
-    }
+            var order = Context.Orders.FirstOrDefault(o => o.ID == orderId);
+            Trace.Assert(order != null);
 
-    [Authorize]
-    public IActionResult PaymentCallback()
-    {
-        var response = _vnPayService.PaymentExecute(Request.Query);
-
-        if (response == null || response.VnPayResponseCode != "00")
-        {
-            this.AddMessage($"Lỗi thanh toán VN Pay: {response.VnPayResponseCode}");
-            return RedirectToAction("PaymentFail");
-        }
-        // Extract OrderId from the OrderInfo
-        var orderInfo = response.OrderDescription; // "Thanh toan don hang: OrderId"
-        var orderIdString = orderInfo.Split(':').Last().Trim();
-        if (!int.TryParse(orderIdString, out int orderId))
-        {
-            this.AddMessage("Lỗi thanh toán VN Pay: Order ID không hợp lệ");
-            return RedirectToAction("PaymentFail");
-        }
-
-        var order = _context.Orders.FirstOrDefault(o => o.ID == orderId);
-
-        if (order != null)
-        {
             order.PaymentMethod = PaymentMethod.Online;
             order.OrderTime = DateTime.Now;
             //order.Status = OrderStatus.Completed; // Mark order as completed
-            _context.SaveChanges();
+            Context.SaveChanges();
 
-            this.AddMessage("Thanh toán VNPay thành công");
-            return RedirectToAction("PaymentSuccess");
+            this.AddMessage("Order successfully placed and paid for through VNPay.");
+            return RedirectToAction(nameof(AccountController.OrderDetails), "Account", new { id = orderId });
         }
 
-        return RedirectToAction("PaymentFail");
+        [NonAction]
+        private void ProcessOrder(Order newInfo, Voucher? voucher)
+        {
+            foreach (var item in Cart.OrderDetails)
+            {
+                item.Product.Stock -= item.Quantity;
+            }
+
+            // Change status to delivering
+            Cart.Status = OrderStatus.Delivering; 
+            // Handle recipient
+            Cart.RecipientName = newInfo.RecipientName;
+            Cart.PhoneNumber = newInfo.PhoneNumber;
+
+            // Set destination
+            Cart.Province = newInfo.Province;
+            Cart.District = newInfo.District;
+            Cart.Ward = newInfo.Ward;
+            Cart.Street = newInfo.Street;
+            Cart.OrderTime = DateTime.Now;
+            Cart.PaymentMethod = newInfo.PaymentMethod;
+
+            // Handle total price & discount
+            Cart.Voucher = voucher;
+            Cart.TotalPrice = Cart.OrderDetails.Sum(oi => oi.SubTotal);
+            Cart.DiscountedPrice = Cart.TotalPrice - (voucher != null ? CalculateDiscount(voucher, Cart.TotalPrice) : 0);
+
+            Context.SaveChanges();
+        }
+        [NonAction]
+        private decimal CalculateDiscount(Voucher voucher, decimal subtotal)
+        {
+            if (subtotal < voucher.MinimumOrderPrice)
+            {
+                return 0;
+            }
+
+            if (voucher.IsPercentageDiscount)
+            {
+                return subtotal * (voucher.DiscountValue / 100);
+            }
+            else
+            {
+                return voucher.DiscountValue;
+            }
+        }
+        [NonAction]
+        private bool HasUsedVoucher(Voucher voucher)
+        {
+            var user = Context.Users.Include(x => x.Orders).FirstOrDefault(x => x.ID == HttpContext.GetCurrentUserID()!);
+            return user!.Orders.Any(x => x.Voucher != null && x.Voucher.ID == voucher.ID);
+        }
+        [NonAction]
+        private bool CheckCartIntegrity()
+        {
+            var cart = Cart;
+            if (cart.OrderDetails.Count == 0)
+            {
+                this.AddError("Please purchase some items first before checking out.");
+                return false;
+            }
+
+            bool good = true;
+            for (int i = 0; i < cart.OrderDetails.Count; i++)
+            {
+                var item = cart.OrderDetails.ElementAt(i);
+                if (item.Product.IsDisabled)
+                {
+                    this.AddError($"Item '{item.Product.Name}' was no longer purchasable and was removed from your cart.");
+                    cart.OrderDetails.Remove(item);
+                }
+                else if (item.Product.Stock == 0)
+                {
+                    this.AddError($"Item '{item.Product.Name}' was no longer in stock and was removed from your cart.");
+                    cart.OrderDetails.Remove(item);
+                }
+                else if (item.Product.Stock < item.Quantity)
+                {
+                    this.AddError($"Item '{item.Product.Name}' had its quantity reduced to fit your demand.");
+                    item.Quantity = item.Product.Stock;
+                }
+                else continue;
+
+                good = false;
+            }
+
+            Context.SaveChanges();
+
+            if (!good)
+            {
+                this.AddWarning
+                (
+                    "Your cart has been re-adjusted according to the availability of items. " +
+                    "Please double check the items and proceed to checkout process again when ready."
+                );
+            }
+            return good;
+        }
 
     }
-
 }

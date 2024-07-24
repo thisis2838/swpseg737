@@ -6,10 +6,13 @@
 }
 
 <h1>News Posts</h1>
-<hr/>
+<div id="search-filter">
+    <h2>Search & Filters</h2>
+    <div id="actual-search-filter">
+        <partial name="~/Areas/Shared/Views/NewsPosts/_SearchFilter.cshtml" model="@Model"></partial>
+    </div>
+</div>
 
-<h2>Search & Filters</h2>
-<partial name="~/Areas/Shared/Views/NewsPosts/_SearchFilter.cshtml" model="@Model"></partial>
 <hr />
 
 @{
@@ -24,4 +27,12 @@
     {
         <p>Nothing to show!</p>
     }
+}
+
+@section Scripts
+{
+    <script>
+        $('#search-filter').accordion({ collapsible: true, active: false });
+        $('#actual-search-filter').css('height', 'unset');
+    </script>
 }

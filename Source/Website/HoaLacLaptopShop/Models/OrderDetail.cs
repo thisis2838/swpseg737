@@ -16,5 +16,5 @@ public partial class OrderDetail
     public int Quantity { get; set; }
     [DisplayName("Product Price")]
     public int ProductPrice { get; set; }
-    public int SubTotal => Quantity * ProductPrice;
+    public long SubTotal => Quantity * (long)ProductPrice;
 }

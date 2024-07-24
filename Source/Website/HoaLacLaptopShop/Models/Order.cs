@@ -14,15 +14,16 @@ public partial class Order
     public DateTime OrderTime { get; set; }
     public OrderStatus Status { get; set; }
 
-    [Required(AllowEmptyStrings = false), MinLength(5), MaxLength(256)]
+    [Required, MaxLength(256)]
     public string Province { get; set; } = null!;
-    [Required(AllowEmptyStrings = false), MinLength(5), MaxLength(256)]
+    [Required, MaxLength(256)]
     public string District { get; set; } = null!;
-    [Required(AllowEmptyStrings = false), MinLength(5), MaxLength(256)]
-    public string Ward { get; set; } = null!;
-    [Required(AllowEmptyStrings = false),MinLength(8), MaxLength(256)]
+    // some places don't have a ward to speak of...
+    [Required(AllowEmptyStrings = true), MaxLength(256)]
+    public string Ward { get; set; } = "";
+    [Required, MaxLength(256)]
     public string Street { get; set; } = null!;
-    [Required(AllowEmptyStrings = false), MinLength(2), MaxLength(256), DisplayName("Recipient Name")]
+    [Required(AllowEmptyStrings = false), MinLength(10), MaxLength(256), DisplayName("Recipient Name")]
     public string RecipientName { get; set; } = null!;
     [
         Required, 

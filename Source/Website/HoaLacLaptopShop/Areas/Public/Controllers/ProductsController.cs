@@ -49,29 +49,50 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
 
                 // update selectable cpus and filter products accordingly
                 if (args.SelectedCPUIDs != null)
+                {
                     args.SelectedCPUIDs = args.SelectedCPUIDs.Where(x => cpus.Select(y => y.ID).Contains(x)).ToList();
+                }
                 if ((args.SelectedCPUIDs?.Count ?? 0) == 0)
+                {
                     args.SelectedCPUIDs = _context.LaptopCPUSeries.Select(x => x.ID).ToList();
+                    //this.AddWarning("No CPU Series were selected. Selecting all of them instead.");
+                }
                 else
+                {
                     products = products.Where(x => !x.IsLaptop || args.SelectedCPUIDs!.Contains(x.Laptop!.CPUSeriesID));
+                }
 
                 // update selectable gpus and filter products accordingly
                 if (args.SelectedGPUIDs != null)
+                {
                     args.SelectedGPUIDs = args.SelectedGPUIDs.Where(x => gpus.Select(y => y.ID).Contains(x)).ToList();
+                }
                 if ((args.SelectedGPUIDs?.Count ?? 0) == 0)
+                {
                     args.SelectedGPUIDs = _context.LaptopGPUSeries.Select(x => x.ID).ToList();
+                    //this.AddWarning("No GPU Series were selected. Selecting all of them instead.");
+                }
                 else
+                {
                     products = products.Where(x => !x.IsLaptop || args.SelectedGPUIDs!.Contains(x.Laptop!.GPUSeriesID));
+                }
             }
 
             var list = products.ToList();
             var brands = list.GroupBy(x => x.Brand).Select(x => new BrandEntry(x.Key, x.Count())).ToList();
             if (args.SelectedBrandIDs != null)
+            {
                 args.SelectedBrandIDs = args.SelectedBrandIDs.Where(x => brands.Select(y => y.Brand.ID).Contains(x)).ToList();
+            }
             if ((args.SelectedBrandIDs?.Count ?? 0) == 0)
+            {
                 args.SelectedBrandIDs = brands.Select(x => x.Brand.ID).ToList();
-            else 
+                //this.AddWarning("No Brands were selected. Selecting all of them instead.");
+            }
+            else
+            {
                 list = list.Where(x => args.SelectedBrandIDs!.Contains(x.Brand!.ID)).ToList();
+            }
 
             return View(new ProductIndexViewModel
             {
