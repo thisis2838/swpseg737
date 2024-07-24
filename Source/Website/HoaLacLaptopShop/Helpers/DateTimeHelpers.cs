@@ -31,5 +31,11 @@
 
 			return $"{value} {(value == 1 ? unit : (unit + 's'))} {diffStr}";
 		}
+
+		public static DateTime ToMondayOfWeek(this DateTime dateTime)
+		{
+            int dayOfWeek = ((int)dateTime.DayOfWeek + 6) % 7;
+            return dateTime.Date.AddDays(-dayOfWeek);
+        }
 	}
 }
