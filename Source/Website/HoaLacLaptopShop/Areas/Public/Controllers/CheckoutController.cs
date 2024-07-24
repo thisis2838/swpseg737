@@ -173,8 +173,8 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
 
             order.PaymentMethod = PaymentMethod.Online;
             order.OrderTime = DateTime.Now;
-            //order.Status = OrderStatus.Completed; // Mark order as completed
-            Context.SaveChanges();
+            order.Status = OrderStatus.Delivering; // Mark order as completed
+            _context.SaveChanges();
 
             this.AddMessage("Order successfully placed and paid for through VNPay.");
             return RedirectToAction(nameof(AccountController.OrderDetails), "Account", new { id = orderId });

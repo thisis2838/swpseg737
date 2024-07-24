@@ -65,7 +65,8 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
 			Expression<Func<int, DateTime>> timeFromSegment = null!;
 
 			const int MONTHS_IN_YEAR = 12, QUARTERS_IN_YEAR = 4;
-			switch (segment)
+            // Define time segmentation logic based on the selected segment type
+            switch (segment)
 			{
 				case TimeSegment.ByDay:
 					timeToSegment = (d) => EF.Functions.DateDiffDay(fromDate, d);
@@ -100,8 +101,12 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
 					timeFromSegment = (d) => new DateTime(d, 1, 1);
 					break;
 			}
-			timeToSegmentClient ??= timeToSegment;
-			Expression<Func<Order, int>> groupByExpr = (o) => timeToSegment.Invoke(o.OrderTime);
+
+            // If client-side segmentation is not defined, use server-side
+            timeToSegmentClient ??= timeToSegment;
+
+            // Define expressions for grouping and selecting
+            Expression<Func<Order, int>> groupByExpr = (o) => timeToSegment.Invoke(o.OrderTime);
 			Expression<Func<IGrouping<int, Order>, DatedRevenue>> selectExpr = (group) => new DatedRevenue()
 			{
 				StartDate = timeFromSegment.Invoke(group.Key),
@@ -114,10 +119,11 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
 				.GroupBy(groupByExpr.Expand())
 				.Select(selectExpr.Expand())
 				.ToList();
-
-			fromDate = timeFromSegment.Invoke(timeToSegmentClient.Invoke(fromDate));
+            // Adjust from and to dates based on segmentation
+            fromDate = timeFromSegment.Invoke(timeToSegmentClient.Invoke(fromDate));
 			toDate = timeFromSegment.Invoke(timeToSegmentClient.Invoke(toDate));
-			var startDates = Enumerable.Range(0, int.MaxValue)
+            // Generate all start dates within the date range
+            var startDates = Enumerable.Range(0, int.MaxValue)
 				.Select(x =>
 				{
 					var date = timeFromSegment.Invoke(timeToSegmentClient.Invoke(fromDate) + x);
@@ -127,8 +133,9 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
 				// take until we're not over the end date
 				.TakeWhile(x => x != null)
 				.Select(x => x!.Value);
-			return
-			(
+            // Perform left join to ensure all segments are represented
+            return	
+            (
 				from date in startDates
 				join rev in revenueBySegment on date equals rev.StartDate into joined
 				from j in joined.DefaultIfEmpty()
@@ -137,13 +144,15 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
 			.ToList();
 		}
 
-
-		[Expandable(nameof(CalculateRevenueFromOrdersImpl))]
+        // Helper method to calculate revenue from orders
+        [Expandable(nameof(CalculateRevenueFromOrdersImpl))]
 		public static Revenue CalculateRevenueFromOrders(IEnumerable<Order> orders)
 		{
 			return CalculateRevenueFromOrdersImpl().Compile().Invoke(orders);
 		}
-		static Expression<Func<IEnumerable<Order>, Revenue>> CalculateRevenueFromOrdersImpl()
+
+        // Implementation of revenue calculation from orders
+        static Expression<Func<IEnumerable<Order>, Revenue>> CalculateRevenueFromOrdersImpl()
 		{
 			return (o) => new Revenue()
 			{
@@ -153,13 +162,15 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
 				Customers = o.Select(x => x.BuyerID).Distinct().Count()
 			};
 		}
-
-		[Expandable(nameof(CalculateRevenueFromOrderDetailsImpl))]
+        // Helper method to calculate revenue from order details
+        [Expandable(nameof(CalculateRevenueFromOrderDetailsImpl))]
 		public static Revenue CalculateRevenueFromOrderDetails(IEnumerable<OrderDetail> orders)
 		{
 			return CalculateRevenueFromOrderDetailsImpl().Compile().Invoke(orders);
 		}
-		static Expression<Func<IEnumerable<OrderDetail>, Revenue>> CalculateRevenueFromOrderDetailsImpl()
+
+        // Implementation of revenue calculation from order details
+        static Expression<Func<IEnumerable<OrderDetail>, Revenue>> CalculateRevenueFromOrderDetailsImpl()
 		{
 			return (d) => new Revenue()
 			{

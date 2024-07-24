@@ -1,9 +1,8 @@
 ﻿@using HoaLacLaptopShop.Areas.Administration.ViewModels
 @using System.Collections.Generic
-@model GeneralStatsViewModel
-
+@model BrandStatsViewModel
 <partial name="~/Areas/Administration/Views/Shared/_PageHeading.cshtml"
-         model="@(new{ Heading = "Sales", Subheading = $"General"})" />
+         model="@(new{ Heading = "Sales", Subheading = $"Brand"})" />
 
 <form asp-action="Sales" method="get">
     <div class="form-group">
@@ -15,47 +14,41 @@
 
 <hr />
 
-
 <h3>General Statistics</h3>
-
 <div class="row">
     <div class="col-md-5">
         <div class="row">
             <div class="col-sm-6">
-                <partial name="_SalesStatCard.cshtml" 
-                    model="@(new 
+                <partial name="_SalesStatCard.cshtml"
+                         model="@(new
                     {
                         Heading = "Units Sold",
                         Icon = "truck",
                         Value = Model.GeneralRevenue.UnitsSold
-                    })" 
-                />
-                <partial name="_SalesStatCard.cshtml" 
-                    model="@(new 
+                    })" />
+                <partial name="_SalesStatCard.cshtml"
+                         model="@(new
                     {
                         Heading = "Buyers",
                         Icon = "users",
                         Value = Model.GeneralRevenue.Customers
-                    })" 
-                />
+                    })" />
             </div>
             <div class="col-sm-6">
-                <partial name="_SalesStatCard.cshtml" 
-                    model="@(new 
+                <partial name="_SalesStatCard.cshtml"
+                         model="@(new
                     {
-                        Heading = "Revenue", 
-                        Icon = "dollar-sign", 
-                        Value = string.Format("{0:N0}", Model.GeneralRevenue.TotalRevenue) 
-                    })" 
-                />
-                <partial name="_SalesStatCard.cshtml" 
-                    model="@(new 
+                        Heading = "Revenue",
+                        Icon = "dollar-sign",
+                        Value = string.Format("{0:N0}", Model.GeneralRevenue.TotalRevenue)
+                    })" />
+                <partial name="_SalesStatCard.cshtml"
+                         model="@(new
                     {
                         Heading = "Orders",
                         Icon = "shopping-cart",
                         Value = Model.GeneralRevenue.NumberOfOrders
-                    })" 
-                />
+                    })" />
             </div>
         </div>
     </div>
@@ -72,8 +65,6 @@
         </div>
     </div>
 </div>
-
-<h3>Top Selling</h3>
 <div class="row">
     <div class="col-md-8">
         <div class="card flex-fill">
@@ -98,8 +89,8 @@
                                     <div class="flex-shrink-0">
                                         <div class="bg-light rounded-2">
                                             <img class="p-2"
-                                                    src="@(item.Key.ProductImages.FirstOrDefault()?.GetProductImageURL())"
-                                                    style="width: 40px; height: 40px">
+                                                 src="@(item.Key.ProductImages.FirstOrDefault()?.GetProductImageURL())"
+                                                 style="width: 40px; height: 40px">
                                         </div>
                                     </div>
                                     <div class="flex-grow-1 ms-3">
@@ -113,7 +104,7 @@
                             <td>@item.Value.UnitsSold</td>
                             <td>@item.Value.TotalRevenue.ToString("N0")</td>
                             <td class="d-none d-xl-table-cell">
-                                <a asp-controller="Statistics" asp-action="Product" asp-route-id="@item.Key.ID" class="btn btn-light">View</a>
+                                <a href="#" class="btn btn-light">View</a>
                             </td>
                         </tr>
                     }
@@ -121,54 +112,24 @@
             </table>
         </div>
     </div>
-    <div class="col-md-4">
-        <div class="card flex-fill">
-            <div class="card-header">
-                <h5 class="card-title mb-0">Top Selling Brands</h5>
-            </div>
-            <table class="table my-0">
-                <thead>
-                    <tr>
-                        <th style="white-space: nowrap">Name</th>
-                        <th style="white-space: nowrap">Units Sold</th>
-                        <th style="white-space: nowrap">Revenue</th>
-                        <th style="white-space: nowrap">Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var item in Model.TopBrands)
-                    {
-                        <tr>
-                            <td><strong>@item.Key.Name</strong></td>
-                            <td>@item.Value.UnitsSold</td>
-                            <td>@item.Value.TotalRevenue.ToString("N0")</td>
-                            <td><a asp-controller="Statistics" asp-action="Brand" asp-route-id="@item.Key.ID" class="btn btn-light">View</a></td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
-    </div>
 </div>
-
 @section Scripts
 {
-    @{
-        var salesLabels = Model.HistoricalStats.Select(x => x.StartDate.ToShortDateString()).ToList();
-        var revenueData = Model.HistoricalStats.Select(x => x.Revenue.TotalRevenue / 1_000_000m).ToList();
-        var unitsData = Model.HistoricalStats.Select(x => x.Revenue.UnitsSold).ToList();
-        var ordersData = Model.HistoricalStats.Select(x => x.Revenue.NumberOfOrders).ToList();
-    }
-    <script>
-        document.addEventListener("DOMContentLoaded", function ()
-        {
-            // Bar chart
-            new Chart(document.getElementById("chartjs-dashboard-bar"), {
-                type: "line",
-                data: 
-                {
-                    labels: @Html.Raw(Json.Serialize(salesLabels)),
-                    datasets: 
+@{
+    var salesLabels = Model.HistoricalStats.Select(x => x.StartDate.ToShortDateString()).ToList();
+    var revenueData = Model.HistoricalStats.Select(x => x.Revenue.TotalRevenue / 1_000_000m).ToList();
+    var unitsData = Model.HistoricalStats.Select(x => x.Revenue.UnitsSold).ToList();
+    var ordersData = Model.HistoricalStats.Select(x => x.Revenue.NumberOfOrders).ToList();
+}
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // Bar chart
+        new Chart(document.getElementById("chartjs-dashboard-bar"), {
+            type: "line",
+            data:
+            {
+                labels: @Html.Raw(Json.Serialize(salesLabels)),
+                datasets:
                     [
                         {
                             label: "Revenue (millions)",
@@ -201,38 +162,36 @@
                             hoverBorderColor: 'blue',
                         },
                     ]
-                },
-                options: {
-                    maintainAspectRatio: false,
-                    scales: 
-                    {
-                        yAxes: 
+            },
+            options: {
+                maintainAspectRatio: false,
+                scales:
+                {
+                    yAxes:
                         [{
                             stacked: false,
                         }],
-                        xAxes: 
+                    xAxes:
                         [{
                             stacked: false,
                             gridLines: { display: false },
                         }]
-                    }
                 }
-            });
-
-            function getLabels()
-            {
-                var currentDate = new Date();
-                var labels = [];
-                for (var i = 0; i < 7; i++)
-                {
-                    var date = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() - i);
-                    var day = date.getDate();
-                    var month = date.getMonth() + 1;
-                    var formattedDate = day + "/" + month;
-                    labels.unshift(formattedDate);
-                }
-                return labels;
             }
         });
-    </script>
+
+        function getLabels() {
+            var currentDate = new Date();
+            var labels = [];
+            for (var i = 0; i < 7; i++) {
+                var date = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() - i);
+                var day = date.getDate();
+                var month = date.getMonth() + 1;
+                var formattedDate = day + "/" + month;
+                labels.unshift(formattedDate);
+            }
+            return labels;
+        }
+    });
+</script>
 }

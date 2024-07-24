@@ -43,7 +43,22 @@ namespace HoaLacLaptopShop.Areas.Administration.ViewModels
 		public required ICollection<KeyValuePair<Product, Revenue>> TopProducts { get; set; }
 	}
 
-	public class Revenue
+    public class BrandStatsViewModel : GeneralStatsIndexArgs
+    {
+        public required Brand Brand { get; set; }
+        public required Revenue GeneralRevenue { get; set; }
+        public required ICollection<DatedRevenue> HistoricalStats { get; set; }
+        public required ICollection<KeyValuePair<Product, Revenue>> TopProducts { get; set; }
+    }
+
+    public class ProductStatsViewModel : GeneralStatsIndexArgs
+    {
+        public required Product Product { get; set; }
+        public required Revenue GeneralRevenue { get; set; }
+        public required ICollection<DatedRevenue> HistoricalStats { get; set; }
+    }
+
+    public class Revenue
 	{
 		public int NumberOfOrders { get; set; }
 		public int UnitsSold { get; set; }
