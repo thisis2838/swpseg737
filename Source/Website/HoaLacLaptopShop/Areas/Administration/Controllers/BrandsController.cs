@@ -70,6 +70,7 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
 
                 _context.Add(brand);
                 await _context.SaveChangesAsync();
+                this.AddMessage("Successfully created brand.");
                 return RedirectToAction(nameof(Index));
             }
             return View(brand);
@@ -120,6 +121,7 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
                     }
 
                 }
+                this.AddMessage("Successfully edited brand.");
                 return RedirectToAction(nameof(Index));
             }
             return View(brand);
@@ -150,6 +152,7 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
 
             _context.Brands.Remove(brand);
             await _context.SaveChangesAsync();
+            this.AddMessage("Successfully deleted brand.");
             return RedirectToAction(nameof(Index));
         }
     }

@@ -60,6 +60,7 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers.ComponentSeries
             {
                 Context.Add(cpuSeries);
                 await Context.SaveChangesAsync();
+                this.AddMessage("Successfully added CPU Series.");
                 return RedirectToAction(nameof(Index));
             }
             await InitializeBrandSelection();
@@ -91,6 +92,7 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers.ComponentSeries
             {
                 Context.Update(updateCPU);
                 await Context.SaveChangesAsync();
+                this.AddMessage("Successfully edited CPU Series.");
                 return RedirectToAction(nameof(Index));
             }
 
@@ -118,6 +120,7 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers.ComponentSeries
 
             Context.LaptopCPUSeries.Remove(cpuSeries);
             await Context.SaveChangesAsync();
+            this.AddMessage("Successfully deleted CPU Series.");
             return RedirectToAction(nameof(Index));
         }
     }

@@ -239,6 +239,7 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
 
                 Context.Add(newsPost);
                 await Context.SaveChangesAsync();
+                this.AddMessage("Successfully created news post.");
                 return RedirectToAction(nameof(Index));
             }
             return View(newsPost);
@@ -309,6 +310,7 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
                         throw;
                     }
                 }
+                this.AddMessage("Successfully edited news post.");
                 return RedirectToAction(nameof(Index));
             }
             return View(newsPost);
@@ -334,6 +336,7 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
 
             await Context.SaveChangesAsync();
             DeleteContent(newsPost);
+            this.AddMessage("Successfully deleted news post.");
             return RedirectToAction(nameof(Index));
         }
 

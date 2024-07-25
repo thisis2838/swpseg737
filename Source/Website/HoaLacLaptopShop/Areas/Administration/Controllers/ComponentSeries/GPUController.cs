@@ -60,6 +60,7 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers.ComponentSeries
             {
                 Context.Add(gpuSeries);
                 await Context.SaveChangesAsync();
+                this.AddMessage("Successfully added GPU Series.");
                 return RedirectToAction(nameof(Index));
             }
             await InitializeBrandSelection();
@@ -91,6 +92,7 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers.ComponentSeries
             {
                 Context.Update(updateGPU);
                 await Context.SaveChangesAsync();
+                this.AddMessage("Successfully edited GPU Series.");
                 return RedirectToAction(nameof(Index));
             }
 
@@ -118,6 +120,7 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers.ComponentSeries
 
             Context.LaptopGPUSeries.Remove(gpuSeries);
             await Context.SaveChangesAsync();
+            this.AddMessage("Successfully deleted GPU Series.");
             return RedirectToAction(nameof(Index));
         }
     }
