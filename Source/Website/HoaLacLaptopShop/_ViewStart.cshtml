@@ -2,7 +2,7 @@
     Layout = "_Layout";
 
     var state = ViewData.ModelState;
-    if (!state.IsValid)
+    if (state != null && !state.IsValid)
     {
         var invalids = state
             .Where(x => x.Value?.ValidationState == Microsoft.AspNetCore.Mvc.ModelBinding.ModelValidationState.Invalid)
