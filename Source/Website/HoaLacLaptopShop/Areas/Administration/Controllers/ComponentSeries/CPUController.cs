@@ -21,7 +21,10 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers.ComponentSeries
 
         public async Task<IActionResult> Index(CPUIndexArgs args)
         {
-            var cpus = Context.LaptopCPUSeries.Include(c => c.Manufacturer).AsQueryable();
+            var cpus = Context.LaptopCPUSeries
+                .Include(c => c.Manufacturer)
+                .OrderByDescending(x => x.ID)
+                .AsQueryable();
             if (ModelState.IsValid)
             {
                 if (!string.IsNullOrWhiteSpace(args.Search))
@@ -29,11 +32,18 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers.ComponentSeries
                     cpus = cpus.Where(x => x.Name.Contains(args.Search) || x.Manufacturer.Name.Contains(args.Search));
                 }
             }
-            return View(new CPUIndexViewModel()
+
+            var pages = (int)Math.Ceiling((await cpus.CountAsync()) / (float)COMPONENTS_PER_PAGE);
+            if (!ModelState.IsValid) args.Page = 1;
+            cpus = cpus.Skip((args.Page - 1) * COMPONENTS_PER_PAGE).Take(COMPONENTS_PER_PAGE);
+
+            var vm = new CPUIndexViewModel()
             {
-                Search = args.Search,
-                CPUSeries = await cpus.ToListAsync()
-            });
+                CPUSeries = await cpus.ToListAsync(),
+                TotalPages = pages
+            };
+            vm.FillFromOther(args);
+            return View(vm);
         }
 
         public async Task<IActionResult> Add()

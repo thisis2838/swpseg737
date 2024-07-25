@@ -8,6 +8,8 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers.ComponentSeries
 {
     public abstract class ComponentSeriesController : Controller
     {
+        protected const int COMPONENTS_PER_PAGE = 20;
+
         protected HoaLacLaptopShopContext Context { get; init; }
         public ComponentSeriesController(HoaLacLaptopShopContext context)
         {

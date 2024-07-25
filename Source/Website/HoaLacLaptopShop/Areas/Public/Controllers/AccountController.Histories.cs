@@ -43,7 +43,8 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
 
             const int ORDERS_PER_PAGE = 20;
             var pages = (int)Math.Ceiling((await orders.CountAsync()) / (float)ORDERS_PER_PAGE);
-            if (ModelState.IsValid) orders = orders.Skip((args.Page - 1) * ORDERS_PER_PAGE).Take(ORDERS_PER_PAGE);
+            if (!ModelState.IsValid) args.Page = 1;
+            orders = orders.Skip((args.Page - 1) * ORDERS_PER_PAGE).Take(ORDERS_PER_PAGE);
 
             var vm = new OrderHistoryViewModel
             {
@@ -96,7 +97,8 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
 
             const int REVIEWS_PER_PAGE = 20;
             var pages = (int)Math.Ceiling((await reviews.CountAsync()) / (float)REVIEWS_PER_PAGE);
-            if (ModelState.IsValid) reviews = reviews.Skip((args.Page - 1) * REVIEWS_PER_PAGE).Take(REVIEWS_PER_PAGE);
+            if (!ModelState.IsValid) args.Page = 1;
+            reviews = reviews.Skip((args.Page - 1) * REVIEWS_PER_PAGE).Take(REVIEWS_PER_PAGE);
 
             var vm = new ReviewHistoryViewModel
             {

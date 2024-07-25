@@ -12,7 +12,8 @@
 <a class="btn btn-primary" asp-action="Index">Back to List</a>
 <hr />
 
-
-<form asp-action="Add" id="main-form">
-    <partial name="_GPUInfoView.cshtml" model="@Model" />
-</form>
+<div class="col-md-4">
+    <form asp-action="Add" id="main-form">
+        <partial name="_GPUInfoView.cshtml" model="@Model" />
+    </form>
+</div>

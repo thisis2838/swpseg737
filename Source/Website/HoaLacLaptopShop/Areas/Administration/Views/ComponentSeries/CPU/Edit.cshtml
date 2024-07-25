@@ -15,9 +15,11 @@
 </div>
 <hr />
 
-<form asp-action="Edit" id="main-form">
-    <partial name="_CPUInfoView.cshtml" model="@Model" />
-</form>
+<div class="col-md-4">
+    <form asp-action="Edit" id="main-form">
+        <partial name="_CPUInfoView.cshtml" model="@Model" />
+    </form>
+</div>
 
 <form asp-action="Delete" id="form-delete">
     <input type="hidden" asp-for="ID" />

@@ -21,7 +21,10 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers.ComponentSeries
 
         public async Task<IActionResult> Index(GPUIndexArgs args)
         {
-            var gpus = Context.LaptopGPUSeries.Include(c => c.Manufacturer).AsQueryable();
+            var gpus = Context.LaptopGPUSeries
+                .Include(c => c.Manufacturer)
+                .OrderByDescending(x => x.ID)
+                .AsQueryable();
             if (ModelState.IsValid)
             {
                 if (!string.IsNullOrWhiteSpace(args.Search))
@@ -29,11 +32,18 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers.ComponentSeries
                     gpus = gpus.Where(x => x.Name.Contains(args.Search) || x.Manufacturer.Name.Contains(args.Search));
                 }
             }
-            return View(new GPUIndexViewModel()
+
+            var pages = (int)Math.Ceiling((await gpus.CountAsync()) / (float)COMPONENTS_PER_PAGE);
+            if (!ModelState.IsValid) args.Page = 1;
+            gpus = gpus.Skip((args.Page - 1) * COMPONENTS_PER_PAGE).Take(COMPONENTS_PER_PAGE);
+
+            var vm = new GPUIndexViewModel()
             {
-                Search = args.Search,
-                GPUSeries = await gpus.ToListAsync()
-            });
+                GPUSeries = await gpus.ToListAsync(),
+                TotalPages = pages
+            };
+            vm.FillFromOther(args);
+            return View(vm);
         }
 
         public async Task<IActionResult> Add()

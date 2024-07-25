@@ -144,7 +144,8 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
 
             const int POSTS_PER_PAGE = 20;
             var pages = (int)Math.Ceiling(newsConv.Count() / (float)POSTS_PER_PAGE);
-            if (ModelState.IsValid) newsConv = newsConv.Skip((args.Page - 1) * POSTS_PER_PAGE).Take(POSTS_PER_PAGE);
+            if (!ModelState.IsValid) args.Page = 1;
+            newsConv = newsConv.Skip((args.Page - 1) * POSTS_PER_PAGE).Take(POSTS_PER_PAGE);
 
             var vm = new NewsPostIndexViewModel() 
             {

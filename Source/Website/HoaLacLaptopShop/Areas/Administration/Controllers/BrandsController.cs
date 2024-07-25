@@ -38,10 +38,8 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
 
             const int BRANDS_PER_PAGE = 20;
             var pages = (int)Math.Ceiling((await brands.CountAsync()) / (float)BRANDS_PER_PAGE);
-            if (ModelState.IsValid)
-            {
-                brands = brands.Skip((args.Page - 1) * BRANDS_PER_PAGE).Take(BRANDS_PER_PAGE);
-            }
+            if (!ModelState.IsValid) args.Page = 1;
+            brands = brands.Skip((args.Page - 1) * BRANDS_PER_PAGE).Take(BRANDS_PER_PAGE);
 
             var vm = new BrandIndexViewModel()
             {
