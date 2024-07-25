@@ -25,88 +25,92 @@
         </ol>
     </div>
     *@
-    <div class="table-responsive cart_info">
-        <table class="table table-hover table-condensed">
-            <thead class="thead-light">
-                <tr>
-                    <th class="image" class="cart-image">Item</th>
-                    <th class="description" ></th>
-                    <th style="text-align: center" class="price" class="cart-price">Price</th>
-                    <th style="text-align: center" class="quantity">Quantity</th>
-                    <th style="text-align: center" class="total">Total</th>
-                    <th style="text-align: center" scope="col">Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var item in Model.OrderDetails)
-                {
-                    <tr  style="align-items:center">
-                        <td class="cart-image">
-                            <img 
-                                src="@item.Product.ProductImages.First().GetProductImageURL()" 
-                                alt="@item.Product.Brand" 
-                                class="img-fluid" style="width: 100px; height: 100px; margin: 10px"
-                            />
-                        </td>
-                        <td class="cart-name">
-                            <span><a href="@Url.Action("Details", "Products", new {id = item.ProductId})">@item.Product.Name</a></span>
-                        </td>
-                        <td style="text-align: center">
-                            <span>@item.ProductPrice.ToString("N0")</span>
-                        </td>
-                        <td class="cart_quantity">
-                            <div class="d-flex align-items-center" style="justify-content: center;">
-                                <form asp-controller="Cart" asp-action="ModifyQuantity">
-                                    <input type="hidden" name="productID" value="@item.ProductId" />
-                                    <button type="submit" class="btn btn-sm">
-                                        <i class="fa fa-plus"></i>
-                                    </button>
-                                </form>
-                                <input
-                                    class="form-control text-center" type="text"
-                                    name="quantity" value="@item.Quantity"
-                                    autocomplete="off" style="width: 50px; margin: 10px"
-                                    readonly
-                                >
-                                <form asp-controller="Cart" asp-action="ModifyQuantity">
-                                    <input type="hidden" name="productID" value="@item.ProductId" />
-                                    <input type="hidden" name="quantity" value="-1" />
-                                    <button type="submit" class="btn btn-sm" @(item.Quantity <= 1 ? "disabled" : "")>
-                                        <i class="fa fa-minus"></i>
-                                    </button>
-                                </form>
-                            </div>
-                        </td>
-                        <td style="text-align: center">
-                            <strong>@item.SubTotal.ToString("N0")</strong>
-                        </td>
-                        <td class="cart_delete">
-                            <form asp-action="RemoveFromCart" asp-controller="Cart" style="opacity: 1 !important; display: flex; justify-content: center; align-items: center;">
-                                <input type="hidden" name="productID" value="@item.ProductId" />
-                                <button type="submit" class="btn btn-outline-danger btn-sm"><i class="fa fa-times"></i></button>
-                            </form>
-                        </td>
+    @if (Model.OrderDetails.Count == 0)
+    {
+        <div>Nothing added to the cart yet. Add some!</div>
+        <a class="btn btn-primary" href="@Url.ActionLink("Index", "Products")">Browse Products</a>
+    }
+    else
+    {
+        <div class="table-responsive cart_info">
+            <table class="table table-hover table-condensed">
+                <thead class="thead-light">
+                    <tr>
+                        <th class="image" class="cart-image">Item</th>
+                        <th class="description"></th>
+                        <th style="text-align: center" class="price" class="cart-price">Price</th>
+                        <th style="text-align: center" class="quantity">Quantity</th>
+                        <th style="text-align: center" class="total">Total</th>
+                        <th style="text-align: center" scope="col">Action</th>
                     </tr>
-                }
-            </tbody>
-        </table>
-    </div>
-    <section id="do_action">
-        <div class="row" style="align-items: flex-end">
-            <div class="col-sm-6" style="float: right; padding: 0">
-                <div class="total_area">
-                    <ul>
-                        <li>Cart Sub Total <span>@Model.OrderDetails.Sum(c => c.SubTotal).ToString("N0")</span></li>
-                        <li>Shipping Cost <span>Free</span></li>
-                        <li>Total <span>@Model.OrderDetails.Sum(c => c.SubTotal).ToString("N0")</span></li>
-                    </ul>
-                    @*<a class="btn btn-default update" href="">Update</a>*@
-                    <a class="btn btn-default check_out" asp-action="Index" asp-controller="Checkout" style="margin-left: 40px;">Check Out</a>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.OrderDetails)
+                    {
+                        <tr style="align-items:center">
+                            <td class="cart-image">
+                                <img src="@item.Product.ProductImages.First().GetProductImageURL()"
+                                     alt="@item.Product.Brand"
+                                     class="img-fluid" style="width: 100px; height: 100px; margin: 10px" />
+                            </td>
+                            <td class="cart-name">
+                                <span><a href="@Url.Action("Details", "Products", new {id = item.ProductId})">@item.Product.Name</a></span>
+                            </td>
+                            <td style="text-align: center">
+                                <span>@item.ProductPrice.ToString("N0")</span>
+                            </td>
+                            <td class="cart_quantity">
+                                <div class="d-flex align-items-center" style="justify-content: center;">
+                                    <form asp-controller="Cart" asp-action="ModifyQuantity">
+                                        <input type="hidden" name="productID" value="@item.ProductId" />
+                                        <button type="submit" class="btn btn-sm">
+                                            <i class="fa fa-plus"></i>
+                                        </button>
+                                    </form>
+                                    <input class="form-control text-center" type="text"
+                                           name="quantity" value="@item.Quantity"
+                                           autocomplete="off" style="width: 50px; margin: 10px"
+                                           readonly>
+                                    <form asp-controller="Cart" asp-action="ModifyQuantity">
+                                        <input type="hidden" name="productID" value="@item.ProductId" />
+                                        <input type="hidden" name="quantity" value="-1" />
+                                        <button type="submit" class="btn btn-sm" @(item.Quantity <= 1 ? "disabled" : "")>
+                                            <i class="fa fa-minus"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                            <td style="text-align: center">
+                                <strong>@item.SubTotal.ToString("N0")</strong>
+                            </td>
+                            <td class="cart_delete">
+                                <form asp-action="RemoveFromCart" asp-controller="Cart" style="opacity: 1 !important; display: flex; justify-content: center; align-items: center;">
+                                    <input type="hidden" name="productID" value="@item.ProductId" />
+                                    <button type="submit" class="btn btn-outline-danger btn-sm"><i class="fa fa-times"></i></button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <section id="do_action">
+            <div class="row" style="align-items: flex-end">
+                <div class="col-sm-6" style="float: right; padding: 0">
+                    <div class="total_area">
+                        <ul>
+                            <li>Cart Sub Total <span>@Model.OrderDetails.Sum(c => c.SubTotal).ToString("N0")</span></li>
+                            <li>Shipping Cost <span>Free</span></li>
+                            <li>Total <span>@Model.OrderDetails.Sum(c => c.SubTotal).ToString("N0")</span></li>
+                        </ul>
+                        @*<a class="btn btn-default update" href="">Update</a>*@
+                        <a class="btn btn-default check_out" asp-action="Index" asp-controller="Checkout" style="margin-left: 40px;">Check Out</a>
+                    </div>
                 </div>
             </div>
-        </div>
 
-    </section>
+        </section>
+    }
 </section> 
 
 <style>

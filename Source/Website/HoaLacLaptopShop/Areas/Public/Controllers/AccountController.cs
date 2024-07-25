@@ -106,6 +106,38 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
             return View(HttpContext.GetCurrentUser());
         }
 
+        
+        [NonAction]
+        private PurchaseSummary GetPurchaseSummary()
+        {
+            return new PurchaseSummary()
+            {
+                ProductsBought = Orders().SelectMany(x => x.OrderDetails).Select(x => x.ProductId).Distinct().Count(),
+                OrdersPlaced = Orders().Count(),
+                MoneySpent = Orders().Sum(x => x.DiscountedPrice),
+                VouchersUsed = Orders().Select(x => x.VoucherID).Where(x => x.HasValue).Distinct().Count()
+            };
+        }
+        [NonAction]
+        private ReviewSummary GetReviewSummary()
+        {
+            return new ReviewSummary()
+            {
+                ProductsReviewed = Reviews().Count(),
+                AverageRating = Reviews().Count() == 0 ? 0 : Reviews().Sum(x => x.Rating) / Reviews().Count(),
+            };
+        }
+        [Authorize]
+        public ActionResult Details()
+        {
+            return View(new AccountDetailsViewModel()
+            {
+                Account = HttpContext.GetCurrentUser()!,
+                PurchaseSummary = GetPurchaseSummary(),
+                ReviewSummary = GetReviewSummary()
+            });
+        }
+
         [Authorize]
         public ActionResult Edit()
         {
@@ -114,30 +146,10 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
             edit.FillFromOther(currentUser);
             return View(edit);
         }
-
-        [Authorize]
-        public ActionResult Details()
-        {
-            var currentUser = HttpContext.GetCurrentUser()!;
-            return View(new User()
-            {
-                ID = currentUser.ID,
-                Email = currentUser.Email,
-                Name = currentUser.Name,
-                Gender = currentUser.Gender,
-                PhoneNumber = currentUser.PhoneNumber,
-                IsAdmin = currentUser.IsAdmin,
-                IsMarketing = currentUser.IsMarketing,
-                IsSales = currentUser.IsSales
-            });
-        }
-
         [HttpPost, ValidateAntiForgeryToken, Authorize]
         [ModelStateInclude
         (
-            nameof(AccountEditViewModel.ID),
             nameof(AccountEditViewModel.Name),
-            nameof(AccountEditViewModel.Email),
             nameof(AccountEditViewModel.CurrentPassword),
             nameof(AccountEditViewModel.NewPassword),
             nameof(AccountEditViewModel.PhoneNumber)
@@ -145,12 +157,6 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
         [Authorize]
         public async Task<ActionResult> Edit(AccountEditViewModel model, string gender)
         {
-            if (model.ID != HttpContext.GetCurrentUserID())
-            {
-                this.AddError("You are not allowed to edit this user.");
-                return Unauthorized();
-            }
-
             if (ModelState.IsValid)
             {
                 try
@@ -163,13 +169,12 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
                         : hasher.HashPassword(user, model.NewPassword);
                     if (hasher.VerifyHashedPassword(user, user.PassHash, model.CurrentPassword) == PasswordVerificationResult.Failed)
                     {
-                        this.AddError("Incorrect current password");
+                        this.AddError("Incorrect current password. Please try again.");
                         return View(model);
                     }
                     user.Gender = gender.Equals("Male");
                     user.Name = model.Name;
                     user.PhoneNumber = model.PhoneNumber;
-                    user.Email = model.Email;
                     user.PassHash = model.PassHash;
                     _context.Update(user);
                     await _context.SaveChangesAsync();
@@ -186,85 +191,14 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
                     }
                 }
             }
-            return RedirectToAction("Index", "Home");
+
+            this.AddMessage("Successfully updated your account.");
+            return RedirectToAction(nameof(Details));
         }
 
         private bool UserExists(int id)
         {
             return _context.Users.Any(x => x.ID == id);
-        }
-        [Authorize]
-        public async Task<IActionResult> OrderHistory()
-        {
-            var id = HttpContext.GetCurrentUser()!.ID;
-            var user = _context.Users.Find(id)!;
-            var order = await _context.Orders
-                .Include(o => o.OrderDetails).ThenInclude(oi => oi.Product)
-                .Include(o => o.Voucher)
-                .Where(o => o.BuyerID == id)
-                .ToListAsync();
-            return View(order);
-        }
-        [Authorize]
-        public async Task<IActionResult> OrderDetails(int id)
-        {
-            var order = await _context.Orders
-                .Include(o => o.OrderDetails).ThenInclude(oi => oi.Product)
-                .Include(o => o.Buyer)
-                .FirstOrDefaultAsync(x => x.ID == id);
-
-            if (order is null)
-            {
-                return NotFound();
-            }
-            return View(order);
-        }
-        
-        public IActionResult OrderDetail(int id)
-        {
-            var order =  _context.Orders
-                .Include(o => o.OrderDetails).ThenInclude(oi => oi.Product)
-                .Include(o => o.Buyer)
-                .FirstOrDefault(x => x.ID == id);
-
-            if (order is null)
-            {
-                return NotFound();
-            }
-            return View(order);
-        }
-
-        [Authorize]
-        public async Task<IActionResult> ReviewHistory(int page = 1)
-        {
-            var id = HttpContext.GetCurrentUser()!.ID;
-            var user = _context.Users.Find(id)!;
-            var review = await _context.ProductReviews
-                .Include(p => p.Product)
-                .ThenInclude(p => p.ProductImages)
-                .Where(p => p.ReviewerId == id)
-                .OrderBy(p => p.ReviewTime)
-                .ToListAsync();
-            var curPage = review.Skip((page - 1) * 12).Take(12);
-            return View(new ReviewViewModel
-            {
-                ProductReviews = curPage.ToList(),
-                TotalCount = review.Count,
-                TargetPage = page
-            });
-        }
-        [Authorize]
-        public async Task<IActionResult> ReviewDetails(int pid, int rid)
-        {
-            var product = _context.Products.Where(p => p.ID == pid).Include(p => p.ProductImages).Include(p => p.Brand).FirstOrDefault();
-            var reviewer = _context.Users.Where(u => u.ID == rid).FirstOrDefault();
-            var review = _context.ProductReviews.Where(pr => pr.ProductId == pid && pr.ReviewerId == rid).FirstOrDefault();
-            return View(new ReviewDetailViewModel
-            {
-                Product = product,
-                User = reviewer,
-                ProductReview = review
-            });
         }
     }
 }

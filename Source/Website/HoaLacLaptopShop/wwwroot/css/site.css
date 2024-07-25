@@ -118,3 +118,18 @@ body {
     margin-right: 5px;
     margin-bottom: 0px;
 }
+
+.account-card
+{
+    background: #f7f7f0;
+    padding: 10px;
+    margin: 10px;
+    margin-left: 0px;
+    border-radius: 10px;
+}
+
+.account-card-content
+{
+    font-size: large;
+    font-weight: bold;
+}

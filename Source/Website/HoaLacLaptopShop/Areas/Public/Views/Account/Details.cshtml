@@ -1,56 +1,77 @@
-﻿@model User
+﻿@using HoaLacLaptopShop.Areas.Public.ViewModels
+@model AccountDetailsViewModel
 
 @{
     ViewData["Title"] = "Profile";
 }
-<div>
-    @{
-        if (Context.IsLoggedIn())
-        {
-            @DateTime.Now
-            <h1>Hello @Context.GetCurrentUser()!.Name.ToUpper()</h1>
-            <hr />
-            <div class="row">
-                <div class="col-md-6">
-                    <p><strong>Email:</strong> @Model.Email</p>
-                    <p><strong>Name:</strong> @Model.Name</p>
-                    <p><strong>Gender:</strong> @(Model.Gender ? "Male" : "Female")</p>
-                    <p><strong>Phone Number:</strong> @Model.PhoneNumber</p>
-                    <p>
-                        <strong>Roles:</strong>
-                        @{
-                            if (Model.IsAdmin || Model.IsMarketing || Model.IsSales)
-                            {
-                                <span>@(Model.IsAdmin ? "Admin " : "")</span>
-                                <span>@(Model.IsMarketing ? "Marketing " : "")</span>
-                                <span>@(Model.IsSales ? "Sales" : "")</span>
-                            }
-                            else
-                            {
-                                <span>Customer</span>
-                            }
-                        }
-                    </p>
-                    <div class="text-danger">@ViewBag.Error</div>
-                    <a href="@Url.Action("Edit", "Account")" class="btn btn-primary">Edit Information</a>
-                </div>
-                <div class="col-md-6">
-                    <a href="@Url.Action("ReviewHistory", "Account")" class="btn btn-primary">View Review History</a>
-                    <a href="@Url.Action("OrderHistory", "Account")" class="btn btn-primary">View Order History</a>
-                </div>
-            </div>
 
-            @section Scripts {
-            @{
-                    await Html.RenderPartialAsync("_ValidationScriptsPartial");
-                }
-            }
-
-        }
-        else
+<h1>Hello @Context.GetCurrentUser()!.Name.ToUpper()!</h1>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <h2>Personal Details</h2>
+        <partial name="_InfoCard.cshtml" model="@(new
         {
-            <span>No info</span>
-        }
-    }
+            Icon = "email",
+            Header = "Email",
+            Content = Model.Account.Email
+        })"/>
+        <partial name="_InfoCard.cshtml" model="@(new
+        {
+            Icon = "name",
+            Header = "Name",
+            Content = Model.Account.Name
+        })" />
+        <partial name="_InfoCard.cshtml" model="@(new
+        {
+            Icon = "gender",
+            Header = "Gender",
+            Content = Model.Account.Gender ? "Male" : "Female"
+        })" />
+        <partial name="_InfoCard.cshtml" model="@(new
+        {
+            Icon = "phone",
+            Header = "Phone number",
+            Content = Model.Account.PhoneNumber
+        })" />
+        <a href="@Url.Action("Edit", "Account")" class="btn btn-primary">Edit Account</a>
+    </div>
+    <div class="col-md-4">
+        <h2>Purchase Summary</h2>
+        <partial name="_InfoCard.cshtml" model="@(new
+        {
+            Icon = "product",
+            Header = "Products bought",
+            Content = Model.PurchaseSummary.ProductsBought
+        })" />
+        <partial name="_InfoCard.cshtml" model="@(new
+        {
+            Icon = "orders",
+            Header = "Orders placed",
+            Content = Model.PurchaseSummary.OrdersPlaced
+        })" />
+        <partial name="_InfoCard.cshtml" model="@(new
+        {
+            Icon = "dollar",
+            Header = "Money spent",
+            Content = Model.PurchaseSummary.MoneySpent.ToString("N0")
+        })" />
+        <partial name="_InfoCard.cshtml" model="@(new
+        {
+            Icon = "voucher",
+            Header = "Vouchers used",
+            Content = Model.PurchaseSummary.VouchersUsed
+        })" />
+
+        <a asp-action="OrderHistory" class="btn btn-primary">View Order History</a>
+        <a asp-action="ReviewHistory" class="btn btn-primary">View Review History</a>
+    </div>
 </div>
 
+
+
+
+@section Scripts 
+{
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

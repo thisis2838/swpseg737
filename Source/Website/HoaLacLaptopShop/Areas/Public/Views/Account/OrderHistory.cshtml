@@ -3,73 +3,46 @@
     ViewData["Title"] = "Order History";
 }
 <h1>Order List</h1>
-<div>
-    <a class="btn btn-primary" asp-action="Details">Back to Profile</a>
-</div>
+<a class="btn btn-primary" asp-action="Details">Back to Profile</a>
 <hr />
-<div class="row">
-    <div class="card">
-        <div class="card-body">
-            <table id="datatables-reponsive" class="table table-striped" style="width:100%">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Created</th>
-                        <th>Customer Name</th>
-                        <th>Title</th>
-                        <th>Amount</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var item in Model)
+
+<table id="table" class="table table-striped">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Time</th>
+            <th>Items</th>
+            <th>Final Price</th>
+            <th>Status</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.ID</td>
+                <td style="min-width: 10vw">@item.OrderTime</td>
+                <td>
+                    @foreach (var orderItem in item.OrderDetails)
                     {
-                        <tr>
-                            <td>@item.ID</td>
-                            <td>@item.OrderTime</td>
-                            <td>@item.Buyer.Name</td>
-                            <td>
-                                @foreach (var orderItem in item.OrderDetails)
-                                {
-                                    <span>@orderItem.Quantity @orderItem.Product.Name</span>
-                                    <br />
-                                }
-                            </td>
-                            <td>@string.Format("{0:N0}", item.TotalPrice)</td>
-                            <td class="order-status">@item.Status</td>
-                            <td><a asp-action="OrderDetails" asp-controller="Account" asp-route-id="@item.ID" class="btn btn-primary">View Details</a></td>
-                        </tr>
-
+                        <a href="@Url.ActionLink("Details", "Products", new {id = orderItem.ProductId})" style="font-size: larger">@orderItem.Product.Name</a>
+                        <span>x@(orderItem.Quantity)</span>
+                        <br />
                     }
-                </tbody>
-            </table>
-        </div>
-    </div>
-</div>
+                    <div>
+                        @foreach (var orderItem in item.OrderDetails)
+                        {
+                            <img width="50" src="@orderItem.Product.ProductImages.FirstOrDefault()?.GetProductImageURL()" />
+                        }
+                    </div>
+                </td>
+                <td style="min-width: 5vw">@string.Format("{0:N0}", item.DiscountedPrice)</td>
+                <td class="order-status">@item.Status</td>
+                <td><a asp-action="OrderDetails" asp-controller="Account" asp-route-id="@item.ID" class="btn btn-primary">View Details</a></td>
+            </tr>
 
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        // Datatables Responsive
-        $("#datatables-reponsive").DataTable({
-            responsive: true
-        });
-    });
-</script>
+        }
+    </tbody>
+</table>
 
-<script>
-    $(document).ready(function () {
-        $('#orderStatus').change(function () {
-            var selectedStatus = $(this).val();
-            $('#datatables-reponsive tbody tr').each(function () {
-                var row = $(this);
-                var status = row.find('.order-status').text();
-                if (selectedStatus === "All" || status === selectedStatus) {
-                    row.show();
-                } else {
-                    row.hide();
-                }
-            });
-        });
-    });
-</script>
