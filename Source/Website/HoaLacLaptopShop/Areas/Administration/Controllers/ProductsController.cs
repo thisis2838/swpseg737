@@ -82,7 +82,7 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
             };
         }
 
-        [Authorize(Roles = "Marketing,Staff")]
+        [Authorize(Roles = "Marketing,Sales")]
         public IActionResult Index(ProductIndexArgs? args)
         {
             args ??= new ProductIndexArgs();
@@ -96,7 +96,7 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
             });
         }
 
-        [Authorize(Roles = "Staff")]
+        [Authorize(Roles = "Sales")]
         public async Task<IActionResult> Add()
         {
             var pro = new ProductUpdateViewModel();
@@ -113,7 +113,7 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
             $"{nameof(Product.ReviewCount)}.{nameof(Product.ReviewTotal)}",
             nameof(image1), nameof(image2), nameof(image3)
         )]
-        [Authorize(Roles = "Staff")]
+        [Authorize(Roles = "Sales")]
         public async Task<IActionResult> Add
         (
             ProductUpdateViewModel product,
@@ -165,7 +165,7 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
             }
         }
 
-        [Authorize(Roles = "Staff")]
+        [Authorize(Roles = "Sales")]
         public async Task<IActionResult> Edit(int id)
         {
             var pro = _context.Products.Include(p => p.ProductImages).Include(p => p.Laptop)
@@ -181,7 +181,7 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
             return View(pro);
         }
         [HttpPost]
-        [Authorize(Roles = "Staff")]
+        [Authorize(Roles = "Sales")]
         [ModelStateExclude
         (
             nameof(Product.RowVersion),
@@ -258,7 +258,7 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "Staff")]
+        [Authorize(Roles = "Sales")]
         public IActionResult Delete(int id)
         {
             Product product = _context.Products.Where(p => p.ID == id).FirstOrDefault()!;
