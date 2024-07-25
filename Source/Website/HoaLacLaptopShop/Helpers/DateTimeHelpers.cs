@@ -8,17 +8,17 @@
 			string diffStr = diff >= TimeSpan.Zero ? "ago" : "ahead";
 
 			int value; string unit;
-			if (diff.TotalDays > 0)
+			if (diff.TotalDays > 1)
 			{
 				value = (int)diff.TotalDays;
 				unit = "day";
 			}
-			else if (diff.TotalHours > 0)
+			else if (diff.TotalHours > 1)
 			{
 				value = (int)diff.TotalHours;
 				unit = "hour";
 			}
-			else if (diff.TotalMinutes > 0)
+			else if (diff.TotalMinutes > 1)
 			{
 				value = (int)diff.TotalMinutes;
 				unit = "minute";

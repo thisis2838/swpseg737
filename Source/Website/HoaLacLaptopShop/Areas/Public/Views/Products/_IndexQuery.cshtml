@@ -45,7 +45,7 @@
                         var selected = Model.SelectedCPUIDs!.Contains(cpu.ID);
                         <li>
                             <input type="checkbox"
-                                   id="brand_@cpu.ID"
+                                   id="cpu_@cpu.ID"
                                    name="SelectedCpuIDs"
                                    value="@cpu.ID"
                             @(selected ? "checked" : "") />
@@ -67,7 +67,7 @@
                         var selected = Model.SelectedGPUIDs!.Contains(gpu.ID);
                         <li>
                             <input type="checkbox"
-                                   id="brand_@gpu.ID"
+                                   id="gpu_@gpu.ID"
                                    name="SelectedGpuIDs"
                                    value="@gpu.ID"
                             @(selected ? "checked" : "") />

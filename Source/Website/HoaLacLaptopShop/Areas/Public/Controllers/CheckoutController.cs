@@ -67,7 +67,7 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
                     this.AddError("Unknown voucher code, or voucher was unusable.");
                     return RedirectToAction(nameof(CheckoutController.Index));
                 }
-                if (!HasUsedVoucher(voucher))
+                if (HasUsedVoucher(voucher))
                 {
                     this.AddError("You cannot use this voucher as you've already used it once before!");
                     return RedirectToAction(nameof(CheckoutController.Index));
@@ -95,7 +95,7 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
                 else
                 {
                     this.AddMessage("Order has been placed successfully!");
-                    return RedirectToAction(nameof(HomeController.Index), "Home");
+                    return RedirectToAction(nameof(AccountController.OrderDetails), "Account", new { id = Cart.ID });
                 }
             }
             catch (DbUpdateConcurrencyException)
@@ -136,7 +136,7 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
                 return invalid("Invalid voucher code. Please check your input and try again.");
             }
 
-            if (DateTime.Now.Date <= voucher.ExpiryDate)
+            if (voucher.ExpiryDate < DateTime.Now)
                 return invalid("Voucher is unusable as it has expired.");
             var existInOrder = Context.Orders.Any(o => o.VoucherID == voucher.ID && o.BuyerID == userId);
             if (existInOrder)
