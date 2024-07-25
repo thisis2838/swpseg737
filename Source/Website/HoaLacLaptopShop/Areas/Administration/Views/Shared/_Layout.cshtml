@@ -98,11 +98,14 @@
                             </a>
                         </li>
                     }
-                    <li class="sidebar-item">
-                        <a class="sidebar-link" href="@Url.Action("Index", "Users")">
-                            <i class="align-middle" data-feather="user"></i> <span class="align-middle">Users</span>
-                        </a>
-                    </li>
+                    @if (user.IsSales || user.IsAdmin)
+                    {
+                        <li class="sidebar-item">
+                            <a class="sidebar-link" href="@Url.Action("Index", "Users")">
+                                <i class="align-middle" data-feather="user"></i> <span class="align-middle">Users</span>
+                            </a>
+                        </li>
+                    }
                     @if(user.IsMarketing)
                     {
                         <li class="sidebar-item">

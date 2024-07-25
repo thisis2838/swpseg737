@@ -24,19 +24,32 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
         [Authorize(Roles = "Sales,Marketing")]
         public async Task<IActionResult> Index(BrandIndexArgs args)
         {
-            var brands = _context.Brands.AsQueryable();
-            if (!string.IsNullOrWhiteSpace(args.Search))
+            var brands = _context.Brands.OrderByDescending(x => x.ID).AsQueryable();
+            if (ModelState.IsValid)
             {
-                brands = brands.Where
-                (
-                    b => b.Name.Contains(args.Search) || b.Description.Contains(args.Search)
-                );
+                if (!string.IsNullOrWhiteSpace(args.Search))
+                {
+                    brands = brands.Where
+                    (
+                        b => b.Name.Contains(args.Search) || b.Description.Contains(args.Search)
+                    );
+                }
             }
-            return View(new BrandIndexViewModel()
+
+            const int BRANDS_PER_PAGE = 20;
+            var pages = (int)Math.Ceiling((await brands.CountAsync()) / (float)BRANDS_PER_PAGE);
+            if (ModelState.IsValid)
             {
-                Search = args.Search,
-                Brands = await brands.ToListAsync()
-            });
+                brands = brands.Skip((args.Page - 1) * BRANDS_PER_PAGE).Take(BRANDS_PER_PAGE);
+            }
+
+            var vm = new BrandIndexViewModel()
+            {
+                Brands = await brands.ToListAsync(),
+                TotalPages = pages
+            };
+            vm.FillFromOther(args);
+            return View(vm);
         }
 
         [Authorize(Roles = "Sales")]
