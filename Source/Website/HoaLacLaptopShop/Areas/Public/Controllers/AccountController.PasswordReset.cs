@@ -35,7 +35,15 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
                 int code = new Random().Next(100000, 1000000);
                 var subject = "Hoalac Laptops Reset Password Code";
                 var result = await _viewRenderService.RenderToStringAsync("Account/PasswordResetEmailTemplate", code.ToString());
-                await _emailSender.SendEmailAsync(resetEmail, subject, result);
+                try
+                {
+                    await _emailSender.SendEmailAsync(resetEmail, subject, result);
+                }
+                catch (Exception)
+                {
+                    this.AddError("Cannot send email! Please try again later.");
+                    return View();
+                }
                 HttpContext.Session.Set(CUR_PASS_RESET_KEY, new PasswordResetChallengeData()
                 {
                     Email = user.Email,
