@@ -8,6 +8,7 @@ namespace HoaLacLaptopShop.Areas.Public.ViewModels
         public required int ProductsBought { get; set; }
         public required int OrdersPlaced { get; set; }
         public required int VouchersUsed { get; set; }
+        public required decimal MoneySaved { get; set; }
         public required decimal MoneySpent { get; set; }
     }
     public class ReviewSummary
@@ -37,5 +38,24 @@ namespace HoaLacLaptopShop.Areas.Public.ViewModels
     public class OrderHistoryViewModel : OrderHistoryViewArgs
     {
         public required ICollection<Order> Orders { get; set; }
+    }
+
+
+    public class LoginViewModel
+    {
+        [Required, DataType(DataType.EmailAddress)]
+        public string Email { get; set; } = null!;
+        [Required, DataType(DataType.Password)]
+        public string Password { get; set; } = null!;
+        public bool RememberMe { get; set; }
+    }
+    public class ResetPasswordViewModel
+    {
+        [Required(ErrorMessage = "*")]
+        [DataType(DataType.EmailAddress)]
+        public string Email { get; set; } = null!;
+        [Required(ErrorMessage = "*")]
+        [DataType(DataType.Password)]
+        public string Password { get; set; } = null!;
     }
 }

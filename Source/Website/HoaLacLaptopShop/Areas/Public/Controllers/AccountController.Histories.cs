@@ -65,35 +65,38 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
             return _context.ProductReviews
                 .Include(x => x.Product).ThenInclude(x => x.ProductImages)
                 .Include(x => x.Product).ThenInclude(x => x.Brand)
-                .OrderBy(x => x.ReviewTime)
+                .OrderByDescending(x => x.ReviewTime)
                 .Where(pr => pr.ReviewerId == id);
         }
         [Authorize]
-        public async Task<IActionResult> ReviewHistory(int page = 1)
+        public async Task<IActionResult> ReviewHistory(ReviewHistoryViewArgs? args = null)
         {
-            var id = HttpContext.GetCurrentUser()!.ID;
-            var user = _context.Users.Find(id)!;
+            args ??= new ReviewHistoryViewArgs();
+            const int REVIEWS_PER_PAGE = 20;
 
-            var curPage = await Reviews().Skip((page - 1) * 12).Take(12).ToListAsync();
-            return View(new ReviewViewModel
+            var reviews = Reviews();
+            if (ModelState.IsValid)
             {
-                ProductReviews = curPage,
-                TotalCount = await Reviews().CountAsync(),
-                TargetPage = page
-            });
-        }
-        [Authorize]
-        public async Task<IActionResult> ReviewDetails(int pid)
-        {
-            var userID = HttpContext.GetCurrentUser()!.ID;
-            var review = await Reviews() .FirstOrDefaultAsync(x => x.ProductId == pid);
+                reviews = reviews.Skip((args.Page - 1) * REVIEWS_PER_PAGE).Take(REVIEWS_PER_PAGE);
+                if (args.StarCount.HasValue && args.StarCount.Value > 0)
+                    reviews = reviews.Where(x => x.Rating == args.StarCount);
+                if (!string.IsNullOrWhiteSpace(args.Search))
+                    reviews = reviews.Where
+                    (
+                        x => x.Product.Name.ToLower().Contains(args.Search.ToLower())
+                            || x.Product.Brand.Name.ToLower().Contains(args.Search.ToLower())
+                            || x.Content.ToLower().Contains(args.Search.ToLower())
+                    );
+            }
 
-            if (review is null)
+            var list = await reviews.ToListAsync();
+            var vm = new ReviewHistoryViewModel
             {
-                this.AddError("The requested review could not be found.");
-                return NotFound();
-            }    
-            return View(review);
+                ProductReviews = list,
+                TotalPages = (int)Math.Ceiling(list.Count / (float)REVIEWS_PER_PAGE),
+            };
+            vm.FillFromOther(args);
+            return View(vm);
         }
     }
 }

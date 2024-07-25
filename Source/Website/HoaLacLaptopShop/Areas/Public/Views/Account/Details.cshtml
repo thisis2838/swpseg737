@@ -37,7 +37,7 @@
         <a href="@Url.Action("Edit", "Account")" class="btn btn-primary">Edit Account</a>
     </div>
     <div class="col-md-4">
-        <h2>Purchase Summary</h2>
+        <h2>Orders Summary</h2>
         <partial name="_InfoCard.cshtml" model="@(new
         {
             Icon = "archive",
@@ -61,6 +61,12 @@
             Icon = "percent",
             Header = "Vouchers used",
             Content = Model.PurchaseSummary.VouchersUsed
+        })" />
+        <partial name="_InfoCard.cshtml" model="@(new
+        {
+            Icon = "percent",
+            Header = "Total saved through discounts",
+            Content = Model.PurchaseSummary.MoneySaved.ToString("N0")
         })" />
 
         <a asp-action="OrderHistory" class="btn btn-primary">View Order History</a>

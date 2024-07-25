@@ -115,6 +115,7 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
                 ProductsBought = Orders().SelectMany(x => x.OrderDetails).Select(x => x.ProductId).Distinct().Count(),
                 OrdersPlaced = Orders().Count(),
                 MoneySpent = Orders().Sum(x => x.DiscountedPrice),
+                MoneySaved = Orders().Sum(x => x.TotalPrice - x.DiscountedPrice),
                 VouchersUsed = Orders().Select(x => x.VoucherID).Where(x => x.HasValue).Distinct().Count()
             };
         }

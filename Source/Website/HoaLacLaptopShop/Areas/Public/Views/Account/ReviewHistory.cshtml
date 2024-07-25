@@ -1,97 +1,92 @@
-﻿@model HoaLacLaptopShop.Areas.Public.ViewModels.ReviewViewModel
-@using HoaLacLaptopShop.Areas.Public.Controllers
+﻿@model HoaLacLaptopShop.Areas.Public.ViewModels.ReviewHistoryViewModel
 
 <h1>Review List</h1>
 <div>
     <a class="btn btn-primary" asp-action="Details">Back to Profile</a>
 </div>
-<table id="datatables-reponsive" class="table table-striped" style="width:100%">
-    <thead>
-        <tr>
-            <th>Product</th>
-            <th width="30%"></th>
-            <th>Reviewer</th>
-            <th>Time</th>
-            <th width="10%">Rating</th>
-            <th width="30%">Content</th>
-            <th >Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var review in Model.ProductReviews)
-        {
-            <tr>
-                <td>
-                    <img src="@review.Product.ProductImages.First().GetProductImageURL()"
-                            alt=""
-                            style="width: 50px; height: 50px; object-fit: contain" />
-                </td>
-                <td>@review.Product.Name</td>
-                <td>@review.Reviewer.Name</td>
-                <td>@review.ReviewTime</td>
-                <td>
-                    @{
-                        int i = 0;
-                        @for (i = 0; i < @review.Rating; i++)
-                        {
-                            <i class="fa fa-star"></i>
-                        }
-                        @for (; i < 5; i++)
-                        {
-                            <i class="fa-regular fa-star"></i>
-                        }
-                    }
-                </td>
-                <td>@review.Content</td>
-                <td>
-                    <a asp-action="ReviewDetails" asp-route-pid="@review.ProductId" asp-route-rid="@review.ReviewerId">
-                        <p class="btn btn-success" style="width:90px">View</p>
-                    </a>
-                </td>
+<hr/>
 
-            </tr>
-        }
-
-    </tbody>
-</table>
 <form asp-action="ReviewHistory" method="get">
-    <nav>
-        <ul class="pagination">
-            @{
-                int currentPage = Model.TargetPage;
-                int totalPage = (Model.TotalCount - 1) / 12 + 1;
-                int startPage = Math.Max(1, currentPage - 2);
-                int endPage = Math.Min(totalPage, currentPage + 2);
-
-                if (startPage > 1)
-                {
-                    <li class="page-item">
-                        <input type="submit" name="page" class="page-link" value="1" />
-                    </li>
-                    if (startPage > 2)
-                    {
-                        <li class="page-item disabled"><span class="page-link">...</span></li>
-                    }
-                }
-
-                for (int i = startPage; i <= endPage; i++)
-                {
-                    <li class="page-item @(i == currentPage ? "active" : "")">
-                        <input type="submit" name="page" class="page-link" value="@i" />
-                    </li>
-                }
-
-                if (endPage < totalPage)
-                {
-                    if (endPage < totalPage - 1)
-                    {
-                        <li class="page-item disabled"><span class="page-link">...</span></li>
-                    }
-                    <li class="page-item">
-                        <input type="submit" name="page" class="page-link" value="@totalPage" />
-                    </li>
-                }
+    <div class="form-group" style="display: inline-block">
+        <label asp-for="Search">Search: </label>
+        <input style="width: unset; display: inline-block"
+               class="form-control"
+               asp-for="Search" />
+        <input class="btn btn-primary" type="submit" value="Search" />
+    </div>
+    <div class="form-group pull-right" style="display: inline-block; ">
+        <label asp-for="StarCount">Star Count: </label>
+        <select class="form-control form-select"
+                style="width: unset; display: inline-block;"
+                asp-for="StarCount"
+                onchange="this.form.submit();">
+            <option value="0">Any</option>
+            @for (int i = 1; i <= 5; i++)
+            {
+                <option value="@i">@i @(i == 1 ? "Star" : "Stars")</option>
             }
-        </ul>
-    </nav>
+        </select>
+    </div>
+    <div>
+        <span class="text-danger" asp-validation-for="Search"></span><br />
+        <span class="text-danger" asp-validation-for="StarCount"></span>
+    </div>
+
+    @if (Model.TotalPages == 0)
+    {
+        <span>No reviews to show!</span>
+    }
+    else
+    {
+        <table class="table table-striped" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th></th>
+                    <th>Time</th>
+                    <th>Rating</th>
+                    <th>Content</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var review in Model.ProductReviews)
+                {
+                    <tr>
+                        <td>
+                            <img src="@review.Product.ProductImages.First().GetProductImageURL()"
+                                 alt=""
+                                 style="width: 50px; height: 50px; object-fit: contain" />
+                        </td>
+                        <td>@review.Product.Name</td>
+                        <td>@($"{review.ReviewTime} ({review.ReviewTime.ToTimeFromNow()})")</td>
+                        <td style="width: 120px;">
+                            @{
+                                int i = 0;
+                                @for (i = 0; i < @review.Rating; i++)
+                                {
+                                    <i class="fa fa-star"></i>
+                                }
+                                @for (; i < 5; i++)
+                                {
+                                    <i class="fa-regular fa-star"></i>
+                                }
+                            }
+                        </td>
+                        <td style="overflow: hidden; text-overflow: ellipsis; max-width: 300px; white-space: nowrap;">
+                            @review.Content
+                        </td>
+                        <td>
+                            <a class="btn btn-primary" href="@Url.ActionLink("Details", "Products", new {id = review.ProductId}, fragment: "reviews")">View</a>
+                        </td>
+
+                    </tr>
+                }
+
+            </tbody>
+        </table>
+
+        <partial name="~/Areas/Shared/Views/Shared/_Pagination.cshtml" model="@Model" />
+    }
+    
 </form>

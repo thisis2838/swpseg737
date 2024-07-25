@@ -1,20 +1,22 @@
 ﻿using HoaLacLaptopShop.Models;
+using System.ComponentModel.DataAnnotations;
 
 namespace HoaLacLaptopShop.Areas.Public.ViewModels
 {
-    public class ReviewViewModel
-    {
-        public List<ProductReview> ProductReviews { get; set; }
-        public int TotalCount { get; set; }
 
-        public int TargetPage { get; set; }
+    public class ReviewHistoryViewArgs
+    {
+        [Range(0, 5)]
+        public int? StarCount { get; set; } = 0;
+        [Range(1, int.MaxValue)]
+        public int Page { get; set; } = 1;
+        [MinLength(2), MaxLength(256)]
+        public string? Search { get; set; }
     }
 
-    public class ReviewDetailViewModel
+    public class ReviewHistoryViewModel : ReviewHistoryViewArgs
     {
-        public Product Product { get; set; }
-        public User User { get; set; }
-
-        public ProductReview ProductReview { get; set; }
+        public List<ProductReview> ProductReviews { get; set; } = null!;
+        public required int TotalPages { get; set; }
     }
 }

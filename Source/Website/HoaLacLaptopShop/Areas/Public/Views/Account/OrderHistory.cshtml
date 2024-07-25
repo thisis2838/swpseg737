@@ -8,31 +8,29 @@
 <hr />
 
 <form asp-action="OrderHistory" method="get">
-    <div class="row">
-        <div class="col-md-6">
-            <div class="form-group">
-                <label asp-for="Search" style="display: inline">Search: </label>
-                <input style="width: unset; display: inline;" class="form-control" asp-for="Search" />
-                <input class="btn btn-primary" type="submit" value="Search" /><br/>
-                <span class="text-danger" asp-validation-for="Search"></span>
-            </div>
-        </div>
-        <div class="col-md-6">
-            <div class="form-group pull-right">
-                <label asp-for="Status" style="display: inline">Status: </label>
-                <select class="form-control form-select"
-                        style="width: unset; display: inline;"
-                        asp-for="Status"
-                        asp-items="@Html.GetEnumSelectList<SelectableOrderStatus>()"
-                        onchange="this.form.submit();"></select>
-                <span class="text-danger" asp-validation-for="Status"></span>
-            </div>
-        </div>
+    <div class="form-group" style="display: inline-block">
+        <label asp-for="Search">Search: </label>
+        <input 
+            style="width: unset; display: inline-block" 
+            class="form-control" 
+            asp-for="Search" />
+        <input class="btn btn-primary" type="submit" value="Search" />
     </div>
-    
+    <div class="form-group pull-right" style="display: inline-block; ">
+        <label asp-for="Status">Status: </label>
+        <select class="form-control form-select"
+                style="width: unset; display: inline-block;"
+                asp-for="Status"
+                asp-items="@Html.GetEnumSelectList<SelectableOrderStatus>()"
+                onchange="this.form.submit();"></select>
+    </div>
+    <div>
+        <span class="text-danger" asp-validation-for="Search"></span><br/>
+        <span class="text-danger" asp-validation-for="Status"></span>
+    </div>
 </form>
 
-@if (Model.Orders.Count == 0)
+@if (Model.Orders.Count() == 0)
 {
     <span>No orders to show.</span>
 }
