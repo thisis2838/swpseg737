@@ -121,7 +121,6 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
                             x.OrderTime >= start &&
                             x.OrderDetails.Any(od => od.Product.BrandId == Id));
 
-            var totalRev = CalculateRevenueFromOrders(orders());
             var historical = CalculateHistoricalRevenue(orders, start, now, args.TimeSegment);
 
             // Query for order details of the specific brand
@@ -133,6 +132,8 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
                             x.Order.OrderTime <= now &&
                             x.Order.OrderTime >= start &&
                             x.Product.BrandId == Id);
+            // Calculate total revenue for the specific brand
+            var totalRev = CalculateRevenueFromOrderDetails(orderDetails());
 
             // Get top 5 products for the brand
             var topProducts = takeTop(orderDetails().GroupBy(x => x.Product), 5);
@@ -196,7 +197,6 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
                             x.OrderTime >= start &&
                             x.OrderDetails.Any(od => od.ProductId == Id));
 
-            var totalRev = CalculateRevenueFromOrders(orders());
             var historical = CalculateHistoricalRevenue(orders, start, now, args.TimeSegment);
 
             // Query for order details of the specific product
@@ -207,6 +207,7 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
                             x.Order.OrderTime <= now &&
                             x.Order.OrderTime >= start &&
                             x.ProductId == Id);
+            var totalRev = CalculateRevenueFromOrderDetails(orderDetails());
 
             // Get product details
             var product = _context.Products
@@ -223,13 +224,13 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
             {
                 TimeRange = args.TimeRange,
                 TimeSegment = args.TimeSegment,
-                Product = product,
+                Product = product,  
                 GeneralRevenue = totalRev,
                 HistoricalStats = historical
             };
 
             return View(vm);
-        }
+        }   
         private ICollection<KeyValuePair<T, Revenue>> takeTop<T>(IQueryable<IGrouping<T, OrderDetail>> grouped, int num) where T : class
         {
             return grouped

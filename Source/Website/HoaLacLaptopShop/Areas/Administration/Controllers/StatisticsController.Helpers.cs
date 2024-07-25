@@ -131,7 +131,7 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
 			{
 				NumberOfOrders = o.Count(),
 				UnitsSold = o.SelectMany(x => x.OrderDetails).Sum(x => x.Quantity),
-				TotalRevenue = o.Sum(x => x.DiscountedPrice),
+				TotalRevenue = o.Sum(x => x.TotalPrice),
 				Customers = o.Select(x => x.BuyerID).Distinct().Count()
 			};
 		}

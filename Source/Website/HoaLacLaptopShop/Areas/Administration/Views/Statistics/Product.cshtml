@@ -69,9 +69,9 @@
 {
     @{
         var salesLabels = Model.HistoricalStats.Select(x => x.StartDate.ToShortDateString()).ToList();
-        var revenueData = Model.HistoricalStats.Select(x => x.Revenue.TotalRevenue / 1_000_000m).ToList();
-        var unitsData = Model.HistoricalStats.Select(x => x.Revenue.UnitsSold).ToList();
-        var ordersData = Model.HistoricalStats.Select(x => x.Revenue.NumberOfOrders).ToList();
+        var revenueData = Model.HistoricalStats.Select(x => x.Revenue.TotalRevenue / 1_000_000m);
+        var unitsData = Model.HistoricalStats.Select(x => x.Revenue.UnitsSold);
+        var ordersData = Model.HistoricalStats.Select(x => x.Revenue.NumberOfOrders);
     }
     <script>
         document.addEventListener("DOMContentLoaded", function () {
