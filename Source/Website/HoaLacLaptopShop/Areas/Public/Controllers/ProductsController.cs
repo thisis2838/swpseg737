@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing.Constraints;
 using Microsoft.EntityFrameworkCore;
+using NuGet.ContentModel;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Security.Cryptography;
@@ -29,8 +30,10 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
                 .Include(x => x.Brand);
         }
 
-        public IActionResult Index(ProductIndexQuery args, int? page)
+        public async Task<IActionResult> Index(ProductIndexViewArgs? args)
         {
+            args ??= new ProductIndexViewArgs();
+
             var products = GetProducts();
             var min = products.Min(x => x.Price);
             var max = products.Max(x => x.Price);
@@ -78,8 +81,7 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
                 }
             }
 
-            var list = products.ToList();
-            var brands = list.GroupBy(x => x.Brand).Select(x => new BrandEntry(x.Key, x.Count())).ToList();
+            var brands = products.GroupBy(x => x.Brand).Select(x => new BrandEntry(x.Key, x.Count())).ToList();
             if (args.SelectedBrandIDs != null)
             {
                 args.SelectedBrandIDs = args.SelectedBrandIDs.Where(x => brands.Select(y => y.Brand.ID).Contains(x)).ToList();
@@ -91,21 +93,30 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
             }
             else
             {
-                list = list.Where(x => args.SelectedBrandIDs!.Contains(x.Brand!.ID)).ToList();
+                products = products.Where(x => args.SelectedBrandIDs!.Contains(x.Brand!.ID));
             }
 
-            return View(new ProductIndexViewModel
+            var selections = new ProductIndexSelections()
             {
-                Total = list.Count,
-                Products = list.Skip(page == null ? 0 : (page.Value-1)*12).Take(12).ToList(),
                 MinPossiblePrice = min,
                 MaxPossiblePrice = max,
                 Brands = brands,
                 CPUs = cpus,
                 GPUs = gpus,
-                PageIndex = page == null ? 1 : page.Value,
-                CurrentQuery = args
-            });
+            };
+            ViewData["Selections"] = selections;
+
+            const int PRODUCTS_PER_PAGE = 12;
+            var pages = (int)Math.Ceiling((await products.CountAsync()) / (float)PRODUCTS_PER_PAGE);
+            args.Page = Math.Max(1, args.Page);
+            
+            var vm = new ProductIndexViewModel
+            {
+                Products = await products.Skip((args.Page - 1) * PRODUCTS_PER_PAGE).Take(PRODUCTS_PER_PAGE).ToListAsync(),
+                TotalPages = pages,
+            };
+            vm.FillFromOther(args);
+            return View(vm);
         }
 
         public IActionResult Details(int id)
@@ -216,5 +227,14 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
             end:;
             return RedirectToAction("Details", "Products", new { id = pId }, "reviews");
         }
+    }
+
+    public class ProductIndexSelections
+    {
+        public required List<BrandEntry> Brands;
+        public required List<LaptopCPUSeries> CPUs;
+        public required List<LaptopGPUSeries> GPUs;
+        public required int MinPossiblePrice;
+        public required int MaxPossiblePrice;
     }
 }

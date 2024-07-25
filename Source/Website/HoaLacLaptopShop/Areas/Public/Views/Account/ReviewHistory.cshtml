@@ -32,7 +32,7 @@
         <span class="text-danger" asp-validation-for="StarCount"></span>
     </div>
 
-    @if (Model.TotalPages == 0)
+    @if (Model.ProductReviews.Count == 0)
     {
         <span>No reviews to show!</span>
     }

@@ -1,8 +1,13 @@
 ﻿@using HoaLacLaptopShop.Areas.Public.ViewModels
-@model ProductIndexQuery
+@using HoaLacLaptopShop.Areas.Public.Controllers
+@model ProductIndexViewArgs
+
+@{
+    var selections = (ProductIndexSelections)ViewData["Selections"]!;
+}
 
 <div class="col-sm-3">
-    <form id="priceForm" asp-controller="Products" asp-action="Index" method="get" style="margin-bottom:5px;">
+    <div id="priceForm" style="margin-bottom:5px;">
         <div class="search_box">
             <label asp-for="Search" class="control-label form-label"></label>
             <input asp-for="Search" class="form-control" style="width: 100%" />
@@ -34,9 +39,9 @@
                         <button type="button" class="btn btn-sm select-all">Select all</button>
                         <button type="button" class="btn btn-sm deselect-all">Deselect all</button>
                     </li>
-                    @for (int i = 0; i < ViewBag.ParentModel.CPUs!.Count; i++)
+                    @for (int i = 0; i < selections.CPUs!.Count; i++)
                     {
-                        var cpu = ViewBag.ParentModel.CPUs[i];
+                        var cpu = selections.CPUs[i];
                         var selected = Model.SelectedCPUIDs!.Contains(cpu.ID);
                         <li>
                             <input type="checkbox"
@@ -56,9 +61,9 @@
                         <button type="button" class="btn btn-sm select-all">Select all</button>
                         <button type="button" class="btn btn-sm deselect-all">Deselect all</button>
                     </li>
-                    @for (int i = 0; i < ViewBag.ParentModel.GPUs!.Count; i++)
+                    @for (int i = 0; i < selections.GPUs!.Count; i++)
                     {
-                        var gpu = ViewBag.ParentModel.GPUs[i];
+                        var gpu = selections.GPUs[i];
                         var selected = Model.SelectedGPUIDs!.Contains(gpu.ID);
                         <li>
                             <input type="checkbox"
@@ -80,9 +85,9 @@
                         <button type="button" class="btn btn-sm select-all">Select all</button>
                         <button type="button" class="btn btn-sm deselect-all">Deselect all</button>
                     </li>
-                    @for (int i = 0; i < ViewBag.ParentModel.Brands!.Count; i++)
+                    @for (int i = 0; i < selections.Brands!.Count; i++)
                     {
-                        var brand = ViewBag.ParentModel.Brands[i];
+                        var brand = selections.Brands[i];
                         var selected = Model.SelectedBrandIDs!.Contains(brand.Brand.ID);
                         <li>
                             <input type="checkbox"
@@ -96,8 +101,7 @@
                 </ul>
             </div>
         <button type="submit" class="btn btn-info">View</button>
-        <input type="hidden" name="page" />
-    </form>
+    </div>
 </div>
 
 <style>

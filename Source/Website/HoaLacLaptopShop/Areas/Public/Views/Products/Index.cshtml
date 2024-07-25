@@ -1,9 +1,11 @@
 ﻿@using HoaLacLaptopShop.Areas.Public.ViewModels
+@using HoaLacLaptopShop.Areas.Public.Controllers
+
 @model ProductIndexViewModel
 @{
     ViewData["HideSearch"] = true;
     ViewData["Title"] = "Products";
-    ViewBag.ParentModel = Model;
+    var selections = (ProductIndexSelections)ViewData["Selections"]!;
 }
 
 <h1>Products</h1>
@@ -12,38 +14,37 @@
 <section>
     <div class="container">
         <div class="row">
-            <partial name="_IndexQuery.cshtml" model="@Model.CurrentQuery"/>
+            <form asp-action="Index" method="get" >
+                
+                <partial name="_IndexQuery.cshtml" model="@Model"/>
 
-            <div class="col-sm-9 padding-right">
-                <div class="features_items">
-                    <!--features_items-->
-                    @if (Model == null || Model.Products.Count() == 0)
-                    {
-                        <p>No products found.</p>
-                    }
-                    else
-                    {
-                        <div class="row">
-                            @foreach (var product in Model.Products)
-                            {
-                                <div class="col-md-3">
-                                    <partial name="../Shared/Products/_Card.cshtml" model="@product" />
-                                </div>
-                            }
-                        </div>
-                    }
-                </div><!--features_items-->
-                <nav aria-label="Page navigation example" style="display:flex;align-items:center; justify-content:center;">
-                    <ul class="pagination">
-                        @for (int i = 1; i <= Math.Ceiling(Model.Total / 12f); i++)
+                <div class="col-sm-9 padding-right">
+                    <partial name="~/Areas/Shared/Views/Shared/_Pagination.cshtml" model="@Model" />
+                    <div class="features_items">
+                        <!--features_items-->
+                        @if (Model == null || Model.Products.Count() == 0)
                         {
-                            <li class="page-item @(i == Model.PageIndex ? "active" : "")">
-                                <a class="page-link" style="cursor: pointer" onclick="clickPage(@i)">@i</a>
-                            </li>
+                            <p>No products found.</p>
                         }
-                    </ul>
-                </nav>
-            </div>
+                        else
+                        {
+                            <div class="row">
+                                @foreach (var product in Model.Products)
+                                {
+                                    <div class="col-md-3">
+                                        <partial name="../Shared/Products/_Card.cshtml" model="@product" />
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div><!--features_items-->
+
+                    @if (Model != null && Model.Products.Count > 0)
+                    {
+                        <partial name="~/Areas/Shared/Views/Shared/_Pagination.cshtml" model="@Model" />
+                    }
+                </div>
+            </form>
         </div>
     </div>
     
@@ -56,13 +57,13 @@
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <script>
         $(function () {
-            var curMin = @(Model!.CurrentQuery?.MinPrice ?? @Model.MinPossiblePrice);
-            var curMax = @(Model!.CurrentQuery?.MaxPrice ?? @Model.MaxPossiblePrice);
+            var curMin = @(Model!.MinPrice ?? selections.MinPossiblePrice);
+            var curMax = @(Model!.MaxPrice ?? selections.MaxPossiblePrice);
             var $slide = $("#slider").slider
                 ({
                     range: true,
-                    min: @Model.MinPossiblePrice,
-                    max: @Model.MaxPossiblePrice,
+                    min: @selections.MinPossiblePrice,
+                    max: @selections.MaxPossiblePrice,
                     step: 1000000,
                     values: [curMin, curMax],
                     slide: function (event, ui) {
@@ -75,10 +76,6 @@
                 });
             $("#price").val(numberWithThousandthSeparators(curMin + " - " + curMax));
         });
-        function clickPage(i) {
-            document.getElementsByName("page")[0].value = i;
-            document.getElementById("priceForm").submit();
-        }
     </script>
     <script>
         $(document).ready(() => $('.filter-list').accordion({ collapsible: true }));

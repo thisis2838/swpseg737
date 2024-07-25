@@ -60,11 +60,13 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
 
         public async Task<IActionResult> Index(NewsPostIndexArgs? args = null)
         {
+            args ??= new NewsPostIndexArgs();
+
             begin:;
             var news = Context.NewsPosts.Include(n => n.Author).OrderByDescending(x => x.Time).AsQueryable();
-            IEnumerable<NewsPost> newsConv = null!;
+            IEnumerable<NewsPost>? newsConv = null;
 
-            if (ModelState.IsValid && args != null)
+            if (ModelState.IsValid)
             {
                 if (!string.IsNullOrWhiteSpace(args.SearchTerm))
                 {
@@ -138,8 +140,17 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
                 if (!args.ShowMedium) newsConv = newsConv.Where(x => x.Length != NewsPostLength.Medium);
                 if (!args.ShowLong) newsConv = newsConv.Where(x => x.Length != NewsPostLength.Long);
             }
+            if (newsConv is null) newsConv = await news.ToListAsync();
 
-            var vm = new NewsPostIndexViewModel() { Posts = newsConv?.ToList() ?? await news.ToListAsync() };
+            const int POSTS_PER_PAGE = 20;
+            var pages = (int)Math.Ceiling(newsConv.Count() / (float)POSTS_PER_PAGE);
+            if (ModelState.IsValid) newsConv = newsConv.Skip((args.Page - 1) * POSTS_PER_PAGE).Take(POSTS_PER_PAGE);
+
+            var vm = new NewsPostIndexViewModel() 
+            {
+                Posts = newsConv.ToList(),
+                TotalPages = pages,
+            };
             if (args != null) vm.FillFromOther(args);
             return View(vm);
         }

@@ -5,34 +5,40 @@
     ViewData["Title"] = "News";
 }
 
-<h1>News Posts</h1>
-<div id="search-filter">
-    <h2>Search & Filters</h2>
-    <div id="actual-search-filter">
-        <partial name="~/Areas/Shared/Views/NewsPosts/_SearchFilter.cshtml" model="@Model"></partial>
+<form asp-action="Index" method="get">
+    <h1>News Posts</h1>
+    <div id="search-filter">
+        <h2>Search & Filters</h2>
+        <div id="actual-search-filter">
+            <partial name="~/Areas/Shared/Views/NewsPosts/_SearchFilter.cshtml" model="@Model"></partial>
+        </div>
     </div>
-</div>
 
-<hr />
+    <hr />
 
-@{
-    if (Model.Posts.Count > 0)
-    {
-        foreach (var post in Model.Posts)
+    @{
+        if (Model.Posts.Count() > 0)
         {
-            <partial name="_PostListEntry.cshtml" model="@post"></partial>
+            <partial name="~/Areas/Shared/Views/Shared/_Pagination.cshtml" model="@Model" />
+
+            foreach (var post in Model.Posts)
+            {
+                <partial name="_PostListEntry.cshtml" model="@post"></partial>
+            }
+
+            <partial name="~/Areas/Shared/Views/Shared/_Pagination.cshtml" model="@Model" />
+        }
+        else
+        {
+            <p>Nothing to show!</p>
         }
     }
-    else
-    {
-        <p>Nothing to show!</p>
-    }
-}
+</form>
 
 @section Scripts
 {
     <script>
-        $('#search-filter').accordion({ collapsible: true, active: false });
+        $('#search-filter').accordion({ collapsible: true });
         $('#actual-search-filter').css('height', 'unset');
     </script>
 }

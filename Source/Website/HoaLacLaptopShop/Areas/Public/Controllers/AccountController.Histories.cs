@@ -40,11 +40,18 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
                     ));
                 }
             }
-            return View(new OrderHistoryViewModel()
+
+            const int ORDERS_PER_PAGE = 20;
+            var pages = (int)Math.Ceiling((await orders.CountAsync()) / (float)ORDERS_PER_PAGE);
+            if (ModelState.IsValid) orders = orders.Skip((args.Page - 1) * ORDERS_PER_PAGE).Take(ORDERS_PER_PAGE);
+
+            var vm = new OrderHistoryViewModel
             {
-                Status = args.Status,
-                Orders = await orders.ToListAsync()
-            });
+                Orders = await orders.ToListAsync(),
+                TotalPages = pages,
+            };
+            vm.FillFromOther(args);
+            return View(vm);
         }
         [Authorize]
         public async Task<IActionResult> OrderDetails(int id)
@@ -72,12 +79,10 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
         public async Task<IActionResult> ReviewHistory(ReviewHistoryViewArgs? args = null)
         {
             args ??= new ReviewHistoryViewArgs();
-            const int REVIEWS_PER_PAGE = 20;
 
             var reviews = Reviews();
             if (ModelState.IsValid)
             {
-                reviews = reviews.Skip((args.Page - 1) * REVIEWS_PER_PAGE).Take(REVIEWS_PER_PAGE);
                 if (args.StarCount.HasValue && args.StarCount.Value > 0)
                     reviews = reviews.Where(x => x.Rating == args.StarCount);
                 if (!string.IsNullOrWhiteSpace(args.Search))
@@ -89,11 +94,14 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
                     );
             }
 
-            var list = await reviews.ToListAsync();
+            const int REVIEWS_PER_PAGE = 20;
+            var pages = (int)Math.Ceiling((await reviews.CountAsync()) / (float)REVIEWS_PER_PAGE);
+            if (ModelState.IsValid) reviews = reviews.Skip((args.Page - 1) * REVIEWS_PER_PAGE).Take(REVIEWS_PER_PAGE);
+
             var vm = new ReviewHistoryViewModel
             {
-                ProductReviews = list,
-                TotalPages = (int)Math.Ceiling(list.Count / (float)REVIEWS_PER_PAGE),
+                ProductReviews = await reviews.ToListAsync(),
+                TotalPages = pages,
             };
             vm.FillFromOther(args);
             return View(vm);

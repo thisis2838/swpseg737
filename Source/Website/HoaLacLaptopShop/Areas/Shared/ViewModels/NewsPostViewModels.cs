@@ -23,10 +23,13 @@ namespace HoaLacLaptopShop.Areas.Shared.ViewModels
         public bool ShowMedium { get; set; } = true;
         [DisplayName("Show Short Posts")]
         public bool ShowShort { get; set; } = true;
+        [Range(1, int.MaxValue)]
+        public int Page { get; set; } = 1;
     }
     public class NewsPostIndexViewModel : NewsPostIndexArgs
     {
         public List<NewsPost> Posts { get; init; } = null!;
+        public int TotalPages { get; set; }
     }
 
     public class NewsPostDetailsViewModel : NewsPost

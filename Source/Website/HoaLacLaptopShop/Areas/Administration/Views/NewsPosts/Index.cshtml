@@ -12,42 +12,45 @@
 <a class="btn btn-primary" asp-action="Create">Create New</a>
 <hr />
 
-<h2>Search & Filters</h2>
-<partial name="~/Areas/Shared/Views/NewsPosts/_SearchFilter.cshtml" model="@Model"></partial>
-<hr />
+<form asp-action="Index" method="get">
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>ID</th>
-            <th>Author</th>
-            <th>Post Date</th>
-            <th>Word Count</th>
-            <th>Image Count</th>
-            <th>Reading Time</th>
-            <th>Length</th>
-            <th style="min-width: 25%">Title</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var post in Model.Posts)
-        {
+    <h2>Search & Filters</h2>
+    <partial name="~/Areas/Shared/Views/NewsPosts/_SearchFilter.cshtml" model="@Model"></partial>
+    <hr />
+
+    <table class="table">
+        <thead>
             <tr>
-                <td>@post.ID</td>
-                <td>@post.Author!.Name</td>
-                <td>@post.Time.ToShortDateString()</td>
-                <td>@post.WordCount</td>
-                <td>@post.ImageCount</td>
-                <td>@post.ReadingTime minute(s)</td>
-                <td>@Html.DisplayFor(x => post.Length)</td>
-                <td style="overflow: hidden; text-overflow: ellipsis; max-width: 25vw; white-space: nowrap;">@post.Title</td>
-                <td>
-                    <a class="btn btn-primary" asp-action="Edit" asp-route-id="@post.ID">Edit</a>
-                    <a class="btn btn-primary" href="@Url.Action("Details", "NewsPosts", new {id = @post.ID, area=""})">View</a>
-                </td>
+                <th>ID</th>
+                <th>Author</th>
+                <th>Post Date</th>
+                <th>Word Count</th>
+                <th>Image Count</th>
+                <th>Reading Time</th>
+                <th>Length</th>
+                <th style="min-width: 25%">Title</th>
+                <th>Actions</th>
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            @foreach (var post in Model.Posts)
+            {
+                <tr>
+                    <td>@post.ID</td>
+                    <td>@post.Author!.Name</td>
+                    <td>@post.Time.ToShortDateString()</td>
+                    <td>@post.WordCount</td>
+                    <td>@post.ImageCount</td>
+                    <td>@post.ReadingTime minute(s)</td>
+                    <td>@Html.DisplayFor(x => post.Length)</td>
+                    <td style="overflow: hidden; text-overflow: ellipsis; max-width: 25vw; white-space: nowrap;">@post.Title</td>
+                    <td>
+                        <a class="btn btn-primary" asp-action="Edit" asp-route-id="@post.ID">Edit</a>
+                        <a class="btn btn-primary" href="@Url.Action("Details", "NewsPosts", new {id = @post.ID, area=""})">View</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
 
+</form>
