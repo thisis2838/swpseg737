@@ -348,6 +348,7 @@
                     discountElement.textContent = `-${formatCurrency(data.discount)}`;
                     totalAmountElement.textContent = `${formatCurrency(subtotal - data.discount)}`;
                 } else {
+                    alert(data.issue);
                     discountElement.textContent = '-0';
                     totalAmountElement.textContent = `${formatCurrency(subtotal)}`;
                 }

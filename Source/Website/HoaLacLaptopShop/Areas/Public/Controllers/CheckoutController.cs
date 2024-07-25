@@ -62,6 +62,13 @@ public class CheckoutController : Controller
         }
         try
         {
+            var voucher = _context.Vouchers.SingleOrDefault(v => v.Code == voucherCode);
+            decimal discountedPrice = 0;
+            if (voucher != null)
+            {
+                discountedPrice = CalculateDiscount(voucher, order.OrderDetails.Sum(oi => oi.SubTotal));
+            }
+
             if (paymentMethod == PaymentMethod.Online)
             {
                 // Update order with address and contact information
@@ -71,11 +78,13 @@ public class CheckoutController : Controller
                 order.District = district;
                 order.Ward = ward;
                 order.Street = address;
+                order.VoucherID = voucher?.ID;
+                order.DiscountedPrice = discountedPrice;
                 _context.SaveChanges();
                 var VnPayModel = new VnPayRequestModel
                 {
                     OrderId = order.ID,
-                    Amount = order.OrderDetails.Sum(oi => oi.SubTotal),
+                    Amount = order.OrderDetails.Sum(oi => oi.SubTotal) - (double)discountedPrice,
                     CreatedDate = DateTime.Now,
                     Description = $"{order.Buyer.Name} {order.Buyer.PhoneNumber}"
                 };
@@ -134,6 +143,7 @@ public class CheckoutController : Controller
             product.Stock -= cartItem.Quantity;
             try
             {
+                HttpContext.Session.Remove(CartController.CART_KEY);
                 _context.SaveChanges();
             }
             catch (DbUpdateConcurrencyException)
@@ -259,6 +269,7 @@ public class CheckoutController : Controller
             order.PaymentMethod = PaymentMethod.Online;
             order.OrderTime = DateTime.Now;
             order.Status = OrderStatus.Delivering; // Mark order as completed
+            HttpContext.Session.Remove(CartController.CART_KEY);
             _context.SaveChanges();
 
             this.AddMessage("Thanh toán VNPay thành công");
