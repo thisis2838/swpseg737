@@ -148,7 +148,8 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
             post.ReadingTime = (int)Math.Ceiling(post.WordCount / 265m + post.ImageCount * (1/6m));
 
             oldMedia.ForEach(Local.FileRemove);
-            document.Save(Local.GetFullPath(ResourceType.Html, "news", post.Token + ".html"));
+            using var finalFile = Local.FileOpen(Local.GetRelativePath(ResourceType.Html, "news", post.Token + ".html"));
+            document.Save(finalFile);
             return true;
         }
         [NonAction]
@@ -238,7 +239,7 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
 
                 Context.Add(newsPost);
                 await Context.SaveChangesAsync();
-                return RedirectToAction(nameof(Edit), new { id = newsPost.ID });
+                return RedirectToAction(nameof(Index));
             }
             return View(newsPost);
         }
