@@ -13,7 +13,15 @@ namespace HoaLacLaptopShop.Models
         public int IssuerId { get; set; }
         public virtual User Issuer { get; set; } = null!;
 
-        [Required, MaxLength(20), RegularExpression("^[ -~]+$", ErrorMessage = "Code can only be an ASCII string.")]
+        [
+            Required, 
+            MinLength(5), MaxLength(20), 
+            RegularExpression
+            (
+                "^[A-Za-z]+[ -~]*$",
+                ErrorMessage = "Code can only be an ASCII string which starts with a letter."
+            )
+        ]
         public string Code { get; set; } = null!;
         [Range(0, (double)decimal.MaxValue), DisplayName("Minimum Order Price")]
         public decimal MinimumOrderPrice { get; set; }
@@ -57,6 +65,10 @@ namespace HoaLacLaptopShop.Models
         {
             var voucher = (Voucher)validationContext.ObjectInstance;
 
+            if (value is null)
+            {
+                return new ValidationResult("Discount value cannot be null.");
+            }
             if (voucher.IsPercentageDiscount && (decimal)value > 100)
             {
                 return new ValidationResult("Discount value must be from 0 to 100 when it is set as a percentage.");

@@ -1,4 +1,5 @@
-﻿@model IEnumerable<HoaLacLaptopShop.Models.Voucher>
+﻿@using HoaLacLaptopShop.Areas.Administration.ViewModels
+@model VoucherIndexViewModel
 @{
     ViewData["Title"] = "Index";
 }
@@ -10,50 +11,62 @@
 <a asp-action="Add" class="btn btn-primary">Add</a>
 <hr/>
 
-<form asp-action="Search" method="get">
-    <div class="form-group">
-        <input type="text" name="query" class="form-control" placeholder="Search by Code or Issuer ID" />
-    </div>
-    <button type="submit" class="btn btn-primary">Search</button>
-</form>
 <form asp-action="Index" method="get">
-    <div class="form-group">
-        <label for="filter">Filter</label>
-        <select id="filter" name="filter" class="form-control" onchange="this.form.submit()">
-            <option value="">All</option>
-            <!option value="Expired" @(ViewData["CurrentFilter"]?.ToString() == "Expired" ? "selected" : "")>Expired</!option>
-            <!option value="Available" @(ViewData["CurrentFilter"]?.ToString() == "Available" ? "selected" : "")>Available</!option>
-        </select>
+    <div class="form-group" style="width: 20%; display: inline-block;">
+        <label asp-for="Search">Search: </label>
+        <input class="form-control" asp-for="Search" placeholder="Search by Code or Issuer Name" />
     </div>
+    <div class="form-group" style="width: 20%; display: inline-block;">
+        <label asp-for="MinimumOrderPrice">Minimum Order Price: </label>
+        <input class="form-control" asp-for="MinimumOrderPrice" />
+    </div>
+    <div class="form-group" style="width: 20%; display: inline-block;">
+        <input class="form-check-input" asp-for="ShowExpired" />
+        <label asp-for="ShowExpired">Show Expired</label>
+    </div>
+    <div>
+        <span style="display: block;" asp-validation-for="Search" class="text-danger"></span>
+        <span style="display: block;" asp-validation-for="MinimumOrderPrice" class="text-danger"></span>
+        <span style="display: block;" asp-validation-for="ShowExpired" class="text-danger"></span>
+    </div>
+    <input type="submit" class="btn btn-primary" value="View" style="margin-top: 10px;"/>
+
+    @if (Model.Vouchers.Count() == 0)
+    {
+        <div style="margin-top: 30px;">
+            <span >No vouchers to show!</span>
+        </div>
+    }
+    else
+    {
+        <partial name="~/Areas/Shared/Views/Shared/_Pagination.cshtml" model="@Model" />
+
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Code</th>
+                    <th width="10%">Minimum Order Price</th>
+                    <th width="10%">Discount Value</th>
+                    <th width="10%">Expiry Date</th>              
+                    <th width="20%">Issuer</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var voucher in Model.Vouchers)
+                {
+                    <tr>
+                        <td>@voucher.Code</td>
+                        <td>@voucher.MinimumOrderPrice.ToString("N0")</td>
+                        <td>@(voucher.IsPercentageDiscount ? $"{voucher.DiscountValue:0.00}%" : $"{voucher.DiscountValue:N0}")</td>
+                        <td>@DateOnly.FromDateTime(voucher.ExpiryDate).ToString()</td>
+                        <td>@voucher.Issuer.Name</td>               
+                        <td>
+                            <a asp-action="Edit" asp-route-id="@voucher.ID" class="btn-primary btn">Details</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
 </form>
-
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>@Html.DisplayNameFor(model =>model.First().Code)</th>
-            <th>@Html.DisplayNameFor(model => model.First().MinimumOrderPrice)</th>
-            <th><@Html.DisplayNameFor(model =>model.First().DiscountValue)</th>
-            <th>@Html.DisplayNameFor(model => model.First().IsPercentageDiscount)</th>
-            <th><@Html.DisplayNameFor(model => model.First().ExpiryDate)</th>              
-            <th>@Html.DisplayNameFor(model => model.First().IssuerId)</th>
-            <th>Action</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var voucher in Model)
-        {
-            <tr>
-                <td>@voucher.Code</td>
-                <td>@voucher.MinimumOrderPrice.ToString("N0")</td>
-                <td>@voucher.DiscountValue</td>
-                <td>@voucher.IsPercentageDiscount</td>
-                <td>@voucher.ExpiryDate.ToShortDateString()</td>
-                <td>@voucher.IssuerId</td>               
-                <td>
-                    <a asp-action="Edit" asp-route-id="@voucher.ID" class="btn-primary btn">Details</a>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
-

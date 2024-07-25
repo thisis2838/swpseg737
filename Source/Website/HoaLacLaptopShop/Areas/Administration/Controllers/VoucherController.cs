@@ -1,4 +1,5 @@
-﻿using HoaLacLaptopShop.Data;
+﻿using HoaLacLaptopShop.Areas.Administration.ViewModels;
+using HoaLacLaptopShop.Data;
 using HoaLacLaptopShop.Filters;
 using HoaLacLaptopShop.Helpers;
 using HoaLacLaptopShop.Models;
@@ -18,23 +19,45 @@ public class VoucherController : Controller
         _context = context;
     }
 
-    public async Task<IActionResult> Index(string? filter)
+    public async Task<IActionResult> Index(VoucherIndexArgs args)
     {
-        var vouchers = from v in _context.Vouchers select v;
-        ViewData["CurrentFilter"] = filter;
-        // Filter based on the expiration date
-        if (!String.IsNullOrEmpty(filter))
+        var vouchers = _context.Vouchers
+            .Include(x => x.Issuer)
+            .OrderByDescending(x => x.ID)
+            .AsQueryable();
+
+        if (ModelState.IsValid)
         {
-            if (filter == "Expired")
+            if (!string.IsNullOrWhiteSpace(args.Search))
             {
-                vouchers = vouchers.Where(v => v.ExpiryDate < DateTime.Now);
+                vouchers = vouchers.Where
+                (
+                    x => x.Code.ToLower().Contains(args.Search.ToLower())
+                        || x.Issuer.Name.ToLower().Contains(args.Search.ToLower())
+                );
             }
-            else if (filter == "Available")
+            if (args.MinimumOrderPrice.HasValue)
             {
-                vouchers = vouchers.Where(v => v.ExpiryDate < DateTime.Now);
+                vouchers = vouchers.Where(x => x.MinimumOrderPrice >= args.MinimumOrderPrice.Value);
+            }
+            if (!args.ShowExpired)
+            {
+                vouchers = vouchers.Where(x => x.ExpiryDate >= DateTime.Now);
             }
         }
-        return View(await vouchers.ToListAsync());
+
+        const int VOUCHERS_PER_PAGE = 20;
+        var pages = (int)Math.Ceiling((await vouchers.CountAsync()) / (float)VOUCHERS_PER_PAGE);
+        if (!ModelState.IsValid) args.Page = 1;
+        vouchers = vouchers.Skip((args.Page - 1) * VOUCHERS_PER_PAGE).Take(VOUCHERS_PER_PAGE);
+
+        var vm = new VoucherIndexViewModel()
+        {
+            TotalPages = pages,
+            Vouchers = await vouchers.ToListAsync()
+        };
+        vm.FillFromOther(args);
+        return View(vm);
     }
 
     public IActionResult Add()
@@ -71,6 +94,7 @@ public class VoucherController : Controller
 
             _context.Update(voucher);
             await _context.SaveChangesAsync();
+            this.AddMessage("Successfully added voucher.");
             return RedirectToAction(nameof(Index));
         }
        
@@ -80,7 +104,11 @@ public class VoucherController : Controller
     public async Task<IActionResult> Edit(int id)
     {
         var voucher = await _context.Vouchers.Include(x => x.Orders).Include(x => x.Issuer).FirstOrDefaultAsync(x => x.ID == id);
-        if (voucher == null) return NotFound();
+        if (voucher == null)
+        {
+            this.AddError("The requested voucher could not be found.");
+            return NotFound();
+        }
         return View(voucher);
     }
     [HttpPost]
@@ -101,7 +129,7 @@ public class VoucherController : Controller
             {
                 return BadRequest("No voucher with such an ID exists.");
             }
-            if (existing.Code != model.Code || existing.IssuerId == model.IssuerId)
+            if (existing.Code != model.Code || existing.IssuerId != model.IssuerId)
             {
                 return BadRequest("Bad identification data while trying to update voucher.");
             }
@@ -111,63 +139,25 @@ public class VoucherController : Controller
             existing.ExpiryDate = model.ExpiryDate;
             existing.IsPercentageDiscount = model.IsPercentageDiscount;
             await _context.SaveChangesAsync();
+            this.AddMessage("Successfully edited voucher.");
             return RedirectToAction(nameof(Index));
         }
         return View(model);
     }
 
-    // GET: Voucher/Delete
+    [HttpPost]
     public async Task<IActionResult> Delete(int id)
     {
-        var voucher = await _context.Vouchers
-            .FirstOrDefaultAsync(m => m.ID == id);
-        if (voucher == null)
+        var voucher = await _context.Vouchers.FindAsync(id);
+        if (voucher is null)
         {
+            this.AddError("The requested voucher could not be found.");
             return NotFound();
         }
 
-        return View(voucher);
-    }
-
-    // POST: Voucher/Delete
-    [HttpPost, ActionName("Delete")]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> DeleteConfirmed(int id)
-    {
-        var voucher = await _context.Vouchers.FindAsync(id);
         _context.Vouchers.Remove(voucher);
         await _context.SaveChangesAsync();
+        this.AddMessage("Successfully deleted voucher.");
         return RedirectToAction(nameof(Index));
-    }
-    //GET: Voucher/TimeUsed
-    public async Task<int> GetVoucherUsageCountAsync(int voucherId)
-    {
-        if (voucherId == null)
-        {
-            return 0;
-        }
-        var usageCount = await _context.Orders.CountAsync(o => o.VoucherID == voucherId);
-        return usageCount;
-    }
-    //GET: Voucher/Index
-    private bool VoucherExists(int id)
-    {
-        return _context.Vouchers.Any(e => e.ID == id);
-    }
-    // GET: Voucher/Search
-    public async Task<IActionResult> Search(string query, string sortOrder)
-    {
-       
-        var vouchers = from v in _context.Vouchers
-                       select v;
-
-        if (!String.IsNullOrEmpty(query))
-        {
-            vouchers = vouchers.Where(s => s.Code.Contains(query) || s.IssuerId.ToString().Contains(query));
-        }
-
-        
-
-        return View("Index", await vouchers.ToListAsync());
     }
 }
