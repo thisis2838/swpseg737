@@ -16,6 +16,7 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
             var id = HttpContext.GetCurrentUser()!.ID;
             return _context.Orders
                 .Include(x => x.OrderDetails).ThenInclude(x => x.Product).ThenInclude(x => x.ProductImages)
+                .Include(x => x.OrderDetails).ThenInclude(x => x.Product).ThenInclude(x => x.Brand)
                 .Include(x => x.Voucher)
                 .OrderBy(x => x.Status).ThenByDescending(x => x.OrderTime)
                 .Where(x => x.BuyerID == id)
@@ -25,10 +26,24 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
         public async Task<IActionResult> OrderHistory(OrderHistoryViewArgs? args = null)
         {
             args ??= new OrderHistoryViewArgs();
+            var orders = Orders().Where(x => x.Status == (OrderStatus)args.Status);
+
+            if (ModelState.IsValid)
+            {
+                if (!string.IsNullOrWhiteSpace(args.Search))
+                {
+                    orders = orders.Where(x => x.OrderDetails.Any
+                    (
+                        y =>
+                            y.Product.Name.ToLower().Contains(args.Search.ToLower())
+                            || y.Product.Brand.Name.ToLower().Contains(args.Search.ToLower())
+                    ));
+                }
+            }
             return View(new OrderHistoryViewModel()
             {
                 Status = args.Status,
-                Orders = await Orders().Where(x => x.Status == (OrderStatus)args.Status).ToListAsync()
+                Orders = await orders.ToListAsync()
             });
         }
         [Authorize]

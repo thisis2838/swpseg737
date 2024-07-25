@@ -1,4 +1,5 @@
 ﻿using HoaLacLaptopShop.Models;
+using System.ComponentModel.DataAnnotations;
 
 namespace HoaLacLaptopShop.Areas.Public.ViewModels
 {
@@ -30,6 +31,8 @@ namespace HoaLacLaptopShop.Areas.Public.ViewModels
     public class OrderHistoryViewArgs
     {
         public SelectableOrderStatus Status { get; set; } = SelectableOrderStatus.Delivering;
+        [MinLength(2), MaxLength(256)]
+        public string? Search { get; set; }
     }
     public class OrderHistoryViewModel : OrderHistoryViewArgs
     {
