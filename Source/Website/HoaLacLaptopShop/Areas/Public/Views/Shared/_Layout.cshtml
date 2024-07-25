@@ -7,7 +7,7 @@
     <meta name="author" content="">
     <title>Hoalac Laptops | @ViewData["Title"]</title>
     <link href="~/css/bootstrap.min.css" rel="stylesheet">
-    <link href="~/css/font-awesome.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
     <link href="~/css/prettyPhoto.css" rel="stylesheet">
     <link href="~/css/price-range.css" rel="stylesheet">
     <link href="~/css/animate.css" rel="stylesheet">
@@ -63,18 +63,16 @@
                         <div class="shop-menu pull-right">
                             <ul class="nav navbar-nav">
                                 <li>
-                                    @{
-                                        if (Context.IsLoggedIn())
-                                        {
+                                    @if (Context.IsLoggedIn())
+                                    {
                                         <li><span><a class="btn btn-secondary" href="@Url.Action("Details", "Account")" style="margin-right: 0"><i class="fa fa-user"></i>@Context.GetCurrentUser()!.Name</a></span></li>
                                         <li><a href="@Url.Action("Index", "Cart")"><i class="fa fa-shopping-cart"></i> Cart</a></li>
                                         <li><a href="@Url.Action("Logout", "Account")" style="margin-right: 0"><i class="fa fa-sign-out"></i>Logout</a></li>
-                                        }
-                                        else
-                                        {
+                                    }
+                                    else
+                                    {
                                         <li><a href="@Url.Action("Login", "Account")"><i class="fa fa-lock"></i> Login</a></li>
                                         <li><a href="@Url.Action("Register", "Account")"><i class="fa fa-lock"></i> Register</a></li>
-                                        }
                                     }
                                 </li>
                             </ul>
@@ -101,7 +99,7 @@
                             <ul class="nav navbar-nav collapse navbar-collapse">
                                 <li><a href="@Url.Action("Index", "Home")"><i class="fa fa-home"></i> Home</a></li>
                                 <li><a href="@Url.Action("Index", "Products")"><i class="fa fa-list"></i> Products</a></li>
-                                <li><a href="@Url.Action("Index", "NewsPosts")"><i class="fa fa-envelope-o"></i> News</a></li>
+                                <li><a href="@Url.Action("Index", "NewsPosts")"><i class="fa fa-envelope-open"></i> News</a></li>
                                 <li><a href="@Url.Action("About", "Home")"><i class="fa fa-info"></i> About Us</a></li>
                             </ul>
                         </div>

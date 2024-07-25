@@ -1,10 +1,24 @@
-﻿@model List<Order>
+﻿@using HoaLacLaptopShop.Areas.Public.ViewModels
+@model OrderHistoryViewModel
 @{
     ViewData["Title"] = "Order History";
 }
 <h1>Order List</h1>
 <a class="btn btn-primary" asp-action="Details">Back to Profile</a>
 <hr />
+
+<form asp-action="OrderHistory" method="get">
+    <div class="form-group">
+        <label asp-for="Status" style="display: inline">Status: </label>
+        <select 
+            class="form-control form-select" 
+            style="width: unset; display: inline;"
+            asp-for="Status"
+            asp-items="@Html.GetEnumSelectList<SelectableOrderStatus>()"
+            onchange="this.form.submit();"
+        ></select>
+    </div>
+</form>
 
 <table id="table" class="table table-striped">
     <thead>
@@ -18,11 +32,14 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (var item in Model)
+        @foreach (var item in Model.Orders)
         {
             <tr>
                 <td>@item.ID</td>
-                <td style="min-width: 10vw">@item.OrderTime</td>
+                <td style="min-width: 10vw">
+                    @item.OrderTime<br/>
+                    (@(item.OrderTime.ToTimeFromNow()))
+                </td>
                 <td>
                     @foreach (var orderItem in item.OrderDetails)
                     {

@@ -12,19 +12,19 @@
         <h2>Personal Details</h2>
         <partial name="_InfoCard.cshtml" model="@(new
         {
-            Icon = "email",
+            Icon = "envelope-open",
             Header = "Email",
             Content = Model.Account.Email
         })"/>
         <partial name="_InfoCard.cshtml" model="@(new
         {
-            Icon = "name",
+            Icon = "id-badge",
             Header = "Name",
             Content = Model.Account.Name
         })" />
         <partial name="_InfoCard.cshtml" model="@(new
         {
-            Icon = "gender",
+            Icon = "venus-mars",
             Header = "Gender",
             Content = Model.Account.Gender ? "Male" : "Female"
         })" />
@@ -40,30 +40,45 @@
         <h2>Purchase Summary</h2>
         <partial name="_InfoCard.cshtml" model="@(new
         {
-            Icon = "product",
+            Icon = "archive",
             Header = "Products bought",
             Content = Model.PurchaseSummary.ProductsBought
         })" />
         <partial name="_InfoCard.cshtml" model="@(new
         {
-            Icon = "orders",
+            Icon = "truck",
             Header = "Orders placed",
             Content = Model.PurchaseSummary.OrdersPlaced
         })" />
         <partial name="_InfoCard.cshtml" model="@(new
         {
-            Icon = "dollar",
+            Icon = "usd",
             Header = "Money spent",
             Content = Model.PurchaseSummary.MoneySpent.ToString("N0")
         })" />
         <partial name="_InfoCard.cshtml" model="@(new
         {
-            Icon = "voucher",
+            Icon = "percent",
             Header = "Vouchers used",
             Content = Model.PurchaseSummary.VouchersUsed
         })" />
 
         <a asp-action="OrderHistory" class="btn btn-primary">View Order History</a>
+    </div>
+    <div class="col-md-4">
+        <h2>Reviews Summary</h2>
+        <partial name="_InfoCard.cshtml" model="@(new
+        {
+            Icon = "archive",
+            Header = "Products reviewed",
+            Content = Model.ReviewSummary.ProductsReviewed
+        })" />
+        <partial name="_InfoCard.cshtml" model="@(new
+        {
+            Icon = "star",
+            Header = "Average rating",
+            Content = Model.ReviewSummary.AverageRating
+        })" />
         <a asp-action="ReviewHistory" class="btn btn-primary">View Review History</a>
     </div>
 </div>

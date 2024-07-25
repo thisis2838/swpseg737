@@ -22,10 +22,14 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
                 .Where(x => x.Status != OrderStatus.Created);
         }
         [Authorize]
-        public async Task<IActionResult> OrderHistory()
+        public async Task<IActionResult> OrderHistory(OrderHistoryViewArgs? args = null)
         {
-            var order = await Orders().ToListAsync();
-            return View(order);
+            args ??= new OrderHistoryViewArgs();
+            return View(new OrderHistoryViewModel()
+            {
+                Status = args.Status,
+                Orders = await Orders().Where(x => x.Status == (OrderStatus)args.Status).ToListAsync()
+            });
         }
         [Authorize]
         public async Task<IActionResult> OrderDetails(int id)
