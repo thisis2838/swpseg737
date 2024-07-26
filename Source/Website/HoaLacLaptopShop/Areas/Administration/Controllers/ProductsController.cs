@@ -355,7 +355,7 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
                     {
                         p.ProductImages.Add(new ProductImage()
                         {
-                            DisplayIndex = p.ProductImages.Max(x => x.DisplayIndex) + 1,
+                            DisplayIndex = p.ProductImages.Count == 0 ? 0 : p.ProductImages.Max(x => x.DisplayIndex) + 1,
                             Token = tokens[i]!,
                         });
                     }
