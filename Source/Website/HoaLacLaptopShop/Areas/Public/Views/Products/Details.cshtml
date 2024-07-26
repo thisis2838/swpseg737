@@ -157,74 +157,20 @@
                             }
 
                             <div class="filter-buttons" style="margin-bottom: 5px">
-                                <button style="background-color: white;
-                                                color: black;
-                                                border: 2px solid  #fe980f;
-                                                border-radius: 5px;
-                                                padding: 6px;
-                                                margin: 5px;
-                                                cursor: pointer;"
-                                        class="active" 
-                                        onclick="filterReviews(0,this)">
-                                    All
+                                <button class="btn review-filter-button review-filter-selected" onclick="filterReviews(0,this)">
+                                    All <span style="font-size: smaller">(@Model.ProductReviews.Count)</span>
                                 </button>
-                                <button style="background-color: white;
-                                                color: black;
-                                                border-radius: 5px;
-                                                border: 1px solid black;
-                                                padding: 6px;
-                                                margin: 5px;
-                                                cursor: pointer;"
-                                    onclick="filterReviews(5,this)">
-                                    5 <svg xmlns="http://www.w3.org/2000/svg" width="12px" height="12px" viewBox="0 0 24 24">
-                                        <path d="M12 .587l3.668 7.568 8.332 1.151-6.064 5.828 1.48 8.279-7.416-3.967-7.417 3.967 1.481-8.279-6.064-5.828 8.332-1.151z" />
-                                    </svg>
-                                </button>
-                                <button style="background-color: white;
-                                                border: 1px solid black;
-                                                border-radius: 5px;
-                                                color: black;
-                                                padding: 6px;
-                                                margin: 5px;
-                                                cursor: pointer;" 
-                                onclick="filterReviews(4,this)">
-                                    4 <svg xmlns="http://www.w3.org/2000/svg" width="12px" height="12px" viewBox="0 0 24 24">
-                                        <path d="M12 .587l3.668 7.568 8.332 1.151-6.064 5.828 1.48 8.279-7.416-3.967-7.417 3.967 1.481-8.279-6.064-5.828 8.332-1.151z" />
-                                    </svg>
-                                </button>
-                                <button style="background-color: white;
-                                                border: 1px solid black;
-                                                border-radius: 5px;
-                                                color: black;
-                                                padding: 6px;
-                                                margin: 5px;
-                                                cursor: pointer;" onclick="filterReviews(3,this)">
-                                    3 <svg xmlns="http://www.w3.org/2000/svg" width="12px" height="12px" viewBox="0 0 24 24">
-                                        <path d="M12 .587l3.668 7.568 8.332 1.151-6.064 5.828 1.48 8.279-7.416-3.967-7.417 3.967 1.481-8.279-6.064-5.828 8.332-1.151z" />
-                                    </svg>
-                                </button>
-                                <button style="background-color: white;
-                                                border: 1px solid black;
-                                                border-radius: 5px;
-                                                color: black;
-                                                padding: 6px;
-                                                margin: 5px;
-                                                cursor: pointer;" onclick="filterReviews(2,this)">
-                                    2 <svg xmlns="http://www.w3.org/2000/svg" width="12px" height="12px" viewBox="0 0 24 24">
-                                        <path d="M12 .587l3.668 7.568 8.332 1.151-6.064 5.828 1.48 8.279-7.416-3.967-7.417 3.967 1.481-8.279-6.064-5.828 8.332-1.151z" />
-                                    </svg>
-                                </button>
-                                <button style="background-color: white;
-                                                border: 1px solid black;
-                                                border-radius: 5px;
-                                                color: black;
-                                                padding: 6px;
-                                                margin: 5px;
-                                                cursor: pointer;" onclick="filterReviews(1,this)">
-                                    1 <svg xmlns="http://www.w3.org/2000/svg" width="12px" height="12px" viewBox="0 0 24 24">
-                                        <path d="M12 .587l3.668 7.568 8.332 1.151-6.064 5.828 1.48 8.279-7.416-3.967-7.417 3.967 1.481-8.279-6.064-5.828 8.332-1.151z" />
-                                    </svg>
-                                </button>
+                                @for (int i = 5; i >=1 ; i--)
+                                {
+                                    var reviewCount = Model.ProductReviews.Where(x => x.Rating == i).Count();
+
+                                    <button 
+                                        @(reviewCount == 0 ? "disabled" : "")
+                                        class="btn review-filter-button" 
+                                        onclick="filterReviews(@i,this)">@i <i class="fa fa-star"></i>
+                                        <span style="font-size: smaller">(@reviewCount)</span>
+                                    </button>
+                                }
                             </div>
 
                             <div id="reviews-container">
@@ -257,7 +203,7 @@
                             var ownReview = Model.ProductReviews.FirstOrDefault(pr => pr.ProductId == Model.ID && pr.ReviewerId == userID);
                             @if (hasBoughtBefore)
                             {
-                                <div class="product-review">
+                                <div class="product-review" id="review-editor">
                                     @if (ownReview != null)
                                     {
                                         <p><b>Edit Your Review</b></p>
@@ -331,34 +277,44 @@
 @section Scripts
 {
     <script>
-        function CRateOut(rating) {
-            for (var i = 1; i <= rating; i++) {
+        function CRateOut(rating)
+        {
+            for (var i = 1; i <= rating; i++)
+            {
                 $("#span" + i).attr('class', 'glyphicon glyphicon-star-empty');
             }
         }
-        function CRateOver(rating) {
-            for (var i = 1; i <= rating; i++) {
+        function CRateOver(rating)
+        {
+            for (var i = 1; i <= rating; i++)
+            {
                 $("#span" + i).attr('class', 'glyphicon glyphicon-star');
             }
         }
-        function CRateClick(rating) {
+        function CRateClick(rating)
+        {
             $("#lblRating").val(rating);
-            for (var i = 1; i <= rating; i++) {
+            for (var i = 1; i <= rating; i++)
+            {
                 $("#span" + i).attr('class', 'glyphicon glyphicon-star');
             }
 
-            for (var i = rating + 1; i <= 5; i++) {
+            for (var i = rating + 1; i <= 5; i++)
+            {
                 $("#span" + i).attr('class', 'glyphicon glyphicon-star-empty');
             }
         }
-        function CRateSelected() {
+        function CRateSelected()
+        {
             var rating = $("#lblRating").val();
-            for (var i = 1; i <= rating; i++) {
+            for (var i = 1; i <= rating; i++)
+            {
                 $("#span" + i).attr('class', 'glyphicon glyphicon-star');
             }
         }
 
-        function changeMainImage(img) {
+        function changeMainImage(img)
+        {
             var mainImg = document.getElementById("product-main-img");
             document.getElementById("product-img-shown").removeAttribute("id");
             img.setAttribute("id", "product-img-shown");
@@ -367,29 +323,38 @@
 
         $(document).ready(() => { $('[href="' + (window.location.hash || '#details') + '"]').tab('show'); });
 
-        function filterReviews(rating, button) {
+        function filterReviews(rating, button)
+        {
             var reviews = document.querySelectorAll('.product-review');
-            reviews.forEach(function (review) {
-                if (rating === 0) {
+            reviews.forEach(function (review)
+            {
+                if (review.id == 'review-editor')
+                    return;
+
+                if (rating === 0)
+                {
                     // Show all reviews
                     review.style.display = 'block';
-                } else {
+                } 
+                else
+                {
                     // Show only reviews with the selected rating
-                    if (parseInt(review.getAttribute('data-rating')) === rating) {
+                    if (parseInt(review.getAttribute('data-rating')) === rating)
+                    {
                         review.style.display = 'block';
-                    } else {
+                    } else
+                    {
                         review.style.display = 'none';
                     }
                 }
             });
 
             var buttons = document.querySelectorAll('.filter-buttons button');
-            buttons.forEach(function (btn) {
-                //border: 1px solid ;
-                btn.style.border = '1px solid black'; // Reset background color// Reset text color
+            buttons.forEach(function (btn)
+            {
+                btn.classList.remove('review-filter-selected'); // Reset background color// Reset text color
             });
-
-            button.style.border = '2px solid  #fe980f'; // Reset background color// Reset text color
+            button.classList.add('review-filter-selected'); // Reset background color// Reset text color
         }
 
 
@@ -398,12 +363,31 @@
 
 
 <style>
-    .fa-star {
+    .review-filter-button
+    {
+        background: white !important;
+        border: 1px solid black;
+        border-radius: 5px;
+        color: black;
+        padding: 6px;
+        margin: 5px;
+        cursor: pointer;
+    }
+
+    .review-filter-selected
+    {
+        border: 2px solid #fe980f;
+        border-radius: 5px;
+    }
+
+    .fa-star
+    {
         width: 15px;
         height: 15px;
     }
 
-    #product-price {
+    #product-price
+    {
         color: #FE980F;
         float: left;
         font-family: 'Roboto', sans-serif;
@@ -412,19 +396,22 @@
     }
 
 
-    #product-main-info {
+    #product-main-info
+    {
         display: flex;
         flex-direction: column;
         justify-content: space-between
     }
 
-    #product-main-img {
+    #product-main-img
+    {
         display: block;
         margin: auto;
     }
 
 
-    .product-main-box {
+    .product-main-box
+    {
         height: 350px;
         border: 2px solid #F7F7F0;
         overflow: hidden;
@@ -433,59 +420,69 @@
         position: relative;
     }
 
-        .product-main-box h2 {
-            color: #363432;
-            font-family: 'Roboto', sans-serif;
-            font-size: 20px;
-            margin-top: 0;
-        }
+    .product-main-box h2
+    {
+        color: #363432;
+        font-family: 'Roboto', sans-serif;
+        font-size: 20px;
+        margin-top: 0;
+    }
 
-        .product-main-box p {
-            color: #696763;
-            font-family: 'Roboto', sans-serif;
-            margin-bottom: 5px;
-        }
+    .product-main-box p
+    {
+        color: #696763;
+        font-family: 'Roboto', sans-serif;
+        margin-bottom: 5px;
+    }
 
 
-    .tab-pane {
+    .tab-pane
+    {
         margin: 10px
     }
 
-    #laptop-specs {
+    #laptop-specs
+    {
         display: flex;
         font-size: 12px;
     }
 
-        #laptop-specs div {
-            background: #f7f7f0;
-            border-radius: 10px;
-            margin: 5px;
-            flex: 1;
-            width: 0;
-            padding: 5px;
-            padding-left: 10px;
-        }
+    #laptop-specs div
+    {
+        background: #f7f7f0;
+        border-radius: 10px;
+        margin: 5px;
+        flex: 1;
+        width: 0;
+        padding: 5px;
+        padding-left: 10px;
+    }
 
-        #laptop-specs span {
-            margin-bottom: 0;
-        }
+    #laptop-specs span
+    {
+        margin-bottom: 0;
+    }
 
-    .product-review {
+    .product-review
+    {
         margin: 10px;
         background: #f7f7f0;
         padding: 15px;
         border-radius: 10px;
     }
 
-    #product-img-shown {
+    #product-img-shown
+    {
         border: 2px solid #fe980f;
     }
 
-    #own-review {
+    #own-review
+    {
         border: 2px solid #fe980f;
     }
 
-    #brands-other-products {
+    #brands-other-products
+    {
         max-height: 75vh;
         overflow-x: hidden;
         overflow-y: scroll;
