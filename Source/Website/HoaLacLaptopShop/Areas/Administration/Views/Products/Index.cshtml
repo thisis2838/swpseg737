@@ -15,7 +15,7 @@
         <ul class="pagination" >
             @{
                 int currentPage = Model.TargetPage;
-                int totalPage = (Model.TotalCount - 1) / 10 + 1;
+                int totalPage = (Model.TotalCount - 1) / 10;
                 int startPage = Math.Max(1, currentPage - 2);
                 int endPage = Math.Min(totalPage, currentPage + 2);
 
