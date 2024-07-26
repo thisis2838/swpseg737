@@ -1,71 +1,146 @@
+using HoaLacLaptopShop.Data;
 using HoaLacLaptopShop.Helpers;
+using HoaLacLaptopShop.Middlewares;
 using HoaLacLaptopShop.Models;
+using HoaLacLaptopShop.Services;
+using HoaLacLaptopShop.ThirdParty.VNPay;
+using LinqKit;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.Razor;
+using Microsoft.AspNetCore.Routing;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.EntityFrameworkCore;
+using System.Diagnostics;
+using System.Linq;
+using System.Net;
 
-var builder = WebApplication.CreateBuilder(args);
-
-// Add services to the container.
-builder.Services.AddControllersWithViews();
-builder.Services.AddDbContext<HoaLacLaptopShopContext>(options =>
+internal class Program
 {
-    options.UseSqlServer(builder.Configuration.GetConnectionString("HoaLacLaptopShop"));
-});
-
-builder.Services.AddDistributedMemoryCache();
-
-builder.Services.AddSession(options =>
-{
-    options.IdleTimeout = TimeSpan.FromMinutes(10);
-    options.Cookie.HttpOnly = true;
-    options.Cookie.IsEssential = true;
-});
-builder.Services.AddHttpContextAccessor();
-builder.Services.AddControllersWithViews();
-
-var app = builder.Build();
-
-// Configure the HTTP request pipeline.
-if (!app.Environment.IsDevelopment())
-{
-    app.UseExceptionHandler("/Home/Error");
-    app.UseHsts();
-}
-
-app.UseHttpsRedirection();
-app.UseStaticFiles();
-
-app.UseRouting();
-
-// Enable session middleware
-app.UseSession();
-// Set defaultuser with id 1 in DB to test
-/*
-app.Use(async (context, next) =>
-{
-    // Check if the session doesn't have a default user set
-    if (string.IsNullOrEmpty(context.Session.GetString("CurrentUserId")))
+    private static void Main(string[] args)
     {
-        using (var scope = app.Services.CreateScope())
-        {
-            var dbContext = scope.ServiceProvider.GetRequiredService<HoaLacLaptopShopContext>();
-            var defaultUser = dbContext.Users.FirstOrDefault(u => u.ID == 1);
+        var builder = WebApplication.CreateBuilder(args);
 
-            if (defaultUser != null)
+        builder.Services.AddTransient<IEmailSenderService, EmailSenderService>();
+        builder.Services.AddScoped<IViewRenderService, ViewRenderService>();
+
+        // Add services to the container.
+        builder.Services.AddDbContext<HoaLacLaptopShopContext>(options =>
+        {
+            options
+                .UseSqlServer(builder.Configuration.GetConnectionString("HoaLacLaptopShop"))
+				.WithExpressionExpanding();
+		});
+        builder.Services.AddDbContext<TemporaryResourceContext>(options =>
+        {
+            options.UseSqlServer(builder.Configuration.GetConnectionString("HoaLacLaptopShop"));
+        });
+
+        builder.Services.AddDistributedMemoryCache();
+        builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie
+        (
+            options =>
             {
-                // Assuming DefaultUserId is a string
-                context.Session.SetString("CurrentUserId", defaultUser.ID.ToString());
+                options.LoginPath = "/Account/Login";
+                options.AccessDeniedPath = "/Error/403";
+                options.SlidingExpiration = true;
             }
+        );
+        builder.Services.AddAuthorization(options =>
+        {
+            options.AddPolicy("RequireAdmin", policy => policy.RequireRole("Admin"));
+            options.AddPolicy("RequireMarketing", policy => policy.RequireRole("Marketing"));
+            options.AddPolicy("RequireSales", policy => policy.RequireRole("Sales"));
+        });
+
+        builder.Services.AddSession(options =>
+        {
+            options.IdleTimeout = TimeSpan.FromMinutes(30);
+            options.Cookie.HttpOnly = true;
+            options.Cookie.IsEssential = true;
+        });
+        builder.Services.AddHttpContextAccessor();
+        builder.Services.AddSingleton<ILocalResourceService, LocalResourceService>();
+        builder.Services.AddScoped<ITemporaryResourceService, TemporaryResourceService>();
+        builder.Services
+            .AddControllersWithViews()
+            .AddRazorOptions(options =>
+            {
+                options.ViewLocationExpanders.Add(new ViewLocationExpander());
+            });
+        builder.Services.AddSingleton<IVnPayService, VnPayService>();
+
+        var app = builder.Build();
+        CleanUpTemporaryFiles(app.Services);
+
+        // Configure the HTTP request pipeline.
+        if (!app.Environment.IsDevelopment())
+        {
+            app.UseExceptionHandler("/Home/Error");
+            app.UseHsts();
         }
+
+        app.UseHttpsRedirection();
+        app.UseStaticFiles();
+        app.UseStatusCodePagesWithRedirects("/Error/{0}");
+        app.UseRouting();
+        app.UseSession();
+
+        app.UseAuthentication();
+        app.UseMiddleware<RoleSyncMiddleware>();
+        app.UseAuthorization();
+
+        app.MapAreaControllerRoute
+        (
+            "adminArea", "Administration",
+            pattern: "Admin/{controller=Home}/{action=Index}/{id?}"
+        );
+        app.MapAreaControllerRoute
+        (
+            "publicArea", "Public",
+            pattern: "Public/{controller=Home}/{action=Index}/{id?}"
+        );
+        app.MapControllerRoute
+        (
+            "default",
+            pattern: "{controller}/{action}/{id?}",
+            new { controller = "Home", action = "Index" }
+        );
+
+        if (app.Environment.IsDevelopment())
+        {
+            app.MapGet
+            (
+                "/debug/routes", 
+                (IEnumerable<EndpointDataSource> endpointSources) =>
+                {
+                    var endpoints = endpointSources
+                        .SelectMany(source => source.Endpoints).OfType<RouteEndpoint>()
+                        .Select(x =>
+                        {
+                            return $"{x.DisplayName!} ({x.RoutePattern.RawText!})" ;
+                        });
+                    return string.Join("\n", endpoints);
+                }
+            );
+        }
+
+        app.Run();
     }
 
-    await next.Invoke();
-});
-*/
-
-app.UseAuthorization();
-
-app.MapControllerRoute(name: "default", pattern: "{controller=Home}/{action=Index}/{id?}");
-app.MapControllerRoute(name: "product", pattern: "{controller=Product}/{action=Detail}/{id?}");
-
-app.Run();
+    private static void CleanUpTemporaryFiles(IServiceProvider services)
+    {
+        using (var scope = services.CreateScope()) 
+        {
+            using var db = scope.ServiceProvider.GetRequiredService<TemporaryResourceContext>();
+            db.Resources.ExecuteDelete();
+        }
+        using (services.CreateScope())
+        {
+            var local = services.GetRequiredService<ILocalResourceService>();
+            local.DirectoryRemove(local.GetRelativePath(ResourceType.Temp));
+        }
+    }
+}

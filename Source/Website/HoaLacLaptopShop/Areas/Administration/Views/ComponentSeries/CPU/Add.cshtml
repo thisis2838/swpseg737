@@ -1,0 +1,19 @@
+﻿@model HoaLacLaptopShop.Models.LaptopCPUSeries
+@{
+    ViewData["Title"] = "Create";
+}
+
+<partial 
+    name="~/Areas/Administration/Views/Shared/_PageHeading.cshtml" 
+    model="@(new{ Heading = "Component Series", Subheading = $"CPU Creation"})" 
+/>
+
+<div onclick="$('#main-form').submit();" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Add</div>
+<a class="btn btn-primary" asp-action="Index"><i class="fa-solid fa-arrow-left"></i> Back to List</a>
+<hr />
+
+<div class="col-md-4">
+    <form asp-action="Add" id="main-form">
+        <partial name="_CPUInfoView.cshtml" model="@Model" />
+    </form>
+</div>

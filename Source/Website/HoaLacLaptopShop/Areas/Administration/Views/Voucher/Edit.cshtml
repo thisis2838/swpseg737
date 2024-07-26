@@ -1,0 +1,112 @@
+﻿@model HoaLacLaptopShop.Models.Voucher
+
+@{
+    ViewData["IsEdit"] = true;
+}
+
+<partial 
+    name="~/Areas/Administration/Views/Shared/_PageHeading.cshtml"
+    model="@(new{ Heading = "Vouchers", Subheading = $"#{Model.ID}"})" 
+/>
+<a class="btn btn-primary" onclick="$('#main-form').submit();"><i class="fa-solid fa-save"></i> Save</a>
+@if (Model.IsDisabled)
+{
+    <div class="btn btn-danger" onclick="confirmReenable()"><i class="fa-solid fa-refresh"></i> Reenable</div>
+}
+else
+{
+    <div class="btn btn-danger" onclick="confirmDisable()"><i class="fa-solid fa-x"></i> Disable</div>
+}
+<a asp-action="Index" class="btn btn-primary"><i class="fa-solid fa-arrow-left"></i> Back to List</a>
+<hr/>
+<div class="row">
+    <form asp-action="Edit" id="main-form" class="col-md-4">
+        <div class="form-group">
+            <label asp-for="ID" class="control-label form-label"></label>
+            <input asp-for="ID" readonly class="form-control" />
+        </div>
+        <div class="form-group">
+            <label asp-for="Issuer.Name" class="control-label form-label">Issuer Name</label>
+            <input asp-for="Issuer.Name" readonly class="form-control" />
+            <input asp-for="IssuerId" type="hidden" class="form-control" />
+        </div>
+        <partial name="_VoucherDetailsView.cshtml" model="@Model"></partial>
+    </form>
+
+    <div class="col-md-8">
+        <h3>Orders using this voucher</h3>
+        @if (Model.Orders.Count == 0)
+        {
+            <span>No orders have used this voucher.</span>
+        }
+        else
+        {
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Creation Time</th>
+                        <th>Total Price</th>
+                        <th>Discounted Price</th>
+                        <th>Discount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var order in Model.Orders)
+                    {
+                        <tr>
+                            <td>
+                                @if (Context.GetCurrentUser()!.IsSales)
+                                {
+                                    <a href="@Url.ActionLink("Details", "Orders", new {id = order.ID})">@order.ID</a>
+                                }
+                                else
+                                {
+                                    <span>@order.ID</span>
+                                }
+                            </td>
+                            <td>@order.OrderTime</td>
+                            <td>@order.TotalPrice.ToString("N0")</td>
+                            <td>@order.DiscountedPrice.ToString("N0")</td>
+                            <td>@((order.TotalPrice - order.DiscountedPrice).ToString("N0"))</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </div>
+</div>
+
+@if (Model.IsDisabled)
+{
+    <form asp-action="Reenable" id="form-reenable">
+        <input type="hidden" asp-for="ID" />
+    </form>
+}
+else
+{
+    <form asp-action="Disable" id="form-disable">
+        <input type="hidden" asp-for="ID" />
+    </form>
+}
+
+
+@section Scripts
+{
+    <script>
+        function confirmDisable()
+        {
+            if (confirm('Are you sure you want to disable this voucher?'))
+            {
+                $('#form-disable').submit();
+            }
+        }
+        function confirmReenable()
+        {
+            if (confirm('Are you sure you want to reenable this voucher?'))
+            {
+                $('#form-reenable').submit();
+            }
+        }
+    </script>
+}

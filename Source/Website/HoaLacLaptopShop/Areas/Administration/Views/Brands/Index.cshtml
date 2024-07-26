@@ -1,0 +1,79 @@
+﻿@using HoaLacLaptopShop.Areas.Administration.ViewModels
+@model BrandIndexViewModel
+@{
+    ViewData["Title"] = "Index";
+}
+
+<partial 
+    name="~/Areas/Administration/Views/Shared/_PageHeading.cshtml" 
+    model="@(new{ Heading = "Brands", Subheading = "List"})" 
+/>
+@if (Context.GetCurrentUser()!.IsSales)
+{
+    <a asp-action="Add" class="btn btn-primary"><i class="fa fa-plus"></i> Add</a>
+}
+<hr/>
+
+<form asp-action="Index" method="get">
+    <div class="form-group col-md-6">
+        <input asp-for="Search" class="form-control" style="width: unset; display: unset" />
+        <button type="submit" class="btn btn-primary"><i class="fa fa-search"></i> Search</button><br />
+        <span asp-validation-for="Search" class="text-danger"></span>
+    </div>
+
+    @if(Model.Brands.Count() == 0)
+    {
+        <div style="margin-top: 30px;">
+            <span >No brands to show!</span>
+        </div>
+    }
+    else 
+    {
+        <partial name="~/Areas/Shared/Views/Shared/_Pagination.cshtml" model="@Model" />
+
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Brands.First().ID)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Brands.First().Name)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Brands.First().Description)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Brands.First().Country)
+                    </th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var brand in Model.Brands)
+                {
+                    <tr>
+                        <td>@brand.ID</td>
+                        <td>@brand.Name</td>
+                        <td class="admin-table-long">@brand.Description</td>
+                        <td>@brand.Country</td>
+                        <td>
+                            @if (Context.GetCurrentUser()!.IsMarketing)
+                            {
+                                <a class="btn btn-success fa-pull-right" href="@Url.Action("Brand", "Statistics", new { id = brand.ID })">
+                                    <i class="fa fa-chart-simple"></i> Statistics
+                                </a>
+                            }
+                            @if (Context.GetCurrentUser()!.IsSales)
+                            {
+                                <a class="btn btn-warning fa-pull-right" href="@Url.Action("Edit", new { id = brand.ID })">
+                                    <i class="fa fa-pen"></i> Edit
+                                </a>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</form>

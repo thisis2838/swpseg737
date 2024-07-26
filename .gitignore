@@ -397,3 +397,5 @@ FodyWeavers.xsd
 # JetBrains Rider
 *.sln.iml
 Source/Website/HoaLacLaptopShop/appsettings.json
+/Source/Website/HoaLacLaptopShop/wwwroot/html/news
+/Source/Website/HoaLacLaptopShop/wwwroot/images/news

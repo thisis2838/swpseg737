@@ -1,0 +1,49 @@
+﻿@model dynamic
+
+@if (Model.TotalPages > 0)
+{
+    <ul class="pagination" style="display: flex; justify-content: center;">
+        @{
+            int currentPage = Model.Page;
+            int totalPages = Model.TotalPages;
+            currentPage = Math.Max(currentPage, 1);
+
+            int extra = 2;
+            List<int?> indicies = new List<int?>();
+
+            if (currentPage > 1) indicies.Add(1);
+            var before = currentPage - 2;
+            if (before > 0)
+            {
+                if (before > extra) 
+                {
+                    indicies.Add(null);
+                    before = extra;
+                }
+                for (int i = before; i > 0; i--) indicies.Add(currentPage - i);
+            }
+            indicies.Add(currentPage);
+            var after = totalPages - currentPage - 1;
+            if (after > 0)
+            {
+                var tailNull = after > extra;
+                if (tailNull) after = extra;
+                for (int i = 1; i <= after; i++) indicies.Add(currentPage + i);
+                if (tailNull) indicies.Add(null);
+            }
+            if (currentPage < totalPages) indicies.Add(totalPages);
+
+            foreach (var index in indicies)
+            {
+                if (index is null)
+                {
+                    <li class="page-item disabled" style="margin-left: 5px; margin-right: 5px;"><div class="btn btn-sm">...</div></li>
+                }
+                else
+                {
+                    <li class="page-item" style="margin-left: 5px; margin-right: 5px;"><input class="btn @(index == currentPage ? "btn-primary" : "btn-sm")" type="submit" name="page" value="@index" /></li>
+                }
+            }
+        }
+    </ul>
+}

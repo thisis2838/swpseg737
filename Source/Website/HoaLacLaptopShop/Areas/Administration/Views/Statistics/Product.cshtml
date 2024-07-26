@@ -1,0 +1,83 @@
+﻿@using HoaLacLaptopShop.Areas.Administration.ViewModels
+@using System.Collections.Generic
+@using System.ComponentModel.DataAnnotations
+@model ProductStatsViewModel
+<partial name="~/Areas/Administration/Views/Shared/_PageHeading.cshtml"
+         model="@(new{ Heading = "Sales", Subheading = $"Product #{Model.Product.ID}"})" />
+
+<form asp-action="Product" method="get">
+    <div class="form-group">
+        <select class="form-control form-select" style="width: unset; display: inline-block" asp-for="TimeRange" asp-items="@(Html.GetEnumSelectList<TimeRange>())"></select>
+        <select class="form-control form-select" style="width: unset; display: inline-block" asp-for="TimeSegment" asp-items="@(Html.GetEnumSelectList<TimeSegment>())"></select>
+        <button class="btn btn-primary" type="submit"><i class="fa-solid fa-eye"></i> Show</button>
+        <a class="btn btn-primary" asp-action="Sales"><i class="fa-solid fa-arrow-left"></i> Back to General Sales</a>
+    </div>
+</form>
+
+<hr />
+
+<h3>Product</h3>
+<div style="margin-bottom: 30px; display: flex; align-items: center">
+    <img src="@Model.Product.ProductImages.First().GetProductImageURL()" style="width: 100px; margin-right: 10px;"/>
+    <div style="display: inline-block;">
+        <strong style="font-size: large">@Model.Product.Name</strong><br />
+        <a href="@Url.ActionLink("Brand", "Statistics", new {id = Model.Product.BrandId})">@Model.Product.Brand.Name</a>
+    </div>
+</div>
+
+<h3>Detailed Statistics</h3>
+<div class="row">
+    <div class="col-md-5">
+        <div class="row">
+            <div class="col-sm-6">
+                <partial name="_SalesStatCard.cshtml"
+                         model="@(new
+                    {
+                        Heading = "Units Sold",
+                        Icon = "truck",
+                        Value = Model.GeneralStats.UnitsSold
+                    })" />
+                <partial name="_SalesStatCard.cshtml"
+                         model="@(new
+                    {
+                        Heading = "Buyers",
+                        Icon = "users",
+                        Value = Model.GeneralStats.Customers
+                    })" />
+            </div>
+            <div class="col-sm-6">
+                <partial name="_SalesStatCard.cshtml"
+                         model="@(new
+                    {
+                        Heading = "Gross Sales",
+                        Icon = "dollar-sign",
+                        Value = string.Format("{0:N0}", Model.GeneralStats.GrossSales)
+                    })" />
+                <partial name="_SalesStatCard.cshtml"
+                         model="@(new
+                    {
+                        Heading = "Orders",
+                        Icon = "shopping-cart",
+                        Value = Model.GeneralStats.NumberOfOrders
+                    })" />
+            </div>
+        </div>
+    </div>
+    <div class="col-md-7">
+        <div class="card flex-fill w-100">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Sales: @(Model.TimeRange.GetAttribute<DisplayAttribute>().Name)</h5>
+            </div>
+            <div class="card-body d-flex w-100">
+                <div class="align-self-center chart chart-lg">
+                    <canvas id="chartjs-dashboard-bar"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts
+{
+    <partial name="~/Areas/Administration/Views/Statistics/_ChartInit.cshtml" model="@Model"></partial>
+}

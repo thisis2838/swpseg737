@@ -1,0 +1,378 @@
+﻿@using HoaLacLaptopShop.Areas.Administration.ViewModels
+@using HoaLacLaptopShop.Areas.Public.ViewModels
+@model Order
+
+@{
+    bool canEdit = Model.Status != OrderStatus.Finished;
+}
+
+<partial 
+    name="~/Areas/Administration/Views/Shared/_PageHeading.cshtml" 
+    model="@(new{ Heading = "Orders", Subheading = $"#({Model.ID})"})" 
+/>
+
+@if (canEdit)
+{
+    <button type="submit" class="btn btn-primary" onclick="$('#orderForm').submit();">
+        <i class="fa-solid fa-save"></i> Save
+    </button>
+}
+<a class="btn btn-primary" asp-action="Index"><i class="fa-solid fa-arrow-left"></i> Back to List</a>
+<hr/>
+
+<div class="row">
+    <div class="col-xl-4">
+        <form asp-action="Edit" method="post" id="orderForm">
+            <input type="hidden" asp-for="ID" />
+            <div class="info-group">
+                <h1>General Information</h1>
+                <div class="form-group">
+                    <label asp-for="ID" class="form-label"></label>
+                    <input asp-for="ID" readonly class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label asp-for="OrderTime" class="form-label">Order Time</label>
+                    <input asp-for="OrderTime" readonly class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label asp-for="Status" class="form-label"></label>
+                    @if(canEdit)
+                    {
+                        <select 
+                            asp-for="Status" class="form-control form-select"
+                            asp-items="@(Html.GetEnumSelectList<SelectableOrderStatus>())">
+                        </select>
+                    }
+                    else
+                    {
+                        <input asp-for="Status" class="form-control" readonly />
+                    }
+                </div>
+            </div>
+        
+            <div class="info-group">
+                <h1>Buyer</h1>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="Buyer.Name" class="form-label"></label>
+                            <input asp-for="Buyer.Name" readonly class="form-control" />
+
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="Buyer.PhoneNumber" class="form-label"></label>
+                            <input asp-for="Buyer.PhoneNumber" readonly class="form-control" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-group">
+                <h1>Recipient</h1>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="RecipientName" class="form-label"></label>
+                            @if (canEdit)
+                            {
+                                <input asp-for="RecipientName" class="form-control" />
+                                <span asp-validation-for="RecipientName" class="text-danger"></span>
+                            }
+                            else
+                            {
+                                <input asp-for="RecipientName" class="form-control" readonly/>
+                            }
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="PhoneNumber" class="form-label"></label>
+                            @if (canEdit)
+                            {
+                                <input asp-for="PhoneNumber" class="form-control" />
+                                <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                            }
+                            else
+                            {
+                                <input asp-for="PhoneNumber" class="form-control" readonly />
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-group">
+                <h1>Destination</h1>
+                <div class="form-group">
+                    <strong><label asp-for="Province"></label></strong>
+                    @if (canEdit)
+                    {
+                        <select asp-for="Province" class="form-control form-select" id="city">
+                            <option value="@Model.Province" selected>@Model.Province</option>
+                            <!-- Options will be populated by JavaScript -->
+                        </select>
+                        <span asp-validation-for="Province" class="text-danger"></span>
+                    }
+                    else
+                    {
+                        <input asp-for="Province" class="form-control" readonly />
+                    }
+
+                </div>
+                <div class="form-group">
+                    <strong><label asp-for="District"></label></strong>
+                    @if (canEdit)
+                    {
+                        <select asp-for="District" class="form-control form-select" id="district">
+                            <option value="@Model.District" selected>@Model.District</option>
+                            <!-- Options will be populated by JavaScript -->
+                        </select>
+                        <span asp-validation-for="District" class="text-danger"></span>
+                    }
+                    else
+                    {
+                        <input asp-for="District" class="form-control" readonly />
+                    }
+                </div>
+                <div class="form-group">
+                    <strong><label asp-for="Ward"></label></strong>
+                    @if (canEdit)
+                    {
+                        <select asp-for="Ward" class="form-control form-select" id="ward">
+                            <option value="@Model.Ward" selected>@Model.Ward</option>
+                            <!-- Options will be populated by JavaScript -->
+                        </select>
+                        <span asp-validation-for="Ward" class="text-danger"></span>
+                    }
+                    else
+                    {
+                        <input asp-for="Ward" class="form-control" readonly />
+                    }
+                </div>
+                <div class="form-group">
+                    <strong><label asp-for="Street"></label></strong>
+                    @if (canEdit)
+                    {
+                        <input asp-for="Street" class="form-control" id="street" />
+                        <span asp-validation-for="Street" class="text-danger"></span>
+                    }
+                    else
+                    {
+                        <input asp-for="Street" class="form-control" id="street" readonly />
+                    }
+                </div>
+            </div>
+
+            <div class="info-group">
+                <h1>Notes</h1>
+                <p>@(Model.Note ?? "No notes")</p>
+            </div>
+        </form>
+    </div>
+    <div class="col-xl-8">
+        <h1>Products</h1>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Item</th>
+                    <th></th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                    <th>Subtotal</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.OrderDetails)
+                {
+                    <tr>
+                        <td style="width: 50px"><img src="@item.Product.ProductImages.FirstOrDefault()?.GetProductImageURL()" width="50" /></td>
+                        <td><a href="@Url.ActionLink("Edit", "Products", new {id = item.ProductId})"><strong>@item.Product.Name</strong></a></td>
+                        <td>@item.ProductPrice.ToString("N0")</td>
+                        <td>@item.Quantity</td>
+                        <td>@item.SubTotal.ToString("N0")</td>
+                    </tr>
+                }
+                @*hackhack: we want a line here*@
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                @{
+                    var hasDiscount = Model.VoucherID != null;
+                    var discountPrice = Model.TotalPrice - Model.DiscountedPrice;
+                }
+                <tr>
+                    <td colspan="2"><strong>Total</strong></td>
+                    <td></td>
+                    <td>@Model.OrderDetails.Sum(x => x.Quantity)</td>
+                    <td>@Model.TotalPrice.ToString("N0")</td>
+                </tr>
+                <tr>
+                    <td colspan="2"><strong>Discount</strong></td>
+                    <td colspan="2">@Model.Voucher?.Code</td>
+                    <td>@(hasDiscount ? discountPrice.ToString("N0") : "None")</td>
+                </tr>
+                <tr>
+                    <td colspan="2"><strong>Final Price</strong></td>
+                    <td></td>
+                    <td>@Model.OrderDetails.Sum(x => x.Quantity)</td>
+                    <td>@Model.DiscountedPrice.ToString("N0")</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts
+{
+    @if (canEdit)
+    {
+        <script>
+            document.addEventListener('DOMContentLoaded', () =>
+            {
+                const provinceSelect = document.getElementById("city");
+                const districtSelect = document.getElementById("district");
+                const wardSelect = document.getElementById("ward");
+
+                const model =
+                {
+                    Province: "@Model.Province",
+                    District: "@Model.District",
+                    Ward: "@Model.Ward",
+                    Street: "@Model.Street"
+                };
+
+                function getProvinces()
+                {
+                    fetch('https://esgoo.net/api-tinhthanh/1/0.htm')
+                        .then(response => response.json())
+                        .then(data_tinh =>
+                        {
+                            if (data_tinh.error === 0)
+                            {
+                                const defaultOption = provinceSelect.querySelector(`option[value="${model.Province}"]`);
+                                // provinceSelect.innerHTML = '';
+                                console.log(defaultOption)
+
+                                data_tinh.data.forEach(val_tinh =>
+                                {
+                                    const option = document.createElement('option');
+                                    option.value = val_tinh.full_name;
+                                    option.innerHTML = val_tinh.full_name;
+                                    option.setAttribute('data-province-id', val_tinh.id);
+                                    provinceSelect.appendChild(option);
+                                });
+                                // Trigger change event to load districts for the default selected province
+                                provinceSelect.dispatchEvent(new Event('change'));
+                            }
+                        });
+                }
+
+                function getDistricts(provinceId)
+                {
+                    fetch('https://esgoo.net/api-tinhthanh/2/' + provinceId + '.htm')
+                        .then(response => response.json())
+                        .then(data_quan =>
+                        {
+                            if (data_quan.error === 0)
+                            {
+                                districtSelect.innerHTML = ''; // Clear previous options
+                                data_quan.data.forEach(val_quan =>
+                                {
+                                    const option = document.createElement('option');
+                                    option.value = val_quan.full_name;
+                                    option.innerHTML = val_quan.full_name;
+                                    option.setAttribute('data-district-id', val_quan.id);
+                                    districtSelect.appendChild(option);
+                                });
+                                // Trigger change event to load wards for the default selected district
+                                districtSelect.dispatchEvent(new Event('change'));
+                            }
+                        });
+                }
+
+                function getWards(districtId)
+                {
+                    fetch('https://esgoo.net/api-tinhthanh/3/' + districtId + '.htm')
+                        .then(response => response.json())
+                        .then(data_quan =>
+                        {
+                            if (data_quan.error === 0)
+                            {
+                                wardSelect.innerHTML = ''; // Clear previous options
+                                data_quan.data.forEach(val_phuong =>
+                                {
+                                    const option = document.createElement('option');
+                                    option.value = val_phuong.full_name;
+                                    option.innerHTML = val_phuong.full_name;
+                                    wardSelect.appendChild(option);
+                                });
+                                // Set the default selected ward
+                                wardSelect.value = model.Ward;
+                            }
+                        });
+                }
+
+                // Fetch provinces and set the initial selected province
+                getProvinces();
+
+                provinceSelect.addEventListener('change', e =>
+                {
+                    const selectedOption = e.target.options[e.target.selectedIndex];
+                    const provinceId = selectedOption.getAttribute('data-province-id');
+                    getDistricts(provinceId).then(() =>
+                    {
+                        wardSelect.innerHTML = ''; // Clear wards when province changes
+                    });
+                });
+
+                districtSelect.addEventListener('change', e =>
+                {
+                    const selectedOption = e.target.options[e.target.selectedIndex];
+                    const districtId = selectedOption.getAttribute('data-district-id');
+                    getWards(districtId);
+                });
+            });
+        </script>
+    }
+
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
+
+<style>
+    .card-header
+    {
+        background-color: #f8f9fa;
+    }
+
+    .status-approved
+    {
+        color: #28a745;
+        font-weight: bold;
+    }
+
+    .icon-circle
+    {
+        background-color: #f8f9fa;
+        border-radius: 50%;
+        padding: 10px;
+        margin-right: 10px;
+    }
+
+    .info-group 
+    {
+        margin-bottom: 30px;
+    }
+
+    h5
+    {
+        margin-bottom: 0;
+    }
+</style>

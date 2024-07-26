@@ -1,0 +1,92 @@
+﻿@using HoaLacLaptopShop.Areas.Public.ViewModels
+@using HoaLacLaptopShop.Areas.Public.Controllers
+
+@model ProductIndexViewModel
+@{
+    ViewData["HideSearch"] = true;
+    ViewData["Title"] = "Products";
+    var selections = (ProductIndexSelections)ViewData["Selections"]!;
+}
+
+<h1>Products</h1>
+<hr/>
+
+<section>
+    <div class="container">
+        <div class="row">
+            <form asp-action="Index" method="get" >
+                
+                <partial name="_IndexQuery.cshtml" model="@Model"/>
+
+                <div class="col-sm-9 padding-right">
+                    <partial name="~/Areas/Shared/Views/Shared/_Pagination.cshtml" model="@Model" />
+                    <div class="features_items">
+                        <!--features_items-->
+                        @if (Model == null || Model.Products.Count() == 0)
+                        {
+                            <p>No products found.</p>
+                        }
+                        else
+                        {
+                            <div class="row">
+                                @foreach (var product in Model.Products)
+                                {
+                                    <div class="col-md-3">
+                                        <partial name="../Shared/Products/_Card.cshtml" model="@product" />
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div><!--features_items-->
+
+                    @if (Model != null && Model.Products.Count > 0)
+                    {
+                        <partial name="~/Areas/Shared/Views/Shared/_Pagination.cshtml" model="@Model" />
+                    }
+                </div>
+            </form>
+        </div>
+    </div>
+    
+</section>
+
+@section Scripts
+{
+    <link rel="stylesheet" href="~/css/jquery-ui.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script>
+        $(function () {
+            var curMin = @(Model!.MinPrice ?? selections.MinPossiblePrice);
+            var curMax = @(Model!.MaxPrice ?? selections.MaxPossiblePrice);
+            var $slide = $("#slider").slider
+                ({
+                    range: true,
+                    min: @selections.MinPossiblePrice,
+                    max: @selections.MaxPossiblePrice,
+                    step: 1000000,
+                    values: [curMin, curMax],
+                    slide: function (event, ui) {
+                        var min = ui.values[0];
+                        var max = ui.values[1];
+                        $("#price").val(numberWithThousandthSeparators(min + " - " + max));
+                        $("input[name='MinPrice']").val(min);
+                        $("input[name='MaxPrice']").val(max);
+                    }
+                });
+            $("#price").val(numberWithThousandthSeparators(curMin + " - " + curMax));
+        });
+    </script>
+    <script>
+        $(document).ready(() => $('.filter-list').accordion({ collapsible: true }));
+
+        $('.select-all').on("click", (event) =>
+        {
+            var g = $(event.target).closest('ul').find('input').prop('checked', true);
+        });
+        $('.deselect-all').on("click", (event) =>
+        {
+            var g = $(event.target).closest('ul').find('input').prop('checked', false);
+        });
+    </script>
+}
