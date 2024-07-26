@@ -23,10 +23,16 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
 			return View(Cart);
 		}
 
+		[AllowAnonymous]
 		[HttpPost]
 		public IActionResult ModifyQuantity(int productID, int quantity = 1)
 		{
-			var product = Context.EnabledProducts.Include(x => x.ProductImages).SingleOrDefault(x => x.ID == productID);
+            if (!HttpContext.IsLoggedIn())
+            {
+				this.AddError("Please login before buying products!");
+				return RedirectToAction("Index", "Home");
+            }
+            var product = Context.EnabledProducts.Include(x => x.ProductImages).SingleOrDefault(x => x.ID == productID);
 			if (product is null)
 			{
 				this.AddError("The requested product could not be found.");

@@ -44,7 +44,7 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
         [Route("Login"), Route("Account/Login")]
         public ActionResult Login(string? returnUrl)
         {
-            ViewBag.ReturnUrl = returnUrl;
+            ViewBag.ReturnUrl = returnUrl ?? Url.Action("Index", "Home");
             if (HttpContext.IsLoggedIn())
             {
                 this.AddError("You are logged in already.");
@@ -57,7 +57,7 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
         [Route("Login"), Route("Account/Login")]
         public async Task<ActionResult> Login(LoginViewModel model, string? returnUrl)
         {
-            ViewBag.ReturnUrl = returnUrl;
+            ViewBag.ReturnUrl = returnUrl ?? Url.Action("Index", "Home");
             if (HttpContext.IsLoggedIn())
             {
                 this.AddError("You are logged in already...");
@@ -83,7 +83,7 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
             await HttpContext.SignOut();
             await HttpContext.LoginAsUser(user, model.RememberMe);
             this.AddMessage($"Logged in as {user.Name}");
-            if (Url.IsLocalUrl(returnUrl))
+            if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
             {
                 return Redirect(returnUrl);
             }
