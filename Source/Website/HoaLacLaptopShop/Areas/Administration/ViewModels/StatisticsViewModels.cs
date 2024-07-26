@@ -19,9 +19,11 @@ namespace HoaLacLaptopShop.Areas.Administration.ViewModels
 		[Display(Name = "Last Quarter")]
 		LastQuarter,
 		[Display(Name = "Last Year")]
-		LastYear
-	}
-	public enum TimeSegment
+		LastYear,
+        [Display(Name = "Shop's Lifetime")]
+		ShopLifetime
+    }
+    public enum TimeSegment
 	{
 		[Display(Name = "By Day")]
 		ByDay,

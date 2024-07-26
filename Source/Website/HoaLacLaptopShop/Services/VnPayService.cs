@@ -1,5 +1,4 @@
-﻿using HoaLacLaptopShop.Areas.Shared.ViewModels;
-using HoaLacLaptopShop.Models;
+﻿using HoaLacLaptopShop.Models;
 using System.Security.Policy;
 
 namespace HoaLacLaptopShop.ThirdParty.VNPay

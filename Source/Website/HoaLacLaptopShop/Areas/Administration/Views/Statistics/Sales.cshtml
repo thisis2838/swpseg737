@@ -1,5 +1,6 @@
 ﻿@using HoaLacLaptopShop.Areas.Administration.ViewModels
 @using System.Collections.Generic
+@using System.ComponentModel.DataAnnotations
 @model GeneralStatsViewModel
 
 <partial name="~/Areas/Administration/Views/Shared/_PageHeading.cshtml"
@@ -38,6 +39,14 @@
                         Value = Model.GeneralStats.Customers
                     })" 
                 />
+                <partial name="_SalesStatCard.cshtml" 
+                    model="@(new 
+                    {
+                        Heading = "Orders",
+                        Icon = "shopping-cart",
+                        Value = Model.GeneralStats.NumberOfOrders
+                    })" 
+                />
             </div>
             <div class="col-sm-6">
                 <partial name="_SalesStatCard.cshtml" 
@@ -49,7 +58,7 @@
                     })" 
                 />
                 <partial name="_SalesStatCard.cshtml"
-                         model="@(new
+                    model="@(new
                     {
                         Heading = "Gross Sales",
                         Icon = "dollar-sign",
@@ -58,9 +67,9 @@
                 <partial name="_SalesStatCard.cshtml" 
                     model="@(new 
                     {
-                        Heading = "Orders",
-                        Icon = "shopping-cart",
-                        Value = Model.GeneralStats.NumberOfOrders
+                        Heading = "Discounts",
+                        Icon = "percent",
+                        Value =string.Format("{0:N0}", Model.GeneralStats.GrossSales - Model.GeneralStats.TotalRevenue)
                     })" 
                 />
             </div>
@@ -69,7 +78,7 @@
     <div class="col-md-7">
         <div class="card flex-fill w-100">
             <div class="card-header">
-                <h5 class="card-title mb-0">Sales @Model.TimeRange</h5>
+                <h5 class="card-title mb-0">Sales: @(Model.TimeRange.GetAttribute<DisplayAttribute>().Name)</h5>
             </div>
             <div class="card-body d-flex w-100">
                 <div class="align-self-center chart chart-lg">

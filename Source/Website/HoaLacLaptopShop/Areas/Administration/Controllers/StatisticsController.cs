@@ -58,6 +58,7 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
                 TimeRange.LastMonth => 7 * 4,
                 TimeRange.LastQuarter => (7 * 4 * 3),
                 TimeRange.LastYear => (7 * 4 * 3 * 4),
+                TimeRange.ShopLifetime => (int)Math.Ceiling((DateTime.Now - _context.Orders.Min(x => x.OrderTime)).TotalDays),
                 _ => throw new Exception()
             };
         }

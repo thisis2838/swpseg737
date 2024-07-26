@@ -1,6 +1,4 @@
-﻿using HoaLacLaptopShop.Areas.Shared.ViewModels;
-
-namespace HoaLacLaptopShop.ThirdParty.VNPay
+﻿namespace HoaLacLaptopShop.ThirdParty.VNPay
 {
     public interface IVnPayService
     {

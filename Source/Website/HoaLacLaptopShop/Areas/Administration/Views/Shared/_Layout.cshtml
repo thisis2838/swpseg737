@@ -56,7 +56,7 @@
                 </a>
 
                 <div class="sidebar-user">
-                    <a href="@Url.Action("Edit", "Account", new { area="" })">@Context.GetCurrentUser()!.Name</a>
+                    <a href="@Url.Action("Details", "Account", new { area="" })">@Context.GetCurrentUser()!.Name</a>
                     @{
                         string perms = "";
                         var user = Context.GetCurrentUser()!;

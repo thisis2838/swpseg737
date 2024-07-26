@@ -1,5 +1,7 @@
-﻿using HoaLacLaptopShop.Areas.Public.Controllers;
+﻿using HoaLacLaptopShop.Areas.Administration.ViewModels;
+using HoaLacLaptopShop.Areas.Public.Controllers;
 using HoaLacLaptopShop.Data;
+using HoaLacLaptopShop.Filters;
 using HoaLacLaptopShop.Helpers;
 using HoaLacLaptopShop.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -21,20 +23,74 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
             _context = context;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(OrderIndexViewArgs args)
         {
-            var orders = await _context.Orders
+            var orders = _context.Orders
                 .Include(o => o.Buyer)
-                .Include(o => o.OrderDetails).ThenInclude(oi => oi.Product)
-                .ToListAsync();
-            return View(orders);
+                .Include(o => o.OrderDetails).ThenInclude(oi => oi.Product).ThenInclude(x => x.Brand)
+                .Include(o => o.OrderDetails).ThenInclude(oi => oi.Product).ThenInclude(x => x.ProductImages)
+                .OrderByDescending(x => x.OrderTime)
+                .AsQueryable();
+
+            if (ModelState.IsValid)
+            {
+                if (!string.IsNullOrWhiteSpace(args.ProductSearch))
+                {
+                    var search = args.ProductSearch.ToLower();
+                    orders = orders.Where
+                    (
+                        x => 
+                            x.OrderDetails.Any(y => y.Product.Name.Contains(search) || y.Product.Brand.Name.Contains(search))
+                    );
+                }
+                if (!string.IsNullOrWhiteSpace(args.RecipientSearch))
+                {
+                    var search = args.RecipientSearch.ToLower();
+                    orders = orders.Where
+                    (
+                        x =>
+                            x.Buyer.Name.Contains(search) 
+                            || x.RecipientName.Contains(search) || x.PhoneNumber.Contains(search)
+                    );
+                }
+                if (!string.IsNullOrWhiteSpace(args.DestinationSearch))
+                {
+                    var search = args.DestinationSearch.ToLower();
+                    orders = orders.Where
+                    (
+                        x =>
+                            x.Street.Contains(search) || x.Ward.Contains(search) 
+                            || x.District.Contains(search) || x.Province.Contains(search)
+                    );
+                }
+
+            }
+
+            if (!ModelState.IsValid) args.Status = Public.ViewModels.SelectableOrderStatus.Delivering;
+            orders = orders.Where(x => x.Status == (OrderStatus)args.Status);
+
+            const int ORDER_PER_PAGE = 20;
+            var pages = (int)Math.Ceiling((await orders.CountAsync()) / (float)ORDER_PER_PAGE);
+            if (!ModelState.IsValid) args.Page = 1;
+            orders = orders.Skip((args.Page - 1) * ORDER_PER_PAGE).Take(ORDER_PER_PAGE);
+
+            var vm = new OrderIndexViewModel()
+            {
+                Orders = await orders.ToListAsync(),
+                TotalPages = pages
+            };
+            vm.FillFromOther(args);
+            return View(vm);
         }
 
         public async Task<IActionResult> Details(int id)
         {
             var order = await _context.Orders
-                .Include(o => o.OrderDetails).ThenInclude(oi => oi.Product)
+                .Include(o => o.OrderDetails).ThenInclude(oi => oi.Product).ThenInclude(x => x.ProductImages)
+                .Include(o => o.OrderDetails).ThenInclude(oi => oi.Product).ThenInclude(x => x.Brand)
                 .Include(o => o.Buyer)
+                .Include(x => x.Voucher)
+                .Where(x => x.Status != OrderStatus.Created)
                 .FirstOrDefaultAsync(x => x.ID == id);
 
             if (order is null)
@@ -45,41 +101,47 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
         }
 
         [HttpPost, ValidateAntiForgeryToken]
-        public async Task<IActionResult> Update(Order input)
+        [ModelStateInclude
+        (
+            nameof(Order.RecipientName),
+            nameof(Order.PhoneNumber),
+            nameof(Order.Province),
+            nameof(Order.District),
+            nameof(Order.Ward),
+            nameof(Order.Street),
+            nameof(Order.Status)
+        )]
+        public async Task<IActionResult> Edit(Order input)
         {
             var order = await _context.Orders.AsNoTracking().FirstOrDefaultAsync(x => x.ID == input.ID);
             if (order is null)
             {
-                this.AddError("Couldn't find order.");
-                return RedirectToAction("Index", "Orders");
+                this.AddError("The requested order could not be found");
+                return NotFound();
             }
-            if (order.Status != OrderStatus.Created)
+            if (order.Status == OrderStatus.Finished)
             {
-                this.AddError("Cannot edit order as it has reached the delivering stage.");
-                return RedirectToAction("Details", "Orders", new{ model = order });
+                this.AddError("Cannot edit order as it has finished.");
+                return RedirectToAction(nameof(Details), new { id = input.ID });
             }
 
-            order.District = input.District;
-            order.Province = input.Province;
-            order.Ward = input.Ward;
-            order.Street = input.Street;
-            order.Note = input.Note;
-            order.RecipientName = input.RecipientName;
-            order.PhoneNumber = input.PhoneNumber;
+            if (ModelState.IsValid)
+            {
+                order.District = input.District;
+                order.Province = input.Province;
+                order.Ward = input.Ward;
+                order.Street = input.Street;
+                order.RecipientName = input.RecipientName;
+                order.PhoneNumber = input.PhoneNumber;
+                order.Status = input.Status;
 
-            var checkedFields = new string[]
-            {
-                nameof(Order.ID),
-                nameof(Order.District), nameof(Order.Province), nameof(Order.Ward), nameof(Order.Street),
-                nameof(Order.Note), nameof(Order.RecipientName), nameof(Order.PhoneNumber)
-            };
-            if (checkedFields.All(x => ModelState[x]!.ValidationState == ModelValidationState.Valid))
-            {
                 _context.Update(order);
                 await _context.SaveChangesAsync();
+                this.AddMessage("Successfully edited order");
+                return RedirectToAction(nameof(Index));
             }
 
-            return RedirectToAction("Details", "Orders", new { model = order });
+            return RedirectToAction(nameof(Details), new { id = input.ID });
         }
     }
 }

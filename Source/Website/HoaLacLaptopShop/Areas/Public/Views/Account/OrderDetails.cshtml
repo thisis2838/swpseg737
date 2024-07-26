@@ -40,13 +40,13 @@
                 <h2>Payment</h2>
                 <partial name="_InfoCard.cshtml" model="@(new
                 {
-                    Icon = "user",
+                    Icon = "wallet",
                     Header = "Payment Method",
                     Content = Model.PaymentMethod == PaymentMethod.CashOnDelivery ? "Cash On Delivery" : "Online"
                 })" />
                     <partial name="_InfoCard.cshtml" model="@(new
                 {
-                    Icon = "user",
+                    Icon = "dollar-sign",
                     Header = "Final Price",
                     Content = Model.DiscountedPrice.ToString("N0")
                 })" />
@@ -78,6 +78,11 @@
             Header = "Street",
             Content = Model.Street
         })" />
+
+        <h2>Notes</h2>
+        <div class="account-card">
+            @(Model.Note ?? "No notes")
+        </div>
     </div>
 
     <div class="col-md-7">
