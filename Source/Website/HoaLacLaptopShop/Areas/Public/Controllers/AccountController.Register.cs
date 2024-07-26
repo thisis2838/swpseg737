@@ -52,25 +52,19 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
                     ModelState.AddModelError(nameof(RegisterViewModel.Email), "Invalid email.");
                     return View(model);
                 }
-                else
-                {
-                    /*
-                    var host = email.Host;
-                    try { await _client.GetAsync("http://" + host, HttpCompletionOption.ResponseHeadersRead); }
-                    catch
-                    {
-                        ModelState.AddModelError(nameof(RegisterViewModel.Email), "The email must be for a valid email provider.");
-                        return View(model);
-                    }
-                    */
-                }
-                
 
                 int code = new Random().Next(100000, 1000000);
                 var subject = "Hoalac Laptops Registration Verification Code";
                 var result = await _viewRenderService.RenderToStringAsync("Account/RegisterEmailTemplate", code.ToString());
-                await _emailSender.SendEmailAsync(model.Email, subject, result);
-
+                try
+                {
+                    await _emailSender.SendEmailAsync(model.Email, subject, result);
+                }
+                catch (Exception)
+                {
+                    this.AddError("Cannot send email! Please try again later.");
+                    return View();
+                }
                 var user = model as User;
                 user.PassHash = new PasswordHasher<User>().HashPassword(user, model.Password);
                 user.IsSales = user.IsMarketing = user.IsAdmin = false;
