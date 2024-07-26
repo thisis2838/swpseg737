@@ -14,7 +14,14 @@
 
 <div style="margin-bottom: 20px">
     <a class="btn btn-primary" onclick="$('#main-form').submit();">Save</a>
-    <a class="btn btn-danger" onclick="confirmDelete()">Delete</a>
+    @if (!Model.IsDisabled)
+    {
+        <a class="btn btn-danger" onclick="confirmDelete()">Delete</a>
+    }
+    else
+    {
+        <a class="btn btn-danger" onclick="confirmRestore()">Restore</a>
+    }
     <a class="btn btn-primary" asp-action="Index">Back to List</a>
 </div>
 
@@ -40,19 +47,46 @@
         </div>
     </div>
 </form>
-<form id="form-delete" asp-action="Delete">
-    <input type="hidden" asp-for="ID" />
-</form>
+
+@if(!Model.IsDisabled)
+{
+    <form id="form-delete" asp-action="Delete">
+        <input type="hidden" asp-for="ID" />
+    </form>
+}
+else
+{
+    <form id="form-restore" asp-action="Restore">
+        <input type="hidden" asp-for="ID" />
+    </form>
+}
 
 @section Scripts
 {
     <script>
-        function confirmDelete()
+        @if (!Model.IsDisabled)
         {
-            if (confirm('Are you sure you want to delete this product?'))
+            <text>
+            function confirmDelete()
             {
-                $('#form-delete').submit();
+                if (confirm('Are you sure you want to delete this product?'))
+                {
+                    $('#form-delete').submit();
+                }
             }
+            </text>
+        }
+        else
+        {
+            <text>
+            function confirmRestore()
+            {
+                if (confirm('Are you sure you want to restore this product?'))
+                {
+                    $('#form-restore').submit();
+                }
+            }
+            </text>
         }
     </script>
 

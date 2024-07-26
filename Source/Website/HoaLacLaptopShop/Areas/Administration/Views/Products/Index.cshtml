@@ -7,95 +7,73 @@
     model="@(new{ Heading = "Products", Subheading = "List"})" 
 />
 
-<a asp-action="Add" class="btn btn-success"><i class="fa-solid fa-plus"></i> Add</a>
+@if(Context.GetCurrentUser()!.IsSales)
+{
+    <a asp-action="Add" class="btn btn-success"><i class="fa-solid fa-plus"></i> Add</a>
+}
 <hr />
 
-<form asp-action="Index" method="get" class="row">   
-    <nav class="col-md-6">
-        <ul class="pagination" >
-            @{
-                int currentPage = Model.TargetPage;
-                int totalPage = (Model.TotalCount - 1) / 10 + 1;
-                int startPage = Math.Max(1, currentPage - 2);
-                int endPage = Math.Min(totalPage, currentPage + 2);
+<form asp-action="Index" method="get" class="row">
 
-                if (startPage > 1)
-                {
-                    <li class="page-item">
-                        <input type="submit" class="page-link" onclick="$('#page').val(1)" value="1" />
-                    </li>
-                    if (startPage > 2)
-                    {
-                        <li class="page-item disabled"><span class="page-link">...</span></li>
-                    }
-                }
-
-                for (int i = startPage; i <= endPage; i++)
-                {
-                    <li class="page-item @(i == currentPage ? "active" : "")">
-                        <input type="submit" class="page-link" onclick="$('#page').val(@i)" value="@i" />
-                    </li>
-                }
-
-                if (endPage < totalPage)
-                {
-                    if (endPage < totalPage - 1)
-                    {
-                        <li class="page-item disabled"><span class="page-link">...</span></li>
-                    }
-                    <li class="page-item">
-                        <input type="submit" class="page-link" onclick="$('#page').val(@totalPage)" value="@totalPage" />
-                    </li>
-                }
-            }
-        </ul>
-    </nav>
-    <div class="col-md-6">
-        <div class="fa-pull-right">
-            <label class="form-label" asp-for="ShowDisabled">
-                <input type="checkbox" asp-for="ShowDisabled" onchange="this.form.submit();" />
-                Show Disabled Products
-            </label>
-            <input type="hidden" asp-for="TargetPage" id="page" />
-        </div>
+    <div class="form-group col-md-6">
+        <input asp-for="Search" class="form-control" style="width: unset; display: unset" placeholder="Search by Name" />
+        <input type="submit" class="btn btn-primary" value="Search" /> <br />
+        <span asp-validation-for="Search" class="text-danger"></span>
     </div>
+
+    @if(Model.Products.Count == 0)
+    {
+        <div style="margin-top: 30px;">
+            <span>No products to show!</span>
+        </div>
+    }
+    else
+    {
+        <partial name="~/Areas/Shared/Views/Shared/_Pagination.cshtml" model="@Model" />
+
+        <table class="table table-striped" style="width:100%">
+            <thead>
+                <tr>
+                    <th width="60px">ID</th>
+                    <th width="60px">Image</th>
+                    <th width="30%">Name</th>
+                    <th width="10%">Brand</th>
+                    <th width="10%">Price</th>
+                    <th width="10%">Quantity</th>
+                    <th width="10%">Average Rating</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var product in Model.Products)
+                {
+                    <tr>
+                        <td>@product.ID</td>
+                        <td>
+                            <img src="@product.ProductImages.First().GetProductImageURL()"
+                                 alt=""
+                                 style="width: 50px; height: 50px; object-fit: contain" />
+                        </td>
+                        <td>@product.Name</td>
+                        <td>@product.Brand!.Name</td>
+                        <td>@product.Price.ToString("N0")</td>
+                        <td>@product.Stock</td>
+                        <td>@($"{product.AveargeRating:0.00} ({product.ReviewCount})")</td>
+                        <td>
+                            @if (Context.GetCurrentUser()!.IsSales)
+                            {
+                                <a asp-action="Edit" asp-route-id="@product.ID" class="btn btn-warning">Edit</a>
+                            }
+                            @if (Context.GetCurrentUser()!.IsMarketing)
+                            {
+                                <a class="btn btn-success" href="@Url.Action("Product", "Statistics", new { id = product.ID })">Statistics</a>
+                            }
+                        </td>
+                    </tr>
+                }
+
+            </tbody>
+        </table>
+    }
+
 </form>
-
-<table id="datatables-reponsive" class="table table-striped" style="width:100%">
-    <thead>
-        <tr>
-            <th>ID</th>
-            <th>Image</th>
-            <th>Name</th>
-            <th>Brand</th>
-            <th>Price</th>
-            <th>Quantity</th>
-            <th>Average Rating</th>
-            <th>Has been disabled?</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var product in Model.Products)
-        {
-            <tr>
-                <td>@product.ID</td>
-                <td>
-                    <img src="@product.ProductImages.First().GetProductImageURL()"
-                            alt=""
-                            style="width: 50px; height: 50px; object-fit: contain" />
-                </td>
-                <td>@product.Name</td>
-                <td>@product.Brand!.Name</td>
-                <td>@product.Price.ToString("N0")</td>
-                <td>@product.Stock</td>
-                <td>@($"{product.AveargeRating:0.00} ({product.ReviewCount})")</td>
-                <td>@product.IsDisabled</td>
-                <td>
-                    <a asp-action="Edit" asp-route-id="@product.ID"><p class="btn btn-warning" style="width:90px"><i class="fa-solid fa-pen"></i> Edit </p></a><br />
-                </td>
-            </tr>
-        }
-
-    </tbody>
-</table>

@@ -39,15 +39,6 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
         }
 
         [NonAction]
-        private IQueryable<Product> GetProducts(int page, bool includeDisabled = false)
-        {
-            return _context.Products
-                .OrderByDescending(x => x.ID)
-                .Where(x => !x.IsDisabled || includeDisabled)
-                .Include(x => x.ProductImages).Include(x => x.Brand)
-                .Skip((page - 1) * 10).Take(10);
-        }
-        [NonAction]
         private async Task InitializeSelections()
         {
             ViewData["Selections"] = new ProductUpdateSelections()
@@ -83,17 +74,37 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
         }
 
         [Authorize(Roles = "Marketing,Sales")]
-        public IActionResult Index(ProductIndexArgs? args)
+        public async Task<IActionResult> Index(ProductIndexArgs args)
         {
-            args ??= new ProductIndexArgs();
-            var products = GetProducts(args.TargetPage, args.ShowDisabled);
-            return View(new ProductIndexViewModel
+            var products = _context.Products
+                .Include(x => x.Brand).Include(x => x.ProductImages)
+                .OrderByDescending(x => x.ID)
+                .AsQueryable();
+            
+            if (ModelState.IsValid)
             {
-                Products = products.ToList(),
-                TotalCount = _context.Products.Count(),
-                ShowDisabled = args.ShowDisabled,
-                TargetPage = args.TargetPage,
-            });
+                if (!string.IsNullOrWhiteSpace(args.Search))
+                {
+                    products = products.Where(x => 
+                        x.Name.ToLower().Contains(args.Search.ToLower())
+                            || x.Brand.Name.ToLower().Contains(args.Search.ToLower())
+                            || (x.Description != null && x.Description.ToLower().Contains(args.Search.ToLower()))
+                    );
+                }
+            }
+
+            const int PRODUCTS_PER_PAGE = 20;
+            var pages = (int)Math.Ceiling((await products.CountAsync()) / (float)PRODUCTS_PER_PAGE);
+            if (!ModelState.IsValid) args.Page = 1;
+            products = products.Skip((args.Page - 1) * PRODUCTS_PER_PAGE).Take(PRODUCTS_PER_PAGE);
+
+            var vm = new ProductIndexViewModel()
+            {
+                Products = await products.ToListAsync(),
+                TotalPages = pages
+            };
+            vm.FillFromOther(args);
+            return View(vm);
         }
 
         [Authorize(Roles = "Sales")]
@@ -155,7 +166,7 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
                 await _context.Products.AddAsync(product);
                 await _context.SaveChangesAsync();
 
-                this.AddMessage("Product added successfully.");
+                this.AddMessage("Successfully added product.");
                 return RedirectToAction(nameof(Add));
             }
             else
@@ -248,6 +259,7 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
                 }
 
                 await _context.SaveChangesAsync();
+                this.AddMessage("Successfully edited product.");
                 return RedirectToAction(nameof(Index));
             }
             else
@@ -261,9 +273,32 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
         [Authorize(Roles = "Sales")]
         public IActionResult Delete(int id)
         {
-            Product product = _context.Products.Where(p => p.ID == id).FirstOrDefault()!;
+            var product = _context.Products.Where(p => p.ID == id).FirstOrDefault();
+            if (product is null)
+            {
+                this.AddError("The requested product could not be found.");
+                return NotFound();
+            }
+
             product.IsDisabled = true;
             _context.SaveChanges();
+            this.AddMessage("Successfully deleted product.");
+            return RedirectToAction(nameof(Index));
+        }
+        [HttpPost]
+        [Authorize(Roles = "Sales")]
+        public IActionResult Restore(int id)
+        {
+            var product = _context.Products.Where(p => p.ID == id).FirstOrDefault();
+            if (product is null)
+            {
+                this.AddError("The requested product could not be found.");
+                return NotFound();
+            }
+
+            product.IsDisabled = false;
+            _context.SaveChanges();
+            this.AddMessage("Successfully restored product.");
             return RedirectToAction(nameof(Index));
         }
 
@@ -328,6 +363,7 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
             }
             return true;
         }
+        [NonAction]
         private void RemoveLaptopModelState()
         {
             var removed = ModelState.Where(x => x.Key.StartsWith("Laptop.")).Select(x => x.Key);

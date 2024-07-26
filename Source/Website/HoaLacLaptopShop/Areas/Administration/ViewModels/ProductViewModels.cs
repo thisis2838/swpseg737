@@ -1,17 +1,20 @@
 ﻿using HoaLacLaptopShop.Models;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using System.ComponentModel.DataAnnotations;
 
 namespace HoaLacLaptopShop.Areas.Administration.ViewModels
 {
     public class ProductIndexViewModel : ProductIndexArgs
     {
-        public List<Product> Products { get; set; } = null!;
-        public int TotalCount { get; set; }
+        public required List<Product> Products { get; set; } = null!;
+        public required int TotalPages { get; set; }
     }
     public class ProductIndexArgs
     {
-        public int TargetPage { get; set; } = 1;
-        public bool ShowDisabled { get; set; } = false;
+        [Range(1, int.MaxValue)]
+        public int Page { get; set; } = 1;
+        [MinLength(2), MaxLength(256)]
+        public string? Search { get; set; }
     }
     public class ProductUpdateViewModel : Product
     {

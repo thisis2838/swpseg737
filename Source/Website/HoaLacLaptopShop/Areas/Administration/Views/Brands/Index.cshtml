@@ -17,7 +17,8 @@
 <form asp-action="Index" method="get">
     <div class="form-group col-md-6">
         <input asp-for="Search" class="form-control" style="width: unset; display: unset" placeholder="Search by Name" />
-        <button type="submit" class="btn btn-primary">Search</button>
+        <button type="submit" class="btn btn-primary">Search</button><br/>
+        <span asp-validation-for="Search" class="text-danger"></span>
     </div>
 
     @if(Model.Brands.Count() == 0)
