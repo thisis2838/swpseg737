@@ -16,6 +16,7 @@ using HoaLacLaptopShop.Areas.Administration.ViewModels;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using HoaLacLaptopShop.Filters;
 using NuGet.Protocol;
+using Microsoft.IdentityModel.Tokens;
 
 namespace HoaLacLaptopShop.Areas.Administration.Controllers
 {
@@ -30,46 +31,35 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
         }
 
         [Authorize(Roles = "Admin,Sales")]
-        public ActionResult Index(int page = 1, string? searchTerm = null)
+        public async Task<ActionResult> Index(UserIndexViewArgs args)
         {
-            var users = _context.Users.AsQueryable();
-            if (!string.IsNullOrEmpty(searchTerm))
-            {
-                users = 
-                    users.Where
-                    (u => 
-                        u.Name.Contains(searchTerm) 
-                        || u.Email.Contains(searchTerm) 
-                        || u.PhoneNumber.Contains(searchTerm)
-                    );
-            }
-            var curPage = users.Skip((page - 1) * 12).Take(12);
-            return View(new UserIndexViewModel
-            {
-                Users = curPage.ToList(),
-                TotalCount = users.Count(),
-                TargetPage = page,
-                SearchTerm = searchTerm!
-            });
-        }
+            var users = _context.Users.OrderByDescending(x => x.ID).AsQueryable();
 
-        [Authorize(Roles = "Admin,Sales")]
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null)
+            if (ModelState.IsValid)
             {
-                this.AddError("User could not be found");
-                return NotFound();
+                if (!string.IsNullOrWhiteSpace(args.Search))
+                {
+                    users =
+                        users.Where(
+                            u => u.Name.Contains(args.Search.ToLower())
+                                || u.Email.Contains(args.Search.ToLower())
+                                || u.PhoneNumber.Contains(args.Search.ToLower())
+                        );
+                }
             }
 
-            var user = await _context.Users.FirstOrDefaultAsync(m => m.ID == id);
-            if (user == null)
-            {
-                this.AddError("User could not be found");
-                return NotFound();
-            }
+            const int USERS_PER_PAGE = 20;
+            var pages = (int)Math.Ceiling((await users.CountAsync()) / (float)USERS_PER_PAGE);
+            if (!ModelState.IsValid) args.Page = 1;
+            users = users.Skip((args.Page - 1) * USERS_PER_PAGE).Take(USERS_PER_PAGE);
 
-            return View(user);
+            var vm = new UserIndexViewModel()
+            {
+                Users = await users.ToListAsync(),
+                TotalPages = pages
+            };
+            vm.FillFromOther(args);
+            return View(vm);
         }
 
         [Authorize(Roles = "Admin")]
@@ -85,25 +75,26 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
         {
             if (ModelState.IsValid)
             {
+                if (_context.Users.Any(x => x.Email.ToLower() == model.Email.ToLower()))
+                {
+                    ModelState.AddModelError(nameof(RegisterViewModel.Email), "An account with this email already exists.");
+                    return View(model);
+                }
+
                 var user = model as User;
                 var hasher = new PasswordHasher<User>();
                 user.PassHash = hasher.HashPassword(user, model.Password);
                 _context.Add(user);
                 await _context.SaveChangesAsync();
+                this.AddMessage("Successfully added user");
                 return RedirectToAction(nameof(Index));
             }
             return View(model);
         }
 
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Edit(int? id)
+        public async Task<IActionResult> Edit(int id)
         {
-            if (id == null)
-            {
-                this.AddError("User could not be found");
-                return NotFound();
-            }
-
             var user = await _context.Users.FindAsync(id);
             if (user == null)
             {
@@ -118,8 +109,12 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin")]
-        [ModelStateExclude(nameof(UserEditViewModel.PassHash))]
-        public async Task<IActionResult> Edit(UserEditViewModel model)
+        [ModelStateExclude
+        (
+            nameof(UserEditViewModel.Email),
+            nameof(UserEditViewModel.PassHash)
+        )]
+        public async Task<IActionResult> EditConfirm(UserEditViewModel model)
         {
             var existing = await _context.Users.FindAsync(model.ID);
             if (existing is null)
@@ -132,6 +127,7 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
             {
                 try
                 {
+                    model.Email = existing.Email;
                     if (model.NewPassword != null)
                     {
                         var hasher = new PasswordHasher<User>();
@@ -156,6 +152,8 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
                         throw;
                     }
                 }
+
+                this.AddMessage("Successfully edited user");
                 return RedirectToAction(nameof(Index));
             }
             return View(model);
@@ -177,7 +175,14 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
                 return NotFound();
             }
 
+            if (HttpContext.GetCurrentUserID() == id)
+            {
+                this.AddError("You cannot disable yourself while logged in.");
+                return RedirectToAction(nameof(Index));
+            }
+
             await _context.SaveChangesAsync();
+            this.AddMessage("Successfully disabled user");
             return RedirectToAction(nameof(Index));
         }
 
@@ -198,32 +203,13 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
             }
 
             await _context.SaveChangesAsync();
+            this.AddMessage("Successfully reenabled user");
             return RedirectToAction(nameof(Index));
         }
 
         private bool UserExists(int id)
         {
             return _context.Users.Any(e => e.ID == id);
-        }
-
-        [Authorize(Roles = "Admin,Sales")]
-        public async Task<IActionResult> OrderHistory(int id)
-        {
-            var user = _context.Users.Find(id);
-            if (user != null)
-            {
-                var order = await _context.Orders
-                    .Include(o => o.OrderDetails).ThenInclude(oi => oi.Product)
-                    .Include(o => o.Voucher)
-                    .Where(o => o.BuyerID == id)
-                    .ToListAsync();
-                return View(order);
-            }
-            else
-            {
-                this.AddError("User could not be found");
-                return NotFound();
-            }
         }
     }
 }

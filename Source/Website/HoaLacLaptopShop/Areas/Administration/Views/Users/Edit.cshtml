@@ -1,11 +1,12 @@
 ﻿@model UserEditViewModel
 @{
     ViewData["Title"] = "Edit";
+    ViewData["IsEdit"] = true;
 }
 
 <partial 
     name="~/Areas/Administration/Views/Shared/_PageHeading.cshtml" 
-    model="@(new{ Heading = "Users", Subheading = $"#({Model.ID})"})" 
+    model="@(new{ Heading = "Users", Subheading = $"#{Model.ID}"})" 
 />
 <div style="margin-bottom: 20px">
     <a class="btn btn-primary" onclick="$('#main-form').submit();">Save</a>
@@ -13,7 +14,7 @@
     {
         <a class="btn btn-danger" onclick="confirmEnable()">Enable</a>
     }
-    else
+    else if (Model != null && Context.GetCurrentUserID() != Model.ID)
     {
         <a class="btn btn-danger" onclick="confirmDisable()">Disable</a>
     }
@@ -23,7 +24,8 @@
 
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="Edit" id="main-form">
+        <form asp-action="EditConfirm" id="main-form">
+            <input type="hidden" asp-for="ID" readonly />
             <partial name="_UserDetailsView.cshtml" model="@Model" />
             <div class="form-group">
                 <label asp-for="NewPassword" class="control-label form-label"></label>
@@ -40,7 +42,7 @@
         <input type="hidden" asp-for="ID" />
     </form>
 }
-else
+else if (Model != null && Context.GetCurrentUserID() != Model?.ID)
 {
     <form id="disableForm" asp-action="Disable" hidden>
         <input type="hidden" asp-for="ID" />

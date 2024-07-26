@@ -11,107 +11,70 @@
 <a asp-action="Add" class="btn btn-primary">Add</a>
 <hr/>
 
-<div class="row ">
-    <form class="col-sm-6">
-        <div class="search_box">
-            <label class="control-label form-label">Search</label>
-            <input class="form-control" style="width: 50%" name="searchTerm" value="@(Model.SearchTerm?? "")" />
-        </div>
-    </form>
-</div>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                Name
-            </th>
-            <th>
-                Email
-            </th>
-            <th>
-                Gender
-            </th>
-            <th>
-                Phone Number
-            </th>
-            <th>
-                Is Disabled
-            </th>
-            <th>
-                Role
-            </th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model.Users)
-        {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Name)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Email)
-                </td>
-                <td>
-                    @(item.Gender ? "Male" : "Female")
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.PhoneNumber)
-                </td>
-                <td>
-                    @(item.IsDisabled ? "Disabled" : "Enabled")
-                </td>
-                <td>
-                    <span>@(item.IsAdmin ? "Admin " : "")</span>
-                    <span>@(item.IsMarketing ? "Marketing " : "")</span>
-                    <span>@(item.IsSales ? "Sales" : "")</span>
-                </td>
-                <td>
-                    <a asp-action="Edit" asp-route-id="@item.ID"><p class="btn btn-info mt-2">Edit</p></a><br />
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
 <form asp-action="Index" method="get">
-    <nav>
-        <ul class="pagination">
-            @{
-                int currentPage = Model.TargetPage;
-                int totalPage = (Model.TotalCount - 1) / 12 + 1;
-                int startPage = Math.Max(1, currentPage - 2);
-                int endPage = Math.Min(totalPage, currentPage + 2);
 
-                if (startPage > 1)
-                {
-                    <li class="page-item">
-                        <input type="submit" name="page" class="page-link" value="1" />
-                    </li>
-                    if (startPage > 2)
-                    {
-                        <li class="page-item disabled"><span class="page-link">...</span></li>
-                    }
-                }
+    <div class="form-group" style="width: 20%; display: inline-block;">
+        <label asp-for="Search">Search: </label>
+        <input class="form-control" asp-for="Search" placeholder="Search by name & email" />
+    </div>
+    <div>
+        <span style="display: block;" asp-validation-for="Search" class="text-danger"></span>
+    </div>
+    <input type="submit" class="btn btn-primary" value="View" style="margin-top: 10px;" />
 
-                for (int i = startPage; i <= endPage; i++)
-                {
-                    <li class="page-item @(i == currentPage ? "active" : "")">
-                        <input type="submit" name="page" class="page-link" value="@i" />
-                    </li>
-                }
+    @if (Model.Users.Count() == 0)
+    {
+        <div style="margin-top: 30px;">
+            <span>No users to show!</span>
+        </div>
+    }
+    else
+    {
+        <partial name="~/Areas/Shared/Views/Shared/_Pagination.cshtml" model="@Model" />
 
-                if (endPage < totalPage)
+        <table class="table">
+            <thead>
+                <tr>
+                    <th width="50">ID</th>
+                    <th width="250">Email</th>
+                    <th>Name</th>
+                    <th width="200">Phone Number</th>
+                    <th width="100">Gender</th>
+                    <th width="100">Role</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.Users)
                 {
-                    if (endPage < totalPage - 1)
-                    {
-                        <li class="page-item disabled"><span class="page-link">...</span></li>
-                    }
-                    <li class="page-item">
-                        <input type="submit" name="page" class="page-link" value="@totalPage" />
-                    </li>
+                    <tr>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.ID)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Email)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Name)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.PhoneNumber)
+                        </td>
+                        <td>
+                            @(item.Gender ? "Male" : "Female")
+                        </td>
+                        <td>
+                            <span style="display: block;">@(item.IsAdmin ? "Admin " : "")</span>
+                            <span style="display: block;">@(item.IsMarketing ? "Marketing " : "")</span>
+                            <span style="display: block;">@(item.IsSales ? "Sales" : "")</span>
+                        </td>
+                        <td>
+                            <a asp-action="Edit" asp-route-id="@item.ID"><p class="btn btn-info mt-2 fa-pull-right">Edit</p></a><br />
+                        </td>
+                    </tr>
                 }
-            }
-        </ul>
-    </nav>
+            </tbody>
+        </table>
+    }
 </form>
 
