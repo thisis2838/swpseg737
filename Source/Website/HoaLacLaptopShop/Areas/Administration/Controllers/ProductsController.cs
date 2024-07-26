@@ -271,7 +271,7 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
 
         [HttpPost]
         [Authorize(Roles = "Sales")]
-        public IActionResult Delete(int id)
+        public IActionResult Disable(int id)
         {
             var product = _context.Products.Where(p => p.ID == id).FirstOrDefault();
             if (product is null)
@@ -282,12 +282,12 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
 
             product.IsDisabled = true;
             _context.SaveChanges();
-            this.AddMessage("Successfully deleted product.");
+            this.AddMessage("Successfully disbaled product.");
             return RedirectToAction(nameof(Index));
         }
         [HttpPost]
         [Authorize(Roles = "Sales")]
-        public IActionResult Restore(int id)
+        public IActionResult Reenable(int id)
         {
             var product = _context.Products.Where(p => p.ID == id).FirstOrDefault();
             if (product is null)
@@ -298,7 +298,7 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
 
             product.IsDisabled = false;
             _context.SaveChanges();
-            this.AddMessage("Successfully restored product.");
+            this.AddMessage("Successfully reenabled product.");
             return RedirectToAction(nameof(Index));
         }
 

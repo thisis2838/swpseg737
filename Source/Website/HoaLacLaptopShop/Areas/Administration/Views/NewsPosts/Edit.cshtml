@@ -12,9 +12,9 @@
     model="@(new{ Heading = "News Posts", Subheading = $"#{Model.ID}"})" 
 />
 <div>
-    <a class="btn btn-primary" onclick="$('#form-edit').submit();">Save</a>
-    <a class="btn btn-primary" onclick="confirmDelete()">Delete</a>
-    <a class="btn btn-primary" asp-action="Index">Back to List</a>
+    <a class="btn btn-primary" onclick="$('#form-edit').submit();"><i class="fa fa-save"></i> Save</a>
+    <a class="btn btn-danger" onclick="confirmDelete()"><i class="fa fa-x"></i> Delete</a>
+    <a class="btn btn-primary" asp-action="Index"><i class="fa fa-arrow-left"></i> Back to List</a>
 </div>
 <hr />
 

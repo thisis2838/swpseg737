@@ -10,7 +10,7 @@
     <div class="form-group">
         <select class="form-control form-select" style="width: unset; display: inline-block" asp-for="TimeRange" asp-items="@(Html.GetEnumSelectList<TimeRange>())"></select>
         <select class="form-control form-select" style="width: unset; display: inline-block" asp-for="TimeSegment" asp-items="@(Html.GetEnumSelectList<TimeSegment>())"></select>
-        <input class="btn btn-primary" type="submit" value="Show" />
+        <button class="btn btn-primary" type="submit"><i class="fa-solid fa-eye"></i> Show</button>
     </div>
 </form>
 
@@ -99,10 +99,10 @@
             <table class="table my-0">
                 <thead>
                     <tr>
-                        <th style="white-space: nowrap">Name</th>
-                        <th style="white-space: nowrap">Units Sold</th>
-                        <th style="white-space: nowrap">Gross Sales</th>
-                        <th style="white-space: nowrap">Action</th>
+                        <th>Name</th>
+                        <th>Units Sold</th>
+                        <th>Gross Sales</th>
+                        <th width="150"></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -126,8 +126,10 @@
                             </td>
                             <td>@item.Value.UnitsSold</td>
                             <td>@item.Value.GrossSales.ToString("N0")</td>
-                            <td class="d-none d-xl-table-cell">
-                                <a asp-controller="Statistics" asp-action="Product" asp-route-id="@item.Key.ID" class="btn btn-primary">View</a>
+                            <td>
+                                <a asp-controller="Statistics" asp-action="Product" asp-route-id="@item.Key.ID" class="btn btn-primary fa-pull-right">
+                                    <i class="fa-solid fa-eye"></i> View
+                                </a>
                             </td>
                         </tr>
                     }
@@ -140,13 +142,13 @@
             <div class="card-header">
                 <h5 class="card-title mb-0">Top Selling Brands</h5>
             </div>
-            <table class="table my-0">
+            <table class="table table-striped">
                 <thead>
                     <tr>
-                        <th style="white-space: nowrap">Name</th>
-                        <th style="white-space: nowrap">Units Sold</th>
-                        <th style="white-space: nowrap">Gross Sales</th>
-                        <th style="white-space: nowrap">Action</th>
+                        <th>Name</th>
+                        <th>Units Sold</th>
+                        <th>Gross Sales</th>
+                        <th width="150"></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -156,7 +158,11 @@
                             <td><strong>@item.Key.Name</strong></td>
                             <td>@item.Value.UnitsSold</td>
                             <td>@item.Value.GrossSales.ToString("N0")</td>
-                            <td><a asp-controller="Statistics" asp-action="Brand" asp-route-id="@item.Key.ID" class="btn btn-primary">View</a></td>
+                            <td>
+                                <a asp-controller="Statistics" asp-action="Brand" asp-route-id="@item.Key.ID" class="btn btn-primary fa-pull-right">
+                                    <i class="fa-solid fa-eye"></i> View
+                                </a>
+                            </td>
                         </tr>
                     }
                 </tbody>

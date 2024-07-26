@@ -5,13 +5,14 @@
     name="~/Areas/Administration/Views/Shared/_PageHeading.cshtml" 
     model="@(new{ Heading = "Component Series", Subheading = $"CPUs"})" 
 />
-<a asp-action="Add" class="btn btn-primary">Add</a>
+<a asp-action="Add" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Add</a>
 <hr />
 
 <form asp-action="Index" method="get">
     <div class="form-group col-md-6">
-        <input asp-for="Search" class="form-control" style="width: unset; display: unset" placeholder="Enter search term" />
-        <button type="submit" class="btn btn-primary">Search</button>
+        <input asp-for="Search" class="form-control" style="width: unset; display: unset" />
+        <button type="submit" class="btn btn-primary"><i class="fa-solid fa-search"></i> Search</button><br/>
+        <span asp-validation-for="Search" class="text-danger"></span>
     </div>
 
     @if (!Model.CPUSeries.Any())
@@ -24,13 +25,13 @@
     {
         <partial name="~/Areas/Shared/Views/Shared/_Pagination.cshtml" model="@Model" />
 
-        <table class="table">
+        <table class="table table-striped">
             <thead>
                 <tr>
                     <th>ID</th>
                     <th>Name</th>
                     <th>Manufacturer</th>
-                    <th>Actions</th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody>
@@ -41,7 +42,9 @@
                         <td>@item.Name</td>
                         <td>@item.Manufacturer?.Name</td>
                         <td>
-                            <a asp-action="Edit" asp-route-id="@item.ID" class="btn btn-warning">Edit</a>
+                            <a asp-action="Edit" asp-route-id="@item.ID" class="btn btn-warning fa-pull-right">
+                                <i class="fa-solid fa-pen"></i> Edit
+                            </a>
                         </td>
                     </tr>
                 }

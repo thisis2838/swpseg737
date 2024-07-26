@@ -146,7 +146,7 @@ public class VoucherController : Controller
     }
 
     [HttpPost]
-    public async Task<IActionResult> Delete(int id)
+    public async Task<IActionResult> Disable(int id)
     {
         var voucher = await _context.Vouchers.FindAsync(id);
         if (voucher is null)
@@ -155,9 +155,25 @@ public class VoucherController : Controller
             return NotFound();
         }
 
-        _context.Vouchers.Remove(voucher);
+        voucher.IsDisabled = true;
         await _context.SaveChangesAsync();
-        this.AddMessage("Successfully deleted voucher.");
+        this.AddMessage("Successfully disbaled voucher.");
+        return RedirectToAction(nameof(Index));
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Reenable(int id)
+    {
+        var voucher = await _context.Vouchers.FindAsync(id);
+        if (voucher is null)
+        {
+            this.AddError("The requested voucher could not be found.");
+            return NotFound();
+        }
+
+        voucher.IsDisabled = false;
+        await _context.SaveChangesAsync();
+        this.AddMessage("Successfully reenabled voucher.");
         return RedirectToAction(nameof(Index));
     }
 }

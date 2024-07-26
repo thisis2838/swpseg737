@@ -9,15 +9,18 @@
 
 @if(Context.GetCurrentUser()!.IsSales)
 {
-    <a asp-action="Add" class="btn btn-success"><i class="fa-solid fa-plus"></i> Add</a>
+    <a asp-action="Add" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Add</a>
 }
 <hr />
 
 <form asp-action="Index" method="get" class="row">
 
     <div class="form-group col-md-6">
-        <input asp-for="Search" class="form-control" style="width: unset; display: unset" placeholder="Search by Name" />
-        <input type="submit" class="btn btn-primary" value="Search" /> <br />
+        <input 
+            asp-for="Search" 
+            class="form-control" 
+            style="width: unset; display: unset"  />
+        <button type="submit" class="btn btn-primary"><i class="fa-solid fa-search  "></i> Search</button><br />
         <span asp-validation-for="Search" class="text-danger"></span>
     </div>
 
@@ -41,13 +44,13 @@
                     <th width="10%">Price</th>
                     <th width="10%">Quantity</th>
                     <th width="10%">Average Rating</th>
-                    <th>Actions</th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody>
                 @foreach (var product in Model.Products)
                 {
-                    <tr>
+                    <tr class="@(product.IsDisabled ? "admin-row-disabled" : "")">
                         <td>@product.ID</td>
                         <td>
                             <img src="@product.ProductImages.First().GetProductImageURL()"
@@ -60,13 +63,17 @@
                         <td>@product.Stock</td>
                         <td>@($"{product.AveargeRating:0.00} ({product.ReviewCount})")</td>
                         <td>
-                            @if (Context.GetCurrentUser()!.IsSales)
-                            {
-                                <a asp-action="Edit" asp-route-id="@product.ID" class="btn btn-warning">Edit</a>
-                            }
                             @if (Context.GetCurrentUser()!.IsMarketing)
                             {
-                                <a class="btn btn-success" href="@Url.Action("Product", "Statistics", new { id = product.ID })">Statistics</a>
+                                <a class="btn btn-success fa-pull-right" href="@Url.Action("Product", "Statistics", new { id = product.ID })">
+                                    <i class="fa-solid fa-chart-simple"></i> Statistics
+                                </a>
+                            }
+                            @if (Context.GetCurrentUser()!.IsSales)
+                            {
+                                <a asp-action="Edit" asp-route-id="@product.ID" class="btn btn-warning fa-pull-right">
+                                    <i class="fa-solid fa-pen"></i> Edit
+                                </a>
                             }
                         </td>
                     </tr>

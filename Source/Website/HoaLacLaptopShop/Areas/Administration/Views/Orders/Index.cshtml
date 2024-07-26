@@ -11,15 +11,15 @@
 <form asp-action="Index" method="get">
     <div class="form-group" style="width: 20%; display: inline-block;">
         <label asp-for="ProductSearch">Product: </label>
-        <input class="form-control" asp-for="ProductSearch" placeholder="Search by product details" />
+        <input class="form-control" asp-for="ProductSearch" />
     </div>
     <div class="form-group" style="width: 20%; display: inline-block;">
         <label asp-for="RecipientSearch">Recipient & Buyer: </label>
-        <input class="form-control" asp-for="RecipientSearch" placeholder="Search by recipient & buyer details" />
+        <input class="form-control" asp-for="RecipientSearch" />
     </div>
     <div class="form-group" style="width: 20%; display: inline-block;">
         <label asp-for="DestinationSearch">Destination: </label>
-        <input class="form-control" asp-for="DestinationSearch" placeholder="Search by destination details" />
+        <input class="form-control" asp-for="DestinationSearch" />
     </div>
     <div class="form-group" style="width: 20%; display: inline-block;">
         <label asp-for="Status">Status: </label>
@@ -37,7 +37,7 @@
         <span style="display: block;" asp-validation-for="DestinationSearch" class="text-danger"></span>
         <span style="display: block;" asp-validation-for="Status" class="text-danger"></span>
     </div>
-    <input type="submit" class="btn btn-primary" value="View" style="margin-top: 10px;" />
+    <button type="submit" class="btn btn-primary" style="margin-top: 10px;"><i class="fa-solid fa-eye"></i> View</button>
 
     @if (Model.Orders.Count() == 0)
     {
@@ -93,7 +93,11 @@
                             }
                         </td>
                         <td>@string.Format("{0:N0}", item.DiscountedPrice)</td>
-                        <td><a asp-action="Details" asp-controller="Orders" asp-route-id="@item.ID" class="btn btn-primary">Details</a></td>
+                        <td>
+                            <a asp-action="Details" asp-controller="Orders" asp-route-id="@item.ID" class="btn btn-primary">
+                                <i class="fa-solid fa-eye"></i> Details
+                            </a>
+                        </td>
                     </tr>
 
                 }

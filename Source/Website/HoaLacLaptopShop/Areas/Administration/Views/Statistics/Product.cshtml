@@ -1,5 +1,6 @@
 ﻿@using HoaLacLaptopShop.Areas.Administration.ViewModels
 @using System.Collections.Generic
+@using System.ComponentModel.DataAnnotations
 @model ProductStatsViewModel
 <partial name="~/Areas/Administration/Views/Shared/_PageHeading.cshtml"
          model="@(new{ Heading = "Sales", Subheading = $"Product #{Model.Product.ID}"})" />
@@ -8,8 +9,8 @@
     <div class="form-group">
         <select class="form-control form-select" style="width: unset; display: inline-block" asp-for="TimeRange" asp-items="@(Html.GetEnumSelectList<TimeRange>())"></select>
         <select class="form-control form-select" style="width: unset; display: inline-block" asp-for="TimeSegment" asp-items="@(Html.GetEnumSelectList<TimeSegment>())"></select>
-        <input class="btn btn-primary" type="submit" value="Show" />
-        <a class="btn btn-primary" asp-action="Sales">Back to General Sales</a>
+        <button class="btn btn-primary" type="submit"><i class="fa-solid fa-eye"></i> Show</button>
+        <a class="btn btn-primary" asp-action="Sales"><i class="fa-solid fa-arrow-left"></i> Back to General Sales</a>
     </div>
 </form>
 
@@ -20,7 +21,7 @@
     <img src="@Model.Product.ProductImages.First().GetProductImageURL()" style="width: 100px; margin-right: 10px;"/>
     <div style="display: inline-block;">
         <strong style="font-size: large">@Model.Product.Name</strong><br />
-        <span class="text-muted">@Model.Product.Brand.Name</span>
+        <a href="@Url.ActionLink("Brand", "Statistics", new {id = Model.Product.BrandId})">@Model.Product.Brand.Name</a>
     </div>
 </div>
 
@@ -65,7 +66,7 @@
     <div class="col-md-7">
         <div class="card flex-fill w-100">
             <div class="card-header">
-                <h5 class="card-title mb-0">Sales @Model.TimeRange</h5>
+                <h5 class="card-title mb-0">Sales: @(Model.TimeRange.GetAttribute<DisplayAttribute>().Name)</h5>
             </div>
             <div class="card-body d-flex w-100">
                 <div class="align-self-center chart chart-lg">

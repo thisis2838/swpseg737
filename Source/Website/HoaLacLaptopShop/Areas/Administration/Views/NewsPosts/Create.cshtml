@@ -12,8 +12,8 @@
     model="@(new{ Heading = "News Posts", Subheading = $"Add New"})" 
 />
 <div>
-    <a class="btn btn-primary" onclick="$('#form-create').submit();">Create</a>
-    <a class="btn btn-primary" asp-action="Index">Back to List</a>
+    <a class="btn btn-primary" onclick="$('#form-create').submit();"><i class="fa fa-plus"></i> Create</a>
+    <a class="btn btn-primary" asp-action="Index"><i class="fa fa-arrow-left"></i> Back to List</a>
 </div>
 <hr />
 <form id="form-create" asp-action="Create">

@@ -113,7 +113,7 @@
                                             var currUser = Context.GetCurrentUser();
                                             if (currUser?.IsAdmin == true || currUser?.IsSales == true || currUser?.IsMarketing == true)
                                             {
-                                                <a href="@Url.Action("Sales", "Statistics", new {area = "Administration"})">Manage Page</a>
+                                                <a href="@Url.Action("Index", "Products", new {area = "Administration"})">Manage Page</a>
                                             }
                                         }
                                     </li>

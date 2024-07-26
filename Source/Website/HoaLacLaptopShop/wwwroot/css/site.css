@@ -133,3 +133,17 @@ body {
     font-size: large;
     font-weight: bold;
 }
+
+.admin-row-disabled
+{
+    background: lightgray !important;
+    --bs-table-striped-bg: lightgray !important;
+    --bs-table-active-bg: lightgray !important;
+}
+
+.admin-row-warning
+{
+    background: lightyellow !important;
+    --bs-table-striped-bg: lightyellow !important;
+    --bs-table-active-bg: lightyellow !important;
+}

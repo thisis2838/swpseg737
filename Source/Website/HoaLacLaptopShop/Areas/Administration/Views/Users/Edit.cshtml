@@ -9,16 +9,16 @@
     model="@(new{ Heading = "Users", Subheading = $"#{Model.ID}"})" 
 />
 <div style="margin-bottom: 20px">
-    <a class="btn btn-primary" onclick="$('#main-form').submit();">Save</a>
+    <a class="btn btn-primary" onclick="$('#main-form').submit();"><i class="fa-solid fa-save"></i> Save</a>
     @if (Model?.IsDisabled == true)
     {
-        <a class="btn btn-danger" onclick="confirmEnable()">Enable</a>
+        <a class="btn btn-danger" onclick="confirmEnable()"><i class="fa-solid fa-refresh"></i> Enable</a>
     }
     else if (Model != null && Context.GetCurrentUserID() != Model.ID)
     {
-        <a class="btn btn-danger" onclick="confirmDisable()">Disable</a>
+        <a class="btn btn-danger" onclick="confirmDisable()"><i class="fa-solid fa-x"></i> Disable</a>
     }
-    <a class="btn btn-primary" asp-action="Index">Back to List</a>
+    <a class="btn btn-primary" asp-action="Index"><i class="fa-solid fa-arrow-left"></i> Back to List</a>
 </div>
 <hr />
 

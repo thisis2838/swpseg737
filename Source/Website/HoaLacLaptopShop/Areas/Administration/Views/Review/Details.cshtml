@@ -3,8 +3,8 @@
 <partial name="~/Areas/Administration/Views/Shared/_PageHeading.cshtml"
          model="@(new{ Heading = "Reviews", Subheading = $"{Model.ReviewerId}, {Model.ProductId}"})" />
 <div>
-    <div class="btn btn-danger" onclick="confirmDelete()">Delete</div>
-    <a class="btn btn-primary" asp-action="Index">Back to List</a>
+    <div class="btn btn-danger" onclick="confirmDelete()"><i class="fa-solid fa-x"></i> Delete</div>
+    <a class="btn btn-primary" asp-action="Index"><i class="fa-solid fa-arrow-left"></i> Back to List</a>
 </div>
 <hr />
 

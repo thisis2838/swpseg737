@@ -13,9 +13,11 @@
 
 @if (canEdit)
 {
-    <input type="submit" class="btn btn-primary" value="Save" onclick="$('#orderForm').submit();"/>
+    <button type="submit" class="btn btn-primary" onclick="$('#orderForm').submit();">
+        <i class="fa-solid fa-save"></i> Save
+    </button>
 }
-<a class="btn btn-primary" asp-action="Index">Back to List</a>
+<a class="btn btn-primary" asp-action="Index"><i class="fa-solid fa-arrow-left"></i> Back to List</a>
 <hr/>
 
 <div class="row">
