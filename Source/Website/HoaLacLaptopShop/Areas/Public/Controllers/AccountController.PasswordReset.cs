@@ -135,7 +135,6 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
                 return View();
             }
 
-            var reset = HttpContext.Session.Get<ResetPasswordViewModel>(CUR_PASS_RESET_KEY);
             string newHash = new PasswordHasher<User>().HashPassword(null!, newpass);
             await _context.Users.ExecuteUpdateAsync(x => x.SetProperty(y => y.PassHash, newHash));
             this.AddMessage("Reset password successfully. You can now log in using your new password.");

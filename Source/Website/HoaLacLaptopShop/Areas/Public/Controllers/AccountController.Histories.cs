@@ -23,9 +23,8 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
                 .Where(x => x.Status != OrderStatus.Created);
         }
         [Authorize]
-        public async Task<IActionResult> OrderHistory(OrderHistoryViewArgs? args = null)
+        public async Task<IActionResult> OrderHistory(OrderHistoryViewArgs args)
         {
-            args ??= new OrderHistoryViewArgs();
             var orders = Orders().Where(x => x.Status == (OrderStatus)args.Status);
 
             if (ModelState.IsValid)

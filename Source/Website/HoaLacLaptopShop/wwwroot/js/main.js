@@ -1,15 +1,19 @@
 $(document).ready(function ()
 {
-    function updateEditableSelectValue(i, e)
-    {
-        i.val(e.html());
-    }
     $(".editable-select-wrapper > select").each(function ()
     {
-        let $input = $(this).parent().find('input');
-        $(this).find("option").each(function ()
+        let input = $(this).parent().find('input');
+        let select = $(this);
+
+        let flag = false;
+        select.change(() =>
         {
-            $(this).click(() => updateEditableSelectValue($input, $(this)));
+            if (flag) return;
+
+            input.val(select.find(":selected").val());
+            flag = true;
+            select.val([]);
+            flag = false;
         });
     });
 

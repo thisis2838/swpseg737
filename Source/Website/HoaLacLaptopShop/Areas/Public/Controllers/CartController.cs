@@ -25,7 +25,7 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
 
         [AllowAnonymous]
         [HttpPost]
-        public IActionResult ModifyQuantity(int productID, int quantity = 1)
+        public IActionResult ModifyQuantity(int productID, int difference = 1)
         {
             if (!HttpContext.IsLoggedIn())
             {
@@ -39,7 +39,7 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
                 this.AddError("The requested product could not be found.");
                 return NotFound();
             }
-            if (quantity == 0)
+            if (difference == 0)
             {
                 this.AddError("Invalid quantity requested.");
                 return RedirectToAction(nameof(Index));
@@ -58,13 +58,13 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
                     this.AddError("The requested product was out of stock.");
                     return RedirectToAction(nameof(Index));
                 }
-                if (quantity < 0)
+                if (difference < 0)
                 {
                     this.AddError("Invalid quantity requested for adding to cart.");
                     return RedirectToAction(nameof(Index));
                 }
 
-                actualQty = Math.Min(product.Stock, quantity);
+                actualQty = Math.Min(product.Stock, difference);
                 cart.OrderDetails.Add(new OrderDetail()
                 {
                     Product = product,
@@ -87,11 +87,11 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
                     return RedirectToAction(nameof(RemoveFromCart), new { productID });
                 }
 
-                actualQty = Math.Min(product.Stock, quantity + item.Quantity) - item.Quantity;
+                actualQty = Math.Min(product.Stock, difference + item.Quantity) - item.Quantity;
                 item.Quantity += actualQty;
             }
 
-            if (actualQty != quantity)
+            if (actualQty != difference)
             {
                 if (actualQty == 0)
                 {

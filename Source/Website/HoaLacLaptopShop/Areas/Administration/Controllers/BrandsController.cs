@@ -62,7 +62,7 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
         {
             if (ModelState.IsValid)
             {
-                if (await _context.Brands.AnyAsync(x => x.Name == brand.Name))
+                if (await _context.Brands.AnyAsync(x => x.Name.ToLower() == brand.Name.ToLower()))
                 {
                     ModelState.AddModelError("Name", "A brand with that name already exists");
                     return View(brand);
@@ -104,6 +104,12 @@ namespace HoaLacLaptopShop.Areas.Administration.Controllers
         {
             if (ModelState.IsValid)
             {
+                if (_context.Brands.Any(x => x.ID != brand.ID && x.Name.ToLower() == brand.Name.ToLower()))
+                {
+                    ModelState.AddModelError(nameof(Brand.Name), "A brand with that name already exists!");
+                    return View(brand);
+                }
+
                 try
                 {
                     _context.Update(brand);

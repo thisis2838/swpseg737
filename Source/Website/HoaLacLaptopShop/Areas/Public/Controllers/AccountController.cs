@@ -99,13 +99,6 @@ namespace HoaLacLaptopShop.Areas.Public.Controllers
             await HttpContext.SignOut();
             return RedirectToAction("Index", "Home");
         }
-
-        [Authorize]
-        public IActionResult Index()
-        {
-            return View(HttpContext.GetCurrentUser());
-        }
-
         
         [NonAction]
         private PurchaseSummary GetPurchaseSummary()

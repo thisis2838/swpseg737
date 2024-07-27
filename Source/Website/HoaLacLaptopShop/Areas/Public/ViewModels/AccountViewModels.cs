@@ -42,6 +42,7 @@ namespace HoaLacLaptopShop.Areas.Public.ViewModels
         public required ICollection<Order> Orders { get; set; }
         public required int TotalPages { get; set; }
     }
+
     public class ReviewHistoryViewArgs
     {
         [Range(0, 5)]
@@ -51,7 +52,6 @@ namespace HoaLacLaptopShop.Areas.Public.ViewModels
         [MinLength(2), MaxLength(256)]
         public string? Search { get; set; }
     }
-
     public class ReviewHistoryViewModel : ReviewHistoryViewArgs
     {
         public List<ProductReview> ProductReviews { get; set; } = null!;
@@ -65,14 +65,5 @@ namespace HoaLacLaptopShop.Areas.Public.ViewModels
         [Required, DataType(DataType.Password)]
         public string Password { get; set; } = null!;
         public bool RememberMe { get; set; }
-    }
-    public class ResetPasswordViewModel
-    {
-        [Required(ErrorMessage = "*")]
-        [DataType(DataType.EmailAddress)]
-        public string Email { get; set; } = null!;
-        [Required(ErrorMessage = "*")]
-        [DataType(DataType.Password)]
-        public string Password { get; set; } = null!;
     }
 }
