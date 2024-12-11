@@ -1,0 +1,67 @@
+﻿@using HoaLacLaptopShop.Areas.Shared.ViewModels
+@model NewsPostIndexViewModel
+
+@{
+    ViewData["Title"] = "News";
+}
+
+<partial 
+    name="~/Areas/Administration/Views/Shared/_PageHeading.cshtml" 
+    model="@(new{ Heading = "News Posts", Subheading = $"List"})" 
+/>
+<a class="btn btn-primary" asp-action="Create"><i class="fa fa-plus"></i> Create</a>
+<hr />
+
+<form asp-action="Index" method="get">
+
+    <h2>Search & Filters</h2>
+    <partial name="~/Areas/Shared/Views/NewsPosts/_SearchFilter.cshtml" model="@Model"></partial>
+    <hr />
+
+    @if (Model.Posts.Count == 0)
+    {
+        <div style="margin-top: 30px;">
+            <span>No posts to show!</span>
+        </div>
+    }
+    else
+    {
+        <partial name="~/Areas/Shared/Views/Shared/_Pagination.cshtml" model="@Model" />
+
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Author</th>
+                    <th>Post Date</th>
+                    <th>Word Count</th>
+                    <th>Image Count</th>
+                    <th>Reading Time</th>
+                    <th>Length</th>
+                    <th style="min-width: 25%">Title</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var post in Model.Posts)
+                {
+                    <tr>
+                        <td>@post.ID</td>
+                        <td>@post.Author!.Name</td>
+                        <td>@post.Time.ToShortDateString()</td>
+                        <td>@post.WordCount</td>
+                        <td>@post.ImageCount</td>
+                        <td>@post.ReadingTime minute(s)</td>
+                        <td>@Html.DisplayFor(x => post.Length)</td>
+                        <td style="overflow: hidden; text-overflow: ellipsis; max-width: 25vw; white-space: nowrap;">@post.Title</td>
+                        <td>
+                            <a class="btn btn-warning fa-pull-right" asp-action="Edit" asp-route-id="@post.ID">
+                                <i class="fa fa-pen"></i> Edit
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</form>

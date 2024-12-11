@@ -1,0 +1,48 @@
+﻿<script type="text/javascript" src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote.min.js"></script>
+<script type="text/javascript">
+
+    function uploadImage(file) { 
+        var data = new FormData();
+        data.append("file", file);
+
+        $.ajax
+        ({
+            url: '@Url.Action("UploadImage")', 
+            method: 'POST',
+            data: data,
+            contentType: false,
+            processData: false,
+            success: function (data)
+            {
+                if (!data.success)
+                {
+                    showError(data.issue); 
+                    return;
+                }
+                var image = $('<img>').attr({ temp_res_id: data.id, src: data.path });
+                $('#summernote').summernote("insertNode", image[0]);
+            },
+            error: function (jqXHR, textStatus, errorThrown)
+            {
+                showError('Failed to upload image to server. Please try again.');
+            }
+        });
+    }
+
+    $(document).ready(function () 
+    {
+        $('#summernote').summernote
+        ({
+            height: 500,
+            callbacks: 
+            {
+                onImageUpload: function (files) 
+                {
+                    for (var i = 0; i < files.length; i++) 
+                        uploadImage(files[i]);
+                }
+            }
+        });
+    });
+</script>

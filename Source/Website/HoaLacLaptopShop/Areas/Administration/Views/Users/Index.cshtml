@@ -1,0 +1,82 @@
+﻿@using HoaLacLaptopShop.Areas.Administration.ViewModels
+@model UserIndexViewModel
+@{
+    ViewData["Title"] = "Index";
+}
+
+<partial 
+    name="~/Areas/Administration/Views/Shared/_PageHeading.cshtml" 
+    model="@(new{ Heading = "Users", Subheading = $"List"})" 
+/>
+<a asp-action="Add" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Add</a>
+<hr/>
+
+<form asp-action="Index" method="get">
+
+    <div class="form-group col-md-6">
+        <input asp-for="Search" class="form-control" style="width: unset; display: unset"/>
+        <button type="submit" class="btn btn-primary"><i class="fa-solid fa-search"></i> Search</button><br />
+        <span asp-validation-for="Search" class="text-danger"></span>
+    </div>
+
+    @if (Model.Users.Count() == 0)
+    {
+        <div style="margin-top: 30px;">
+            <span>No users to show!</span>
+        </div>
+    }
+    else
+    {
+        <partial name="~/Areas/Shared/Views/Shared/_Pagination.cshtml" model="@Model" />
+
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th width="50">ID</th>
+                    <th width="250">Email</th>
+                    <th>Name</th>
+                    <th width="200">Phone Number</th>
+                    <th width="100">Gender</th>
+                    <th width="100">Role</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.Users)
+                {
+                    <tr class="@(item.IsDisabled ? "admin-row-disabled" : "")">
+                        <td>
+                            @Html.DisplayFor(modelItem => item.ID)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Email)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Name)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.PhoneNumber)
+                        </td>
+                        <td>
+                            @(item.Gender ? "Male" : "Female")
+                        </td>
+                        <td>
+                            <span style="display: block;">@(item.IsAdmin ? "Admin " : "")</span>
+                            <span style="display: block;">@(item.IsMarketing ? "Marketing " : "")</span>
+                            <span style="display: block;">@(item.IsSales ? "Sales" : "")</span>
+                        </td>
+                        <td>
+                            @if(Context.GetCurrentUser()!.IsAdmin)
+                            {
+                                <a asp-action="Edit" asp-route-id="@item.ID" class="btn btn-warning fa-pull-right">
+                                    <i class="fa-solid fa-pen"></i> Edit
+                                </a>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</form>
+

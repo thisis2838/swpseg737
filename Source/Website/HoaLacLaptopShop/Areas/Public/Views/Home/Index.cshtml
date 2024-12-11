@@ -1,0 +1,108 @@
+﻿@using HoaLacLaptopShop.Areas.Public.ViewModels
+@model HomeViewModel
+
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<section>
+    <div class="container">
+
+        @* news *@
+        @{
+            if (Model.LatestNews.Any())
+            {
+                <div class="row ">
+                    <h2 class="title text-center">Shop News</h2>
+                    @{
+                        foreach (var news in Model.LatestNews)
+                        {
+                            <div class="col-md-4"
+                                 style="
+                                    display: flex;
+                                    align-items: stretch;
+                                    margin-bottom:20px;
+                                        ">
+                                <div class="news-entry-short" style="width:100%; padding:10px">
+                                    <a href="@Url.Action("Details", "NewsPosts", new {id = news.ID})"><h2>@news.Title</h2></a>
+                                    <p>Posted @news.Time.ToTimeFromNow()</p>
+                                </div>
+                            </div>
+                        }
+                    }
+                </div>
+            }
+        }
+
+        @* popular choices *@
+        <div class="row">
+            <div class="col-lg-9">
+                <h2 class="title text-center">Popular Laptops</h2>
+                @{
+                    foreach (var product in Model.PopularLaptops.Take(9))
+                    {
+                        <div class="col-sm-4">
+                            <partial name="../Shared/Products/_Card.cshtml" model="@product" />
+                        </div>
+                    }
+                }
+            </div>
+            <div class="col-lg-3">
+                <h2 class="title text-center">Popular Accessories</h2>
+                @{
+                    foreach (var product in Model.PopularAccessories.Take(3))
+                    {
+                        <div class="col-sm-12">
+                            <partial name="../Shared/Products/_Card.cshtml" model="@product" />
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+
+        @* by brands *@
+
+        <div class="row category-tab">
+            <h2 class="title text-center">By Brands</h2>
+            <div class="col-sm-12">
+                <ul 
+                    class="nav nav-tabs home-products-brand-nav"
+                    style=
+                    "
+                        display: flex;
+                        justify-content: center;
+                    "
+                >
+                    @{
+                        int i = 0;
+                        foreach (var brand in Model.ProductsByBrand.Keys.Take(10))
+                        {
+                            <li class=@(i == 0 ? "active in" : "")><a href="#@brand.ID" data-toggle="tab">@brand.Name</a></li>
+                            i++;
+                        }
+                    }
+                </ul>
+            </div>
+
+            <div class="tab-content">
+                @{
+                    i = 0;
+                    foreach (var brand in Model.ProductsByBrand.Keys.Take(10))
+                    {
+                        <div class="tab-pane fade @(i == 0 ? "active in" : "")" id="@brand.ID">
+                            @{
+                                foreach (var product in Model.ProductsByBrand[brand])
+                                {
+                                    <div class="col-sm-3">
+                                        <partial class="col-sm-3" name="../Shared/Products/_Card.cshtml" model="@product" />
+                                    </div>
+                                }
+                            }
+                        </div>
+                        i++;
+                    }
+                }
+            </div>
+        </div>
+    </div>
+</section>

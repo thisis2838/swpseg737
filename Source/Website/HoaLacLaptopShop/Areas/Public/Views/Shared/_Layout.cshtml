@@ -1,0 +1,178 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>Hoalac Laptops | @ViewData["Title"]</title>
+    <link href="~/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
+    <link href="~/css/prettyPhoto.css" rel="stylesheet">
+    <link href="~/css/price-range.css" rel="stylesheet">
+    <link href="~/css/animate.css" rel="stylesheet">
+    <link href="~/css/main.css" rel="stylesheet">
+    <link href="~/css/responsive.css" rel="stylesheet">
+    <link href="~/css/site.css" rel="stylesheet">
+    <link href="~/css/jquery.toast.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.3/themes/base/jquery-ui.css">
+
+    <!--[if lt IE 9]>
+    <script src="js/html5shiv.js"></script>
+    <script src="js/respond.min.js"></script>
+    <![endif]-->
+    <link rel="shortcut icon" href="~/images/ico/favicon.ico">
+    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="~/images/ico/apple-touch-icon-144-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="~/images/ico/apple-touch-icon-114-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="~/images/ico/apple-touch-icon-72-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" href="~/images/ico/apple-touch-icon-57-precomposed.png">
+
+
+</head><!--/head-->
+
+<body>
+    <header id="header">
+        <!--header-->
+        <div class="header_top">
+            <!--header_top-->
+            <div class="container">
+                <div class="row">
+                    <div class="col-sm-6 ">
+                        <div class="contactinfo">
+                            <ul class="nav nav-pills">
+                                <li><a href=""><i class="fa fa-phone"></i> 0987654JQK</a></li>
+                                <li><a href=""><i class="fa fa-envelope"></i> toiyeufpt@hoalaclaptops.com</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div><!--/header_top-->
+
+        <div class="header-middle">
+            <!--header-middle-->
+            <div class="container">
+                <div class="row">
+                    <div class="col-sm-4">
+                        <div class="logo pull-left" style="display: flex;flex-direction: row;align-items: center;">
+                            <img src="~/images/branding/logo/black_250.png" style="width: 100px; margin-right: 20px" />
+                            <a href="@Url.Action("Index","Home")"><h2>HOALAC LAPTOPS</h2></a>
+                        </div>
+                    </div>
+                    <div class="col-sm-8">
+                        <div class="shop-menu pull-right">
+                            <ul class="nav navbar-nav">
+                                <li>
+                                    @if (Context.IsLoggedIn())
+                                    {
+                                        <li><span><a class="btn btn-secondary" href="@Url.Action("Details", "Account")" style="margin-right: 0"><i class="fa fa-user"></i>@Context.GetCurrentUser()!.Name</a></span></li>
+                                        <li><a href="@Url.Action("Index", "Cart")"><i class="fa fa-shopping-cart"></i> Cart</a></li>
+                                        <li><a href="@Url.Action("Logout", "Account")" style="margin-right: 0"><i class="fa fa-sign-out"></i>Logout</a></li>
+                                    }
+                                    else
+                                    {
+                                        <li><a href="@Url.Action("Login", "Account")"><i class="fa fa-lock"></i> Login</a></li>
+                                        <li><a href="@Url.Action("Register", "Account")"><i class="fa fa-lock"></i> Register</a></li>
+                                    }
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div><!--/header-middle-->
+
+        <div class="header-bottom">
+            <!--header-bottom-->
+            <div class="container">
+                <div class="row">
+                    <div class="col-sm-9">
+                        <div class="navbar-header">
+                            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                                <span class="sr-only">Toggle navigation</span>
+                                <span class="icon-bar"></span>
+                                <span class="icon-bar"></span>
+                                <span class="icon-bar"></span>
+                            </button>
+                        </div>
+                        <div class="mainmenu pull-left">
+                            <ul class="nav navbar-nav collapse navbar-collapse">
+                                <li><a href="@Url.Action("Index", "Home")"><i class="fa fa-home"></i> Home</a></li>
+                                <li><a href="@Url.Action("Index", "Products")"><i class="fa fa-list"></i> Products</a></li>
+                                <li><a href="@Url.Action("Index", "NewsPosts")"><i class="fa fa-envelope-open"></i> News</a></li>
+                                <li><a href="@Url.Action("About", "Home")"><i class="fa fa-info"></i> About Us</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-sm-3">
+                        <div class="mainmenu pull-right">
+                            <div>
+                                <ul class="nav navbar-nav collapse navbar-collapse">
+                                    <li>
+                                        @{
+                                            var currUser = Context.GetCurrentUser();
+                                            if (currUser?.IsAdmin == true || currUser?.IsSales == true || currUser?.IsMarketing == true)
+                                            {
+                                                <a href="@Url.Action("Index", "Products", new {area = "Administration"})">
+                                                    <i class="fa-solid fa-user-tie"></i> Admin Interface
+                                                </a>
+                                            }
+                                        }
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container" style="margin-bottom: 100px">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+
+    <footer id="footer" style="position: fixed; left: 0; bottom: 0; width: 100%">
+        <!--Footer-->
+        <div class="footer-bottom">
+            <div class="container">
+                <div class="row">
+                    <p class="pull-left">Copyright © @DateTime.Now.Year Hoalac Laptops. All rights reserved.</p>
+                    <p class="pull-right">SWP391 Project, by Group 2 of SE1820 - SU24.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+    <!--/Footer-->
+    <script src="~/js/jquery.js"></script>
+    <script src="~/js/jquery.toast.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.13.3/jquery-ui.js"></script>
+    <script>
+        $(document).tooltip
+        ({
+            items: "[data-laptop-id]",
+            content: function ()
+            {
+                var element = $(this);
+                if (element.is("[data-laptop-id]"))
+                {
+                    return $('#' + element.attr('data-laptop-id') + '-laptop-card').html();
+                }
+            }
+        });
+
+        $(document).ready(function (){ $('.product-card-notice').css('display', 'block'); });
+    </script>
+    <script src="~/js/bootstrap.min.js"></script>
+    <script src="~/js/jquery.scrollUp.min.js"></script>
+    <script src="~/js/price-range.js"></script>
+    <script src="~/js/jquery.prettyPhoto.js"></script>
+    <script src="~/js/main.js"></script>
+
+    <partial name="~/Areas/Shared/Views/Shared/_ErrorToast.cshtml" />
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

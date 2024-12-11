@@ -8,8 +8,12 @@ namespace HoaLacLaptopShop.Models;
 public partial class Brand
 {
     public int ID { get; set; }
+
+    [Required, MaxLength(256)]
     public string Name { get; set; } = null!;
-    public string? Description { get; set; }
+    [MaxLength(1024)]
+    public string Description { get; set; } = null!;
+    [MaxLength(256)]
     public string Country { get; set; } = null!;
 
     public virtual ICollection<LaptopCPUSeries> LaptopCPUSeries { get; set; } = new List<LaptopCPUSeries>();

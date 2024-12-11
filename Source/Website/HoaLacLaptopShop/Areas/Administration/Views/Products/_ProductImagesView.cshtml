@@ -1,0 +1,27 @@
+﻿@using HoaLacLaptopShop.Areas.Administration.ViewModels
+@using HoaLacLaptopShop.Areas.Administration.Controllers
+
+@model Product
+
+<span class="form-label">Images</span>
+<div class="row">
+    @for (int i = 0; i < 3; i++)
+    {
+        if (Model.ProductImages.Count > i)
+        {
+            <div class="col-md-4">
+                <img src="@Model.ProductImages.ElementAt(i).GetProductImageURL()"
+                     alt=""
+                     style="width: 100px; height: 100px; object-fit: contain" />
+                <input type="file" name="@($"image{i + 1}")" />
+            </div>
+        }
+        else
+        {
+            <div class="mt-2 col-md-4">
+                <input type="file" name="@($"image{i + 1}")" />
+            </div>
+        }
+    }
+</div>
+<span asp-validation-for="ProductImages"></span>

@@ -1,29 +1,149 @@
-html {
+html
+{
     font-size: 14px;
 }
 
-@media (min-width: 768px) {
-    html {
+@media (min-width: 768px)
+{
+    html
+    {
         font-size: 16px;
     }
 }
 
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus
+{
     box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
 }
 
-html {
+html
+{
     position: relative;
     min-height: 100%;
 }
 
+/*
 body {
     margin-bottom: 60px;
 }
+*/
 
-.home-products-brand-nav {
+.home-products-brand-nav
+{
     float: none;
     margin: 0 auto;
     display: table;
     table-layout: fixed;
+}
+
+
+.news-entry-long
+{
+    background-color: #F7F7F5;
+    padding: 20px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    border-radius: 10px;
+    max-height: 200px;
+    overflow: clip;
+}
+
+.news-entry-long h1
+{
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.news-entry-long .news-summary
+{
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.news-entry-short
+{
+    background-color: #F7F7F5;
+    border-radius: 10px;
+    padding: -15px;
+}
+
+.news-entry-short h2
+{
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+
+.editable-select-wrapper
+{
+    position: relative;
+    width: 100%; /* Adjust as needed */
+}
+
+.editable-select-wrapper > select
+{
+    width: 100%;
+}
+
+.editable-select-wrapper > input
+{
+    position: absolute;
+    top: 0; /* Adjust as needed */
+    left: 0; /* Adjust as needed */
+    width: calc(100% - 40px); /* Adjust as needed */
+    z-index: 1;
+    box-shadow: none;
+    color: #000; /* Adjust as needed */
+}
+
+.admin-table-long
+{
+    overflow: hidden; 
+    text-overflow: ellipsis; 
+    max-width: 25vw; 
+    white-space:nowrap
+}
+
+
+.admin-heading
+{
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+.admin-heading > *
+{
+    margin-right: 5px;
+    margin-bottom: 0px;
+}
+
+.account-card
+{
+    background: #f7f7f0;
+    padding: 10px;
+    margin: 10px;
+    margin-left: 0px;
+    border-radius: 10px;
+}
+
+.account-card-content
+{
+    font-size: large;
+    font-weight: bold;
+}
+
+.admin-row-disabled
+{
+    background: lightgray !important;
+    --bs-table-striped-bg: lightgray !important;
+    --bs-table-active-bg: lightgray !important;
+}
+
+.admin-row-warning
+{
+    background: lightyellow !important;
+    --bs-table-striped-bg: lightyellow !important;
+    --bs-table-active-bg: lightyellow !important;
 }

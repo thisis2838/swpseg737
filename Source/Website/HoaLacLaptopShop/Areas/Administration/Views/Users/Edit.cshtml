@@ -1,0 +1,69 @@
+﻿@model UserEditViewModel
+@{
+    ViewData["Title"] = "Edit";
+    ViewData["IsEdit"] = true;
+}
+
+<partial 
+    name="~/Areas/Administration/Views/Shared/_PageHeading.cshtml" 
+    model="@(new{ Heading = "Users", Subheading = $"#{Model.ID}"})" 
+/>
+<div style="margin-bottom: 20px">
+    <a class="btn btn-primary" onclick="$('#main-form').submit();"><i class="fa-solid fa-save"></i> Save</a>
+    @if (Model?.IsDisabled == true)
+    {
+        <a class="btn btn-danger" onclick="confirmEnable()"><i class="fa-solid fa-refresh"></i> Enable</a>
+    }
+    else if (Model != null && Context.GetCurrentUserID() != Model.ID)
+    {
+        <a class="btn btn-danger" onclick="confirmDisable()"><i class="fa-solid fa-x"></i> Disable</a>
+    }
+    <a class="btn btn-primary" asp-action="Index"><i class="fa-solid fa-arrow-left"></i> Back to List</a>
+</div>
+<hr />
+
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="EditConfirm" id="main-form">
+            <input type="hidden" asp-for="ID" readonly />
+            <partial name="_UserDetailsView.cshtml" model="@Model" />
+            <div class="form-group">
+                <label asp-for="NewPassword" class="control-label form-label"></label>
+                <input asp-for="NewPassword" class="form-control" />
+                <span asp-validation-for="NewPassword" class="text-danger"></span>
+            </div>
+        </form>
+    </div>
+</div>
+
+@if (Model?.IsDisabled == true)
+{
+    <form id="enableForm" asp-action="Reenable" hidden>
+        <input type="hidden" asp-for="ID" />
+    </form>
+}
+else if (Model != null && Context.GetCurrentUserID() != Model?.ID)
+{
+    <form id="disableForm" asp-action="Disable" hidden>
+        <input type="hidden" asp-for="ID" />
+    </form>
+}
+
+@section Scripts
+{
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script type="text/javascript">
+        function confirmEnable()
+        {
+            var confirmation = confirm("Are you sure you want to enable this user?");
+            if (confirmation) $('#enableForm').submit();
+        }
+        function confirmDisable()
+        {
+            var confirmation = confirm("Are you sure you want to disable this user?");
+            if (confirmation) $('#disableForm').submit();
+        }
+    </script>
+}

@@ -1,0 +1,119 @@
+﻿@using HoaLacLaptopShop.Areas.Public.ViewModels
+@using HoaLacLaptopShop.Areas.Public.Controllers
+@model ProductIndexViewArgs
+
+@{
+    var selections = (ProductIndexSelections)ViewData["Selections"]!;
+}
+
+<div class="col-sm-3">
+    <div id="priceForm" style="margin-bottom:5px;">
+        <div class="search_box">
+            <label asp-for="Search" class="control-label form-label"></label>
+            <input asp-for="Search" class="form-control" style="width: 100%" />
+        </div>
+        <div class="">
+            <label class="control-label form-label">Product Type</label>
+            <br />
+            <input type="checkbox" asp-for="ShowAccessories" class="checkbox-inline" />
+            <label asp-for="ShowAccessories" class="control-label form-label"></label>
+            <br />
+            <input type="checkbox" asp-for="ShowLaptops" class="checkbox-inline" />
+            <label asp-for="ShowLaptops" class="control-label form-label"></label>
+        </div>
+        <div class="">
+            <label class="control-label form-label">Price Range</label>
+            <span style="margin-bottom: 5px;" class="form-control">
+                <input type="text" id="price" readonly style="border:0;font-weight:bold" />
+                <input type="hidden" asp-for="MinPrice" />
+                <input type="hidden" asp-for="MaxPrice" />
+            </span>
+            <div id="slider"></div>
+        </div>
+        @if (Model.ShowLaptops)
+        {
+            <div class="filter-list">
+                <h4 class="control-label form-label">CPU Series</h4>
+                <ul>
+                    <li>
+                        <button type="button" class="btn btn-sm select-all">Select all</button>
+                        <button type="button" class="btn btn-sm deselect-all">Deselect all</button>
+                    </li>
+                    @for (int i = 0; i < selections.CPUs!.Count; i++)
+                    {
+                        var cpu = selections.CPUs[i];
+                        var selected = Model.SelectedCPUIDs!.Contains(cpu.ID);
+                        <li>
+                            <input type="checkbox"
+                                   id="cpu_@cpu.ID"
+                                   name="SelectedCpuIDs"
+                                   value="@cpu.ID"
+                            @(selected ? "checked" : "") />
+                            <label for="cpu_@cpu.ID">@($"{cpu.Manufacturer.Name} {cpu.Name}")</label>
+                        </li>
+                    }
+                </ul>
+            </div>
+            <div class="filter-list">
+                <h4 class="control-label form-label">GPU Series</h4>
+                <ul>
+                    <li>
+                        <button type="button" class="btn btn-sm select-all">Select all</button>
+                        <button type="button" class="btn btn-sm deselect-all">Deselect all</button>
+                    </li>
+                    @for (int i = 0; i < selections.GPUs!.Count; i++)
+                    {
+                        var gpu = selections.GPUs[i];
+                        var selected = Model.SelectedGPUIDs!.Contains(gpu.ID);
+                        <li>
+                            <input type="checkbox"
+                                   id="gpu_@gpu.ID"
+                                   name="SelectedGpuIDs"
+                                   value="@gpu.ID"
+                            @(selected ? "checked" : "") />
+                            <label for="gpu_@gpu.ID">@($"{gpu.Manufacturer.Name} {gpu.Name}")</label>
+                        </li>
+                    }
+                </ul>
+            </div>
+        }
+
+            <div class="filter-list">
+                <h4 class="control-label form-label">Brands</h4>
+                <ul>
+                    <li>
+                        <button type="button" class="btn btn-sm select-all">Select all</button>
+                        <button type="button" class="btn btn-sm deselect-all">Deselect all</button>
+                    </li>
+                    @for (int i = 0; i < selections.Brands!.Count; i++)
+                    {
+                        var brand = selections.Brands[i];
+                        var selected = Model.SelectedBrandIDs!.Contains(brand.Brand.ID);
+                        <li>
+                            <input type="checkbox"
+                                   id="brand_@brand.Brand.ID"
+                                   name="SelectedBrandIDs"
+                                   value="@brand.Brand.ID"
+                            @(selected ? "checked" : "") />
+                            <label for="brand_@brand.Brand.ID">@($"{brand.Brand.Name} ({brand.ProductCount})")</label>
+                        </li>
+                    }
+                </ul>
+            </div>
+        <button type="submit" class="btn btn-info">View</button>
+    </div>
+</div>
+
+<style>
+    #priceForm div
+    {
+        margin-bottom: 30px
+    }
+
+    .filter-list ul
+    {
+        max-height: 30vh;
+        overflow: scroll
+    }
+
+</style>

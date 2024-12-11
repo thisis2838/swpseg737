@@ -1,0 +1,96 @@
+﻿@using HoaLacLaptopShop.Areas.Administration.ViewModels
+@using HoaLacLaptopShop.Areas.Administration.Controllers
+
+@model Product
+
+@{
+    ViewData["Title"] = $"Editing Product #{Model.ID}";
+}
+
+<partial 
+    name="~/Areas/Administration/Views/Shared/_PageHeading.cshtml" 
+    model="@(new{ Heading = "Products", Subheading = $"#{Model.ID}" })" 
+/>
+
+<div style="margin-bottom: 20px">
+    <a class="btn btn-primary" onclick="$('#main-form').submit();"><i class="fa-solid fa-save"></i> Save</a>
+    @if (!Model.IsDisabled)
+    {
+        <a class="btn btn-danger" onclick="confirmDisable()"><i class="fa-solid fa-x"></i> Disable</a>
+    }
+    else
+    {
+        <a class="btn btn-danger" onclick="confirmReenable()"><i class="fa-solid fa-refresh"></i> Reenable</a>
+    }
+    <a class="btn btn-primary" asp-action="Index"><i class="fa-solid fa-arrow-left"></i> Back to List</a>
+</div>
+
+<hr/>
+
+<form method="post" asp-action="@nameof(ProductsController.Edit)" enctype="multipart/form-data" id="main-form">
+    <input type="hidden" value="@Model.ID" name="id" />
+    <div class="row">
+        <div class="col-md-6">
+            @await Html.PartialAsync("_ProductInfoView.cshtml", Model)
+        </div>
+        <div class="col-md-6">
+
+            <div style="margin-bottom: 10px">
+                @await Html.PartialAsync("_ProductImagesView.cshtml", Model)
+            </div>
+
+            @if (Model.IsLaptop)
+            {
+                <input type="hidden" asp-for="IsLaptop" />
+                @await Html.PartialAsync("_LaptopSpecsView.cshtml", Model.Laptop!, "Laptop")
+            }
+        </div>
+    </div>
+</form>
+
+@if(!Model.IsDisabled)
+{
+    <form id="form-delete" asp-action="Disable">
+        <input type="hidden" asp-for="ID" />
+    </form>
+}
+else
+{
+    <form id="form-restore" asp-action="Reenable">
+        <input type="hidden" asp-for="ID" />
+    </form>
+}
+
+@section Scripts
+{
+    <script>
+        @if (!Model.IsDisabled)
+        {
+            <text>
+            function confirmDisable()
+            {
+                if (confirm('Are you sure you want to disable this product?'))
+                {
+                    $('#form-delete').submit();
+                }
+            }
+            </text>
+        }
+        else
+        {
+            <text>
+            function confirmReenable()
+            {
+                if (confirm('Are you sure you want to reenable this product?'))
+                {
+                    $('#form-restore').submit();
+                }
+            }
+            </text>
+        }
+    </script>
+
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

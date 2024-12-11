@@ -1,0 +1,12 @@
+﻿@using HoaLacLaptopShop.Areas.Public.ViewModels
+@model HoaLacLaptopShop.Models.NewsPost
+
+@{
+}
+
+<div class="row news-entry-long">
+    <div><a href="@Url.Action("Details", new {id = Model.ID})"><h1>@Model.Title</h1></a></div>
+    <div><span>Posted @Model.Time.ToTimeFromNow() at <b>@Model.Time.ToString("hh:mm:ss tt")</b> at <b class="post-date">@Model.Time.ToString("yyyy-MM-dd")</b> by <b class="post-author-name">@Model.Author!.Name</b></span></div>
+    <div><span class="post-length">@Model.Length</span> <span>@Model.ReadingTime minute read</span></div>
+    @*<p class="news-summary">Html.Raw(Model.Content)</p>*@
+</div>

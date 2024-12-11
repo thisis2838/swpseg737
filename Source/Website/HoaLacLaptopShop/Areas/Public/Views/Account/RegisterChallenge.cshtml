@@ -1,0 +1,29 @@
+﻿@model string
+@{
+    ViewData["Title"] = "Activation Code";
+}
+<h1>Registration</h1>
+<h4>Verification Code</h4>
+<hr />
+<div class="row">
+    <div class="col-md-6">
+        <div>
+            An email has been sent to <span style="font-weight:bold">@Model</span>
+        </div>
+        <form asp-action="RegisterComplete">
+            <div class="form-group">
+                <label class="control-label form-label">Enter verification code: </label>
+                <input name="activationCode" class="form-control" />
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Submit" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

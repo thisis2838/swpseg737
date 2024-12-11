@@ -1,0 +1,15 @@
+﻿@using HoaLacLaptopShop.Areas.Shared.ViewModels
+@model NewsPostDetailsViewModel
+
+@{
+    ViewData["Title"] = "News Post";
+}
+
+<h1 style="word-wrap: anywhere">@Model.Title</h1>
+<h4><span>Posted at <b>@Model.Time.ToString("hh:mm:ss tt")</b> at <b>@Model.Time.ToString("yyyy-MM-dd")</b> by <b>@Model.Author!.Name</b></span></h4>
+<p>@Model.Length post &bull; @Model.WordCount word(s) &bull; @Model.ImageCount image(s) &bull; @(Model.ReadingTime)-minute digest.</p>
+<div>
+    <a class="btn btn-primary" asp-action="Index">Back to List</a>
+</div>
+<hr />
+<div style="margin-bottom: 20px; overflow-y: hidden">@Html.Raw(Model.Content)</div>

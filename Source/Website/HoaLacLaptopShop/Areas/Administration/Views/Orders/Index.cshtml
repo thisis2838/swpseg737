@@ -1,0 +1,107 @@
+﻿@using HoaLacLaptopShop.Areas.Administration.ViewModels
+@using HoaLacLaptopShop.Areas.Public.ViewModels
+@model OrderIndexViewModel
+
+<partial 
+    name="~/Areas/Administration/Views/Shared/_PageHeading.cshtml" 
+    model="@(new{ Heading = "Orders", Subheading = $"List"})" 
+/>
+<hr/>
+
+<form asp-action="Index" method="get">
+    <div class="form-group" style="width: 20%; display: inline-block;">
+        <label asp-for="ProductSearch">Product: </label>
+        <input class="form-control" asp-for="ProductSearch" />
+    </div>
+    <div class="form-group" style="width: 20%; display: inline-block;">
+        <label asp-for="RecipientSearch">Recipient & Buyer: </label>
+        <input class="form-control" asp-for="RecipientSearch" />
+    </div>
+    <div class="form-group" style="width: 20%; display: inline-block;">
+        <label asp-for="DestinationSearch">Destination: </label>
+        <input class="form-control" asp-for="DestinationSearch" />
+    </div>
+    <div class="form-group" style="width: 20%; display: inline-block;">
+        <label asp-for="Status">Status: </label>
+        <select 
+            asp-for="Status"
+            asp-items="@(Html.GetEnumSelectList<SelectableOrderStatus>())"
+            class="form-control form-select" 
+            onchange="this.form.submit();"
+        >
+        </select>
+    </div>
+    <div>
+        <span style="display: block;" asp-validation-for="ProductSearch" class="text-danger"></span>
+        <span style="display: block;" asp-validation-for="RecipientSearch" class="text-danger"></span>
+        <span style="display: block;" asp-validation-for="DestinationSearch" class="text-danger"></span>
+        <span style="display: block;" asp-validation-for="Status" class="text-danger"></span>
+    </div>
+    <button type="submit" class="btn btn-primary" style="margin-top: 10px;"><i class="fa-solid fa-eye"></i> View</button>
+
+    @if (Model.Orders.Count() == 0)
+    {
+        <div style="margin-top: 30px;">
+            <span>No orders to show!</span>
+        </div>
+    }
+    else
+    {
+        <partial name="~/Areas/Shared/Views/Shared/_Pagination.cshtml" model="@Model" />
+
+        <table id="datatables-reponsive" class="table table-striped" style="width:100%">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th width="120px">Created</th>
+                    <th>Buyer</th>
+                    <th>Recipient</th>
+                    <th>Items</th>
+                    <th>Final Price</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.Orders)
+                {
+                    <tr>
+                        <td>@item.ID</td>
+                        <td>
+                            <i class="fa-regular fa-calendar"></i> @DateOnly.FromDateTime(item.OrderTime).ToString()<br/>
+                            <i class="fa-regular fa-clock"></i> @TimeOnly.FromDateTime(item.OrderTime).ToString()
+                        </td>
+                        <td class="admin-table-long" style="max-width: 150px">
+                            <strong>@item.Buyer.Name</strong><br />
+                            <i class="fa fa-phone"></i> @item.Buyer.PhoneNumber
+                        </td>
+                        <td class="admin-table-long" style="max-width: 150px">
+                            <strong>@item.RecipientName</strong><br />
+                            <i class="fa fa-phone"></i> @item.PhoneNumber
+                        </td>
+                        <td class="admin-table-long">
+                            @foreach (var orderItem in item.OrderDetails)
+                            {
+                                <span>
+                                    <strong>@orderItem.Product.Name</strong> 
+                                    x@(orderItem.Quantity)
+                                </span>
+                                <br />
+                            }
+                            @foreach (var image in item.OrderDetails.Select(x => x.Product.ProductImages.First()))
+                            {
+                                <img width="50" src="@image.GetProductImageURL()" />
+                            }
+                        </td>
+                        <td>@string.Format("{0:N0}", item.DiscountedPrice)</td>
+                        <td>
+                            <a asp-action="Details" asp-controller="Orders" asp-route-id="@item.ID" class="btn btn-primary">
+                                <i class="fa-solid fa-eye"></i> Details
+                            </a>
+                        </td>
+                    </tr>
+
+                }
+            </tbody>
+        </table>
+    }
+</form>

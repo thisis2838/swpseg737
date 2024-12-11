@@ -1,0 +1,16 @@
+﻿@{
+    Layout = "_Layout";
+
+    var state = ViewData.ModelState;
+    if (state != null && !state.IsValid)
+    {
+        var invalids = state
+            .Where(x => x.Value?.ValidationState == Microsoft.AspNetCore.Mvc.ModelBinding.ModelValidationState.Invalid)
+            .SelectMany(x => x.Value?.Errors.Select(y => y.ErrorMessage))
+            .Where(x => x != null);
+        foreach (var invalid in invalids)
+        {
+            TempData.AddNotifications(NotificationType.Error, invalid);
+        }
+    }
+}

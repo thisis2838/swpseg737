@@ -1,0 +1,33 @@
+﻿@using HoaLacLaptopShop.Areas.Administration.ViewModels
+@using HoaLacLaptopShop.Areas.Administration.Controllers
+
+@model Product
+@{
+    var selections = (ProductUpdateSelections)ViewData["Selections"]!;
+}
+
+<div class="mb-3">
+    <label class="form-label" asp-for="Name">Name</label>
+    <input asp-for="Name" type="text" name="name" class="form-control" placeholder="Name">
+    <span asp-validation-for="Name" class="text-danger"></span>
+</div>
+<div class="mb-3">
+    <label class="form-label" asp-for="Price">Price</label>
+    <input type="number" asp-for="Price" name="price" class="form-control" placeholder="Price">
+    <span asp-validation-for="Price" class="text-danger"></span>
+</div>
+<div class="mb-3">
+    <label class="form-label" asp-for="Stock">Stock</label>
+    <input type="number" asp-for="Stock" name="stock" class="form-control" placeholder="Stock">
+    <span asp-validation-for="Stock" class="text-danger"></span>
+</div>
+<div class="mb-3">
+    <label class="form-label">Brand</label><br />
+    <select class="form-control form-select" asp-for="BrandId" asp-items="@selections.Brands"></select>
+    <span asp-validation-for="BrandId" class="text-danger"></span>
+</div>
+<div class="mb-3">
+    <label class="form-label" asp-for="Description">Description</label>
+    <textarea name="description" asp-for="Description" class="form-control" cols="10" rows="10" placeholder="Description"></textarea>
+    <span asp-validation-for="Description" class="text-danger"></span>
+</div>

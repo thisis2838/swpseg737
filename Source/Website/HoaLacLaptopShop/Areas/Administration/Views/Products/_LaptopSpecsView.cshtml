@@ -1,0 +1,149 @@
+﻿@using HoaLacLaptopShop.Areas.Administration.ViewModels
+@using HoaLacLaptopShop.Areas.Administration.Controllers
+
+@model Laptop
+@{
+    var selections = (ProductUpdateSelections)ViewData["Selections"]!;
+}
+
+<div class="mb-3 laptop" id="cpuContainer">
+    <label class="form-label">@Html.DisplayNameFor(m => m.CPUSeries)</label>
+    <span asp-validation-for="CPUSeriesID" class="text-danger"></span>
+    <select class="form-control form-select" asp-for="CPUSeriesID" asp-items="@selections.CPUs"></select>
+</div>
+
+<div class="mb-3 laptop" id="gpuContainer">
+    <label class="form-label">@Html.DisplayNameFor(m => m.GPUSeries)</label>
+    <span asp-validation-for="GPUSeriesID" class="text-danger"></span>
+    <select class="form-control form-select" asp-for="GPUSeriesID" asp-items="@selections.GPUs"></select>
+</div>
+<div class="mb-3 laptop">
+    
+</div>
+
+<div class="mb-3 laptop">
+    <div class="row">
+        <div class="col-md-6">
+            <label class="form-label">@Html.DisplayNameFor(m => m.ScreenSize)</label>
+            <div class="inline-unit-container">
+                <div class="editable-select-wrapper inline-unit-value">
+                    <input class="form-control" asp-for="ScreenSize" />
+                    <select class="form-control form-select" asp-items="@selections.ScreenSizes"></select>
+                </div>
+                <span class="inline-unit-name">inches</span>
+            </div>
+            <span asp-validation-for="ScreenSize" class="text-danger"></span>
+        </div>
+        <div class="col-md-6">
+            <label class="form-label">@Html.DisplayNameFor(m => m.ScreenResolution)</label>
+            <div class="inline-unit-container">
+                <div class="editable-select-wrapper inline-unit-value">
+                    <input class="form-control" asp-for="ScreenResolution" />
+                    <select class="form-control form-select" asp-items="@selections.ScreenResolutions"></select>
+                </div>
+                <span class="inline-unit-name">pixels</span>
+            </div>
+            <span asp-validation-for="ScreenResolution" class="text-danger"></span>
+        </div>
+    </div>
+</div>
+<div class="mb-3 laptop">
+    <div class="row">
+        <div class="col-md-6">
+            <label class="form-label">@Html.DisplayNameFor(m => m.ScreenAspectRatio)</label>
+            <div class="inline-unit-container">
+                <div class="editable-select-wrapper inline-unit-value">
+                    <input class="form-control" asp-for="ScreenAspectRatio" />
+                    <select class="form-control form-select" asp-items="@selections.ScreenAspectRatios"></select>
+                </div>
+                <span class="inline-unit-name">pixels</span>
+            </div>
+            <span asp-validation-for="ScreenAspectRatio" class="text-danger"></span>
+        </div>
+        <div class="col-md-6">
+            <label class="form-label">@Html.DisplayNameFor(m => m.RefreshRate)</label>
+            <div class="inline-unit-container">
+                <div class="editable-select-wrapper inline-unit-value">
+                    <input class="form-control" asp-for="RefreshRate" />
+                    <select class="form-control form-select" asp-items="@selections.ScreenRefreshRates"></select>
+                </div>
+                <span class="inline-unit-name">hz</span>
+            </div>
+            <span asp-validation-for="RefreshRate" class="text-danger"></span>
+        </div>
+    </div>
+</div>
+
+<div class="mb-3 laptop">
+    <div class="row">
+        <div class="col-md-6">
+            <label class="form-label">@Html.DisplayNameFor(m => m.StorageType)</label>
+            <select class="form-control form-select" asp-for="StorageType">
+                <option selected disabled>Type</option>
+                <option value="@LaptopStorageType.SSD">SSD</option>
+                <option value="@LaptopStorageType.HDD">HDD</option>
+            </select>
+            <span asp-validation-for="StorageType" class="text-danger"></span>
+        </div>
+        <div class="col-md-6">
+            <label class="form-label">@Html.DisplayNameFor(m => m.StorageSize)</label>
+            <div class="inline-unit-container">
+                <div class="editable-select-wrapper inline-unit-value">
+                    <input class="form-control" asp-for="StorageSize" />
+                    <select class="form-control form-select" asp-items="@selections.StorageSizes"></select>
+                </div>
+                <span class="inline-unit-name">GB</span>
+            </div>
+            <span asp-validation-for="StorageSize" class="text-danger"></span>
+        </div>
+    </div>
+</div>
+
+
+<div class="mb-3 laptop">
+    <div class="row">
+        <div class="col-md-6">
+            <label class="form-label">@Html.DisplayNameFor(m => m.RAM)</label>
+            <div class="inline-unit-container">
+                <div class="editable-select-wrapper inline-unit-value">
+                    <input class="form-control" asp-for="RAM" />
+                    <select class="form-control form-select" asp-items="@selections.RAMSizes"></select>
+                </div>
+                <span class="inline-unit-name">GB</span>
+            </div>
+            <span asp-validation-for="RAM" class="text-danger"></span>
+        </div>
+    </div>
+</div>
+
+<style>
+    .inline-unit-container
+    {
+        display: flex;
+    }
+    .inline-unit-value
+    {
+    }
+    .inline-unit-name
+    {
+        margin: 5px;
+    }
+
+</style>
+
+<script>
+    // Get references to the CPU and GPU containers
+
+    const laptopSpecs = Array.from(document.getElementsByClassName('laptop'));
+
+    function updateLaptopSpecVisibility()
+    {
+        var radio = document.getElementById('@(nameof(Product.IsLaptop))');
+        laptopSpecs.forEach(function (lap)
+        {
+            lap.style.display = radio.checked ? 'block' : 'none';
+            lap.disabled = !radio.checked;
+        });
+    }
+
+</script>

@@ -1,0 +1,42 @@
+﻿@using HoaLacLaptopShop.Areas.Shared.ViewModels
+@model NewsPostDetailsViewModel
+
+@{
+    ViewData["Title"] = "Creating News Post";
+}
+
+<link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote.min.css" rel="stylesheet">
+
+<partial 
+    name="~/Areas/Administration/Views/Shared/_PageHeading.cshtml" 
+    model="@(new{ Heading = "News Posts", Subheading = $"Add New"})" 
+/>
+<div>
+    <a class="btn btn-primary" onclick="$('#form-create').submit();"><i class="fa fa-plus"></i> Create</a>
+    <a class="btn btn-primary" asp-action="Index"><i class="fa fa-arrow-left"></i> Back to List</a>
+</div>
+<hr />
+<form id="form-create" asp-action="Create">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="form-group">
+                <label asp-for="Title" class="control-label form-label"></label>
+                <input asp-for="Title" class="form-control" />
+                <span asp-validation-for="Title" class="text-danger"></span>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div>
+                <label asp-for="Content" class="control-label form-label"></label>
+                <textarea id="summernote" asp-for="Content">@Html.Raw(Model.Content)</textarea>
+            </div>
+        </div>
+    </div>
+</form>
+
+@section Scripts
+{
+    <partial name="~/Areas/Administration/Views/NewsPosts/_EditorScripts.cshtml"/>
+}

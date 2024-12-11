@@ -1,0 +1,171 @@
+﻿@model Order
+
+<h1>Order #@Model.ID</h1>
+<a class="btn btn-primary" asp-action="OrderHistory">Back to List</a>
+<hr />
+
+<div class="row">
+    <div class="col-md-5">
+        <h2>General Information</h2>
+        <partial name="_InfoCard.cshtml" model="@(new
+        {
+            Icon = "clock-open",
+            Header = "Time",
+            Content = $"{Model.OrderTime} ({Model.OrderTime.ToTimeFromNow()})"
+        })" />
+        <partial name="_InfoCard.cshtml" model="@(new
+        {
+            Icon = "asterisk",
+            Header = "Status",
+            Content = Model.Status
+        })" />
+
+        <div class="row">
+            <div class="col-sm-6">
+                <h2>Recipient</h2>
+                <partial name="_InfoCard.cshtml" model="@(new
+                {
+                    Icon = "user",
+                    Header = "Name",
+                    Content = Model.RecipientName
+                })" />
+                    <partial name="_InfoCard.cshtml" model="@(new
+                {
+                    Icon = "phone",
+                    Header = "Phone number",
+                    Content = Model.PhoneNumber
+                })" />
+            </div>
+            <div class="col-sm-6">
+                <h2>Payment</h2>
+                <partial name="_InfoCard.cshtml" model="@(new
+                {
+                    Icon = "wallet",
+                    Header = "Payment Method",
+                    Content = Model.PaymentMethod == PaymentMethod.CashOnDelivery ? "Cash On Delivery" : "Online"
+                })" />
+                    <partial name="_InfoCard.cshtml" model="@(new
+                {
+                    Icon = "dollar-sign",
+                    Header = "Final Price",
+                    Content = Model.DiscountedPrice.ToString("N0")
+                })" />
+            </div>
+        </div>
+
+        <h2>Destination</h2>
+        <partial name="_InfoCard.cshtml" model="@(new
+        {
+            Icon = "map-marker",
+            Header = "Province",
+            Content = Model.Province
+        })" />
+        <partial name="_InfoCard.cshtml" model="@(new
+        {
+            Icon = "map-marker",
+            Header = "District",
+            Content = Model.District
+        })" />
+        <partial name="_InfoCard.cshtml" model="@(new
+        {
+            Icon = "map-marker",
+            Header = "Ward",
+            Content = Model.Ward
+        })" />
+        <partial name="_InfoCard.cshtml" model="@(new
+        {
+            Icon = "map-marker",
+            Header = "Street",
+            Content = Model.Street
+        })" />
+
+        <h2>Notes</h2>
+        <div class="account-card">
+            @(Model.Note ?? "No notes")
+        </div>
+    </div>
+
+    <div class="col-md-7">
+        <h2>Products</h2>
+        <table class="table table-striped">
+            <tr>
+                <th>Item</th>
+                <th></th>
+                <th>Price</th>
+                <th>Quantity</th>
+                <th>Subtotal</th>
+            </tr>
+            @foreach (var item in Model.OrderDetails)
+            {
+                <tr>
+                    <td style="width: 50px"><img src="@item.Product.ProductImages.FirstOrDefault()?.GetProductImageURL()" width="50" /></td>
+                    <td><a href="@Url.ActionLink("Details", "Products", new {id = item.ProductId})"><strong>@item.Product.Name</strong></a></td>
+                    <td>@item.ProductPrice.ToString("N0")</td>
+                    <td>@item.Quantity</td>
+                    <td>@item.SubTotal.ToString("N0")</td>
+                </tr>
+            }
+            @*hackhack: we want a line here*@
+            <tr>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            @{
+                var hasDiscount = Model.VoucherID != null;
+                var discountPrice = Model.TotalPrice - Model.DiscountedPrice;
+            }
+            <tr>
+                <td colspan="2"><strong>Total</strong></td>
+                <td></td>
+                <td>@Model.OrderDetails.Sum(x => x.Quantity)</td>
+                <td>@Model.TotalPrice.ToString("N0")</td>
+            </tr>
+            <tr>
+                <td colspan="2"><strong>Discount</strong></td>
+                <td></td>
+                <td></td>
+                <td>@(hasDiscount ? discountPrice.ToString("N0") : "None")</td>
+            </tr>
+            <tr>
+                <td colspan="2"><strong>Final Price</strong></td>
+                <td></td>
+                <td>@Model.OrderDetails.Sum(x => x.Quantity)</td>
+                <td>@Model.DiscountedPrice.ToString("N0")</td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+<style>
+    .card-header
+    {
+        background-color: #f8f9fa;
+    }
+
+    .status-approved
+    {
+        color: #28a745;
+        font-weight: bold;
+    }
+
+    .icon-circle
+    {
+        background-color: #f8f9fa;
+        border-radius: 50%;
+        padding: 10px;
+        margin-right: 10px;
+    }
+
+    h5
+    {
+        margin-bottom: 0;
+    }
+
+    td
+    {
+        vertical-align: middle !important;
+    }
+</style>
